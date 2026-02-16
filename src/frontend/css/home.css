@@ -1,0 +1,146 @@
+/* Importa Fontes do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+/* Variáveis | Atributos */
+:root{
+    --blue:#246584;
+    --orange:#ff4103; 
+    --gray:#43545c; 
+    --red: #ae0c0d;
+    --black:  #1d1e1b; 
+}
+
+/* Reset */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+/* HEADER */
+header{
+    background:linear-gradient(135deg, var(--blue), #1b4f67);
+    border-bottom:4px solid var(--red);
+}
+
+.section-header{
+    max-width:1200px;
+    margin:auto;
+    padding:16px 24px;
+
+    display:grid;
+    grid-template-columns:auto 1fr auto auto auto;
+    align-items:center;
+    gap:20px;
+}
+
+/* LOGO CPS */
+.img-cps img{
+    height:48px;
+}
+
+/* NAV */
+.nav-list{
+    display:flex;
+    justify-content:center;
+}
+
+.ul-menu{
+    list-style:none;
+    display:flex;
+    gap:28px;
+}
+
+.ul-menu li a{
+    text-decoration:none;
+    color:#ffffff;
+    font-weight:600;
+    font-size:0.95rem;
+    position:relative;
+    padding-bottom:4px;
+    transition:color .3s;
+}
+
+/* underline animado institucional */
+.ul-menu li a::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:0;
+    height:2px;
+    background:var(--orange);
+    transition:width .3s ease;
+}
+
+.ul-menu li a:hover{
+    color:var(--orange);
+}
+
+.ul-menu li a:hover::after{
+    width:100%;
+}
+
+/* BOTÃO TEMA */
+.theme button{
+    background:transparent;
+    border:2px solid #ffffff;
+    color:#ffffff;
+    padding:6px 14px;
+    border-radius:6px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.theme button:hover{
+    background:#ffffff;
+    color:var(--blue);
+}
+
+/* BOTÃO LOGIN */
+.login button{
+    background:var(--orange);
+    border:none;
+    color:#ffffff;
+    padding:7px 16px;
+    border-radius:6px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.login button:hover{
+    background:#e63900;
+}
+
+/* LOGO SOEE */
+.logo-soee img{
+    height:52px;
+}
+
+/* RESPONSIVO */
+@media (max-width: 900px){
+    .section-header{
+        grid-template-columns:1fr;
+        gap:16px;
+        text-align:center;
+    }
+
+    .nav-list{
+        justify-content:center;
+    }
+
+    .ul-menu{
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:16px;
+    }
+
+    .theme,
+    .login,
+    .logo-soee{
+        justify-self:center;
+    }
+}
+

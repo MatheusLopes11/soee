@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = trim($_POST['username'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
-    if (empty($username) || empty($password)) {
+    if (empty($username) || empty($sword)) {
         $erro = "Preencha todos os campos.";
     } else {
 
@@ -27,16 +27,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <title>SOEE Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/soee/src/imgs/logo-soee.png">
 
-    <link rel="stylesheet" href="src/css/style.css">
+    <link rel="stylesheet" href="/soee/src/frontend/css/login.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -44,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="container">
 
         <div class="left">
-            <img src="src/images/soee-login.png" alt="Imagem">>
+            <img src="/soee/src/frontend/images/soee-login.png" alt="Imagem">
         </div>
 
         <div class="right">
