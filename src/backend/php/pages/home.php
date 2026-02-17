@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/soee/src/css/home.css">
+    <link rel="stylesheet" href="\soee\src\frontend\css\home.css">
     <link rel="icon" type="image/png" href="/soee/src/imgs/logo-soee.png">
     <title>Início - S.O.E.E</title>
 </head>
@@ -11,7 +11,7 @@
         <header>
             <section class="section-header">
                 <div class="img-cps">
-                    <img src="/soee/src/imgs/logo-cps.png">
+                    <img src="\soee\src\frontend\images\logo-cps.png">
                 </div>
                 <nav class="nav-list">
                     <ul class="ul-menu">
@@ -29,7 +29,7 @@
                     <button>Entrar</button>
                 </div>
                 <div class="logo-soee">
-                    <img src="/soee/src/imgs/logo-soee.png">
+                    <img src="\soee\src\frontend\images\logo-soee.png">
                 </div>
             </section>
         </header>
