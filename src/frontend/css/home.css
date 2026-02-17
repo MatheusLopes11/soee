@@ -1,6 +1,8 @@
 /* Importa Fontes do Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 /* Variáveis | Atributos */
 :root{
     --blue:#246584;
@@ -15,6 +17,7 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
+    letter-spacing: 1px;
 }
 
 /* HEADER */
@@ -144,3 +147,93 @@ header{
     }
 }
 
+/*rodapé do site*/
+main{
+
+    height: 80vh;
+}
+/*rodapé*/
+footer {
+    font-family: 'inter', sans-serif;
+    width: 100%;
+    color: #f5f5f5;
+}
+/*conteudo do rodapé ao todo*/
+#footer_content{
+    background-color: #171717;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 3rem 3.5rem;
+}
+
+
+/*conteudo geral do rodapé*/
+#footer_contacts h1{
+    margin-bottom: 0.75rem;
+}
+
+/*estilização de logo da rede social instagram*/
+
+#footer_social_media{
+    display: flex;
+    gap:2rem;
+    margin-top: 1.5rem;
+}
+
+
+#footer_social_media .footer-link{
+display: flex;
+align-items: center;
+justify-content: center;
+height: 2.5rem;
+width: 2.5rem;
+color: #f5f5f5;
+border-radius: 50%;
+transition: all 0.4;
+}
+
+footer_social_media .footer-link:hover {
+    opacity: 0.8;
+}
+
+/*estilização de logo da rede social instagram*/
+#instagram{
+    background:linear-gradient(#7f37c9, #ff2992, #ff9807) ;
+    border-radius: 50%;
+    font-size: 2rem;
+}
+
+/*lista de informações do rodapé*/
+.footer-list {
+display: flex;
+flex-direction: column;
+gap: 0.75rem;
+list-style: none;
+
+
+}
+/*rodapé de direitos reservados*/
+
+#footer_copyright{
+display: flex;
+justify-content: center;
+background-color: #0e0c0c;
+font-size: 0.9rem;
+padding: 1.5rem;
+font-weight: 100;
+}
+
+/*ajuste de telas menores*/
+
+@media screen and (max-width: 768px) {
+    #footer_content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+}
+@media screen and (max-width: 426px) {
+    #footer_content {
+        grid-template-columns: repeat(1, 1fr);
+    
+    }
+}
