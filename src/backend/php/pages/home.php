@@ -7,16 +7,18 @@
     <!-- Icone do fontawesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Icone do fontawesome -->
-
-    <link rel="stylesheet" href="\soee\src\frontend\css\home.css">
-    <link rel="icon" type="image/png" href="/soee/src/imgs/logo-soee.png">
+     
+    <!-- Referência CSS -->
+    <link rel="stylesheet" href="/soee/src/frontend/css/home.css">
+    <!-- Icon guia da Página -->
+    <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
     <title>Início - S.O.E.E</title>
 </head>
     <body>
         <header>
             <section class="section-header">
                 <div class="img-cps">
-                    <img src="\soee\src\frontend\images\logo-cps.png">
+                    <img src="/soee/src/images/logo-cps.png">
                 </div>
                 <nav class="nav-list">
                     <ul class="ul-menu">
@@ -34,7 +36,7 @@
                     <button>Entrar</button>
                 </div>
                 <div class="logo-soee">
-                    <img src="\soee\src\frontend\images\logo-soee.png">
+                    <img src="/soee/src/images/logo-soee.png">
                 </div>
             </section>
         </header>
@@ -104,7 +106,7 @@
 
 
 
-        <script>
+        <script src="/soee/src/frontend/js/home.js">
 
         </script>
     </body>
