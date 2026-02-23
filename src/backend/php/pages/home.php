@@ -4,110 +4,209 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Icone do fontawesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Icone do fontawesome -->
-     
-    <!-- Referência CSS -->
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
+
+    <!-- CSS -->
     <link rel="stylesheet" href="/soee/src/frontend/css/home.css">
-    <!-- Icon guia da Página -->
+
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
-    <title>Início - S.O.E.E</title>
+
+    <title>SOEE | Sistema de Organização de Esportes Escolares</title>
 </head>
-    <body>
-        <header>
-            <section class="section-header">
-                <div class="img-cps">
-                    <img src="/soee/src/images/logo-cps.png">
-                </div>
-                <nav class="nav-list">
-                    <ul class="ul-menu">
-                        <li><a href="">Home</a></li>
-                        <li><a href="">Modalidades</a></li>
-                        <li><a href="">Quem Somos</a></li>
-                        <li><a href="">Sobre a Etec</a></li>
-                        <li><a href="">Redes Sociais</a></li>
-                    </ul>
-                </nav>
-                <div class="theme">
-                    <button>Tema</button>
-                </div>
-                <div class="login">
-                    <button>Entrar</button>
-                </div>
-                <div class="logo-soee">
-                    <img src="/soee/src/images/logo-soee.png">
-                </div>
-            </section>
+<body>
+
+<header class="cabecalho">
+    <div class="cabecalho-conteudo">
+
+        <div class="logo-institucional">
+            <img src="/soee/src/images/logo-cps.png" alt="Centro Paula Souza">
+        </div>
+
+        <nav class="menu-principal" aria-label="Menu principal">
+            <ul class="menu-lista">
+                <li><a href="#" aria-current="page">Início</a></li>
+                <li><a href="#">Modalidades</a></li>
+                <li><a href="#">Quem Somos</a></li>
+                <li><a href="#">Sobre a Etec</a></li>
+                <li><a href="#">Redes Sociais</a></li>
+            </ul>
+        </nav>
+
+        <div class="acoes-cabecalho">
+            <button class="botao-tema" type="button" aria-label="Alterar tema">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button class="botao-login" type="button">
+                <i class="fa-solid fa-user"></i>
+                Entrar
+            </button>
+        </div>
+
+        <div class="logo-sistema">
+            <img src="/soee/src/images/logo-soee.png" alt="Logo do sistema SOEE">
+        </div>
+
+    </div>
+</header>
+
+<main id="pagina-inicial">
+
+    <!-- APRESENTAÇÃO -->
+    <section class="intro-soee" aria-labelledby="titulo-soee">
+        <div class="intro-conteudo">
+            <h1 id="titulo-soee">
+                Sistema de Organização de Esportes Escolares
+            </h1>
+
+            <p>
+                O <strong>SOEE</strong> é uma plataforma digital desenvolvida para
+                organizar e modernizar os interclasses e eventos esportivos da
+                ETEC Juscelino Kubitschek de Oliveira.
+            </p>
+
+            <div class="intro-acoes">
+                <a href="#sobre-soee" class="botao-primario">Conheça o Projeto</a>
+                <a href="#funcionalidades-soee" class="botao-secundario">Funcionalidades</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOBRE -->
+    <section id="sobre-soee" class="secao-conteudo" aria-labelledby="titulo-sobre">
+        <header class="secao-cabecalho">
+            <h2 id="titulo-sobre">Sobre o SOEE</h2>
+            <p>Organização, tecnologia e inovação no esporte escolar</p>
         </header>
-        <main>
-            <section class="section-main">
-                <h1> TESTE PAgina</h1>
-                <h2> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Reiciendis facilis quia accusamus quibusdam, mollitia perferendis consequatur, doloremque dignissimos explicabo dolores fugiat asperiores voluptatum dolorem molestiae laborum odio veritatis voluptatibus excepturi.</h2>
-            </section>
-        </main>
 
+        <div class="secao-texto">
+            <p>
+                O SOEE foi criado para resolver problemas recorrentes na
+                organização manual dos interclasses, como falhas de comunicação,
+                conflitos de horários e ausência de controle centralizado.
+            </p>
+            <p>
+                A proposta é oferecer um sistema único, transparente e eficiente,
+                facilitando a gestão do evento para alunos, professores e coordenação.
+            </p>
+        </div>
+    </section>
 
+    <!-- PROBLEMÁTICAS -->
+    <section class="secao-problemas" aria-labelledby="titulo-problemas">
+        <header class="secao-cabecalho">
+            <h2 id="titulo-problemas">Problemática Identificada</h2>
+            <p>Principais dificuldades enfrentadas atualmente</p>
+        </header>
 
-        <footer>
-            <div id="footer_content">
-                <div id="footer_contacts">
-                    <h1>Etec Juscelino Kubitschek de Oliveira</h1>
-                    <p>Rede social</p>
-                    <div id="fotter_social_media">
-                        <a href="https://www.instagram.com/etecjko?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" class="footer-link" id="instagram">
-                            <i class="fa-brands fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
+        <div class="problemas-lista">
+            <article class="problema-item">
+                <h3>Falta de Organização</h3>
+                <p>Processos manuais causam erros, retrabalho e perda de informações.</p>
+            </article>
 
-                <ul class="footer-list">
-                    <li>
-                        <h3>Comunicação</h3>
-                    </li>
-                    <li>
-                        <a href="#" class="footer-link">(11) 4053-9400</a>
-                    </li>
+            <article class="problema-item">
+                <h3>Conflitos de Horários</h3>
+                <p>Partidas marcadas simultaneamente e dificuldade de ajustes.</p>
+            </article>
 
-                    <li>
-                        <a href="#" class="footer-link">Etec</a>
-                    </li>
+            <article class="problema-item">
+                <h3>Comunicação Ineficiente</h3>
+                <p>Ausência de um canal oficial para avisos e resultados.</p>
+            </article>
 
-                    <li>
-                        <a href="#" class="footer-link">Etec</a>
-                    </li>
-                </ul>
-                <ul class="footer-list">
-                    <li>
-                        <h3>alguma coisa2</h3>
-                    </li>
-                    <li>
-                        <a href="#" class="footer-link">Etec</a>
-                    </li>
+            <article class="problema-item">
+                <h3>Desmotivação dos Alunos</h3>
+                <p>A desorganização compromete a experiência esportiva.</p>
+            </article>
+        </div>
+    </section>
 
-                    <li>
-                        <a href="#" class="footer-link">Etec</a>
-                    </li>
-                    
-                    <li>
-                        <a href="#" class="footer-link">Etec</a>
-                    </li>
+    <!-- FUNCIONALIDADES -->
+    <section id="funcionalidades-soee" class="secao-funcionalidades" aria-labelledby="titulo-funcionalidades">
+        <header class="secao-cabecalho">
+            <h2 id="titulo-funcionalidades">Funcionalidades do Sistema</h2>
+            <p>Recursos desenvolvidos para facilitar a organização</p>
+        </header>
 
-                </ul> 
-            
+        <div class="funcionalidades-lista">
+            <article class="funcionalidade-item">
+                <h3>Inscrição Online</h3>
+                <p>Cadastro digital de participantes de forma rápida e segura.</p>
+            </article>
 
-            </div>
-            <div id="footer_copyright">
-&#169
-2026 todos os direitos reservados
+            <article class="funcionalidade-item">
+                <h3>Gestão de Times</h3>
+                <p>Controle completo de equipes, atletas e modalidades.</p>
+            </article>
 
-            </div>
-        </footer>
+            <article class="funcionalidade-item">
+                <h3>Cronogramas Automatizados</h3>
+                <p>Geração inteligente de tabelas e confrontos.</p>
+            </article>
 
+            <article class="funcionalidade-item">
+                <h3>Resultados em Tempo Real</h3>
+                <p>Acompanhamento atualizado das partidas e classificações.</p>
+            </article>
+        </div>
+    </section>
 
+    <!-- CHAMADA FINAL -->
+    <section class="chamada-sistema">
+        <h2>SOEE — Tecnologia a favor do esporte escolar</h2>
+        <p>
+            Mais organização, transparência e eficiência para toda a comunidade escolar.
+        </p>
+        <a href="#login" class="botao-primario">Acessar o Sistema</a>
+    </section>
 
-        <script src="/soee/src/frontend/js/home.js">
+</main>
 
-        </script>
-    </body>
+<footer class="rodape">
+    <div class="rodape-conteudo">
+
+        <div class="rodape-institucional">
+            <h3>Etec Juscelino Kubitschek de Oliveira</h3>
+            <p>Conecte-se conosco</p>
+
+            <a
+                href="https://www.instagram.com/etecjko"
+                class="rodape-rede-social"
+                target="_blank"
+                aria-label="Instagram da Etec JK"
+            >
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+        </div>
+
+        <ul class="rodape-lista">
+            <li><strong>Comunicação</strong></li>
+            <li>(11) 4053-9400</li>
+            <li><a href="#">Contato</a></li>
+        </ul>
+
+        <ul class="rodape-lista">
+            <li><strong>Institucional</strong></li>
+            <li><a href="#">Etec</a></li>
+            <li><a href="#">Centro Paula Souza</a></li>
+        </ul>
+
+    </div>
+
+    <div class="rodape-direitos">
+        © 2026 — SOEE | Todos os direitos reservados
+    </div>
+</footer>
+
+<script src="/soee/src/frontend/js/home.js"></script>
+
+</body>
 </html>
