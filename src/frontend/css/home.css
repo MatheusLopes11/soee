@@ -40,36 +40,40 @@ body {
     font-family: 'Inter', sans-serif;
     background: var(--fundo-pagina);
     color: var(--texto-principal);
-    line-height: 1.7;
+    line-height: 1.5;
 }
 
 .cabecalho {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    position: static;
     background: var(--vidro);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
 .cabecalho-conteudo {
-    max-width: 1300px;
-    margin: auto;
-    padding: 16px 32px;
+    max-height: 1000px;
+    padding: 20px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.logo-institucional img,
+.logo-jk img {
+    height: 4rem;
+}
+
+.logo-institucional img {
+    height: 4rem;
+}
+
 .logo-sistema img {
-    height: 46px;
+    height: 4rem;
 }
 
 .menu-lista {
     list-style: none;
     display: flex;
-    gap: 32px;
+    gap: 1rem;
 }
 
 .menu-lista a {
