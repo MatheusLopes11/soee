@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="container">
 
         <div class="left">
-            <img src="/soee/src/frontend/images/soee-login.png" alt="Imagem">
+            <img src="/soee/src/images/soee-login.png" alt="Imagem">
         </div>
 
         <div class="right">
@@ -73,6 +73,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 Não tem conta?
                 <a href="#">Cadastrar-se</a>
             </div>
+
+            <a href="/soee/src/backend/php/pages/home.php">Voltar</a>
 
         </div>
 
