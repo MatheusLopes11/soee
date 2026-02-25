@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>SOEE Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" type="image/png" href="/soee/src/imgs/logo-soee.png">
 
     <link rel="stylesheet" href="/soee/src/frontend/css/login.css">
@@ -40,6 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
     <div class="container">
 
         <div class="left">
@@ -69,13 +70,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <button>LOGIN</button>
 
+            
+
+            <div class="v">
+            <a href="/soee/src/backend/php/pages/home.php">Voltar</a>
+            </div>
+
             <div class="register">
                 Não tem conta?
                 <a href="#">Cadastrar-se</a>
             </div>
-
-            <a href="/soee/src/backend/php/pages/home.php">Voltar</a>
-
         </div>
 
     </div>

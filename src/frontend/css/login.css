@@ -24,7 +24,8 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
-    background-color: var(--black);
+    background-image: url(/soee/src/images/Fundo-borrado.png);
+    
 }
 
 /* Caixa Principal */
@@ -120,7 +121,7 @@ button:hover{
 
 /* Link cadastro */
 .register{
-    margin-top:20px;
+    margin-top:3px;
     color:white;
     font-size:14px;
 }
@@ -141,4 +142,28 @@ button:hover{
     object-fit:cover;
     border-top-left-radius:20px;
     border-bottom-left-radius:20px;
+}
+
+.v{
+/* botão voltar */
+
+    margin-top:3px;
+    padding:3px;
+    border:none;
+    border-radius:10px;
+    background-color: var(--orange);
+
+     padding: 4px 16px;
+    
+    
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+
+a{
+
+color: white;
+    text-decoration: none;
+}
 }
