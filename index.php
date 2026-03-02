@@ -147,7 +147,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <i class="fa-solid fa-arrow-left"></i> Voltar
                     </a>
                     <span class="register-link">
-                        Sem conta? <a href="#">Cadastrar-se</a>
+                        Sem conta? <a href="/soee/src/backend/php/form/form-cadastro.php">Cadastrar-se</a>
                     </span>
                 </div>
 
