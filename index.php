@@ -135,7 +135,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <label>
                         <input type="checkbox" name="remember"> Lembrar-me
                     </label>
-                    <a href="#">Esqueceu a senha?</a>
                 </div>
 
                 <button type="submit" class="btn-login" id="btnLogin">
@@ -147,7 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <i class="fa-solid fa-arrow-left"></i> Voltar
                     </a>
                     <span class="register-link">
-                        Sem conta? <a href="/soee/src/backend/php/form/form-cadastro.php">Cadastrar-se</a>
+                        Esqueceu a Senha? <a href="/soee/src/backend/php/form/form-cadastro.php">Cadastrar-se</a>
                     </span>
                 </div>
 
