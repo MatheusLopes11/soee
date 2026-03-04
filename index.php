@@ -39,9 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>SOEE — Login</title>
+    <title>Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="icon" type="image/png" href="/soee/src/imgs/logo-soee.png">
+    <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
 
     <!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

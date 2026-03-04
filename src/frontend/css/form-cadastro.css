@@ -1,0 +1,63 @@
+:root{
+    --blue:        #1a4a63;
+    --blue-light:  #246584;
+    --blue-glow:   #2e8ab8;
+    --orange:      #ff4103;
+    --orange-dark: #cc3402;
+    --black:       #0d0f10;
+    --surface:     #111518;
+    --white:       #f0f4f8;
+    --white-dim:   rgba(240,244,248,0.55);
+    --white-ghost: rgba(240,244,248,0.08);
+    --error:       #ff3b3b;
+    --radius:      18px;
+    --transition:  0.35s cubic-bezier(.4,0,.2,1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.all_forms {    
+
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background: var(--black);
+    overflow: hidden;
+}
+
+.bg-blur {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: url('/soee/src/images/Fundo-borrado.png') center/cover no-repeat;
+    filter: brightness(0.25) saturate(0.6);
+}
+
+.card {
+    display: flex;
+    width: min(920px, 100%);
+    height: min(560px, 92vh);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow:
+        0 0 0 1px rgba(46,138,184,0.15),
+        0 30px 80px rgba(0,0,0,0.7),
+        0 0 60px rgba(26,74,99,0.3);
+    animation: cardIn 0.7s cubic-bezier(.16,1,.3,1) both;
+}
+
+.wrapper {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
