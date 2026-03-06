@@ -554,9 +554,7 @@ body:has(button:hover) .cursor-ring {
   color: var(--texto-secundario); line-height: 1.65;
 }
 
-/* ─────────────────────────────────────────
-   CTA
-───────────────────────────────────────── */
+/* CTA */
 .chamada-sistema {
   position: relative; overflow: hidden;
   background: linear-gradient(135deg, #b83208 0%, var(--laranja-destaque) 50%, #ff7043 100%);
@@ -591,9 +589,7 @@ body:has(button:hover) .cursor-ring {
   box-shadow: 0 20px 50px rgba(0,0,0,0.3);
 }
 
-/* ─────────────────────────────────────────
-   RODAPÉ
-───────────────────────────────────────── */
+/* RODAPÉ */
 .rodape { background: #060d14; color: #94a3b8; }
 .rodape-conteudo {
   max-width: 1200px; margin: auto;
@@ -630,9 +626,7 @@ body:has(button:hover) .cursor-ring {
   border-top: 1px solid rgba(255,255,255,0.04);
 }
 
-/* ─────────────────────────────────────────
-   ANIMAÇÕES
-───────────────────────────────────────── */
+/* ANIMAÇÕES */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(28px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -652,9 +646,7 @@ body:has(button:hover) .cursor-ring {
 .reveal-delay-3 { transition-delay: 0.3s; }
 .reveal-delay-4 { transition-delay: 0.4s; }
 
-/* ─────────────────────────────────────────
-   RESPONSIVO
-───────────────────────────────────────── */
+/* RESPONSIVO */
 @media (max-width: 900px) {
   .menu-principal { display: none; }
   .sobre-grid { grid-template-columns: 1fr; }

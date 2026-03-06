@@ -18,8 +18,6 @@
                     <div class="wrapper">
                         <!-- Formulario Cadastro -->
                         <form action="index.php" method="POST">
-
-
                     <h1 class="cadastro">Cadastrar</h1>
 
                     <label class="label-form-cad">Nome:</label><br>
@@ -52,7 +50,7 @@
                         <label class="label-form-cad">Foto:</label><br>
                             <input type="text" name="foto"><br><br>
             
-                        <button type="submit" name="cadastrar" class="botao-cadastrar">Cadastrar</button><br>
+                    <button type="submit" name="cadastrar" class="botao-cadastrar">Cadastrar</button><br>
                         <a href="/soee/index.php">Entrar</a><br>
                     </div>
                 </div>

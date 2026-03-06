@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- CSS -->
     <link rel="stylesheet" href="/soee/src/frontend/css/login.css">
 </head>
-<body>
+    <body>
 
 <div class="bg-blur"></div>
 <canvas id="particles"></canvas>
@@ -99,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
             <?php endif; ?>
 
-            <form method="POST" action="" id="loginForm" novalidate>
+            <form method="POST" action="soee/src/backend/php/pages/home.php" id="loginForm" novalidate>
 
                 <div class="form-group">
                     <label for="username">Usuário ou E-mail</label>
@@ -157,7 +157,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </div>
 
 <!-- JS -->
-<script src="/soee/src/frontend/js/login.js"></script>
+<script src="/soee/src/frontend/js/login.js">
 
-</body>
+</script>
+
+    </body>
 </html>
