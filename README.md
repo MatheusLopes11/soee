@@ -27,6 +27,7 @@ Técnico em Desenvolvimento de Sistemas
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" width="50"/>
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/php/php-original.svg" width="50"/>
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg" width="50"/>
+    <a href="https://www.flaticon.com/free-icons/xampp" title="xampp icons">Xampp icons created by sandiatresna - Flaticon</a>
 </p>
 
 ## Desenvolvedores
