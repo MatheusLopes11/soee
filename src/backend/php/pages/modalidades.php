@@ -51,7 +51,7 @@
 
   <main>
 
-    <!-- ─── HERO DA PÁGINA ─── -->
+    
     <section class="pagina">
       <div class="pagina-bg"></div>
       <div class="pagina-grid"></div>
