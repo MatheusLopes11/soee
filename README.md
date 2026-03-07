@@ -1,9 +1,14 @@
-# *S.O.E.E*
+# *S.O.E.E - Sistema de Organização Esportiva Escolar*
 
 ## Instituição
 <p>
 Etec Juscelino Kubitschek de Oliveira
 <img src="">
+</p>
+
+## Curso
+<p>
+Técnico em Desenvolvimento de Sistemas
 </p>
 
 ## Tecnologias Aplicadas
