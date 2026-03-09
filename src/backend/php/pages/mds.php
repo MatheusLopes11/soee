@@ -28,11 +28,9 @@
 
       <nav class="menu-principal" aria-label="Menu principal">
         <ul class="menu-lista">
-          <li><a href="/soee/home.php">Início</a></li>
-          <li><a href="/soee/modalidades.php" aria-current="page">Modalidades</a></li>
-          <li><a href="/soee/quem-somos.php">Quem Somos</a></li>
-          <li><a href="/soee/sobre-etec.php">Sobre a ETEC</a></li>
-          <li><a href="/soee/redes-sociais.php">Redes Sociais</a></li>
+          <li><a href="/soee/src/backend/php/pages/home.php">Início</a></li>
+          <li><a href="/soee/src/backend/php/pages/mds.php" aria-current="page">Modalidades</a></li>
+          <li><a href="/soee/src/backend/php/pages/qs.php">Quem Somos</a></li>
         </ul>
       </nav>
 
