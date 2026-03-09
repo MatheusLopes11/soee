@@ -46,19 +46,13 @@
 
       <nav class="menu-principal" aria-label="Menu principal">
         <ul class="menu-lista">
-<<<<<<< HEAD
-          <li><a href="#"                   aria-current="page">Início</a></li>
-          <li><a href="">Modalidades</a></li>
-          <li><a href="#">Quem Somos</a></li>
-          <li><a href="#">Sobre a ETEC</a></li>
-          <li><a href="#">Redes Sociais</a></li>
-=======
+
+       
           <li><a href="/soee/src/backend/php/pages/home.php" aria-current="page">Início</a></li>
           <li><a href="/soee/src/backend/php/pages/mds.php">Modalidades</a></li>
           <li><a href="/soee/src/backend/php/pages/qs.php">Quem Somos</a></li>
-          <li><a href="/soee/src/backend/php/pages/se.php">Sobre a ETEC</a></li
+          <li><a href="/soee/src/backend/php/pages/se.php">Sobre a ETEC</a></li>
           <li><a href="/soee/src/backend/php/pages/rs.php">Redes Sociais</a></li>
->>>>>>> 44f00acd55cda3f521e8b8fece07ef25ca276199
         </ul>
       </nav>
 

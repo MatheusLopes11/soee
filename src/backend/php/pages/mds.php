@@ -31,6 +31,8 @@
           <li><a href="/soee/src/backend/php/pages/home.php">Início</a></li>
           <li><a href="/soee/src/backend/php/pages/mds.php" aria-current="page">Modalidades</a></li>
           <li><a href="/soee/src/backend/php/pages/qs.php">Quem Somos</a></li>
+          <li><a href="/soee/src/backend/php/pages/se.php">Sobre a ETEC</a></li>
+          <li><a href="/soee/src/backend/php/pages/rs.php">Redes Sociais</a></li>
         </ul>
       </nav>
 
