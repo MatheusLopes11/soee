@@ -108,22 +108,7 @@
         </div>
       </div>
 
-      <div class="stats">
-        <div class="stat">
-          <strong>4+</strong>
-          <span>Modalidades</span>
-        </div>
-        <div class="stat-sep"></div>
-        <div class="stat">
-          <strong>100+</strong>
-          <span>Online</span>
-        </div>
-        <div class="stat-sep"></div>
-        <div class="stat">
-          <strong>Real</strong>
-          <span>Tempo Real</span>
-        </div>
-      </div>
+      
     </section>
 
     <!-- Sobre -->
