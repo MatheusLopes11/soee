@@ -47,7 +47,7 @@
       <nav class="menu-principal" aria-label="Menu principal">
         <ul class="menu-lista">
           <li><a href="#"                   aria-current="page">Início</a></li>
-          <li><a href="#">Modalidades</a></li>
+          <li><a href="">Modalidades</a></li>
           <li><a href="#">Quem Somos</a></li>
           <li><a href="#">Sobre a ETEC</a></li>
           <li><a href="#">Redes Sociais</a></li>
