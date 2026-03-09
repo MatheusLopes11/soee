@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="/soee/src/frontend/css/home.css">
-  <link rel="stylesheet" href="/soee/src/frontend/css/modalidades.css">
+  <link rel="stylesheet" href="/soee/src/frontend/css/mds.css">
 </head>
 
 <body>

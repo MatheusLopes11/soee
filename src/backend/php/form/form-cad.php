@@ -9,15 +9,12 @@
     <!-- Links -->
     <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
     <!-- CSS -->
-    <link rel="stylesheet" href="/soee/src/frontend/css/form-cadastro.css">
+    <link rel="stylesheet" href="/soee/src/frontend/css/cad.css">
 </head>
     <body>
         <div class="all_form">
-            <div class="bg-blur"></div>
-                <div class="card">
-                    <div class="wrapper">
                         <!-- Formulario Cadastro -->
-                        <form action="index.php" method="POST">
+                <form action="auth-cad.php" method="POST">
                     <h1 class="cadastro">Cadastrar</h1>
 
                     <label class="label-form-cad">Nome:</label><br>

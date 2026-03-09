@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-br" data-theme="light">
 <head>
+<!-- (META DADOS) -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quem Somos | SOEE</title>
-
+<!-- (TÍTULO GUIA) -->
+  <title>Quem Somos</title>
+<!-- (LÍNKS) -->
   <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="/soee/src/frontend/css/home.css">
-  <link rel="stylesheet" href="/soee/src/frontend/css/quem-somos.css">
+  <link rel="stylesheet" href="/soee/src/frontend/css/qs.css">
 </head>
 
 <body>
