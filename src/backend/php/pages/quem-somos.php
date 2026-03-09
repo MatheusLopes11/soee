@@ -7,12 +7,12 @@
 <!-- (TÍTULO GUIA) -->
   <title>Quem Somos</title>
 <!-- (LÍNKS) -->
+  <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
+  <link rel="stylesheet" href="/soee/src/frontend/css/quem-somos.css">
   <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="/soee/src/frontend/css/home.css">
-  <link rel="stylesheet" href="/soee/src/frontend/css/qs.css">
 </head>
 
 <body>
@@ -30,9 +30,10 @@
 
       <nav class="menu-principal" aria-label="Menu principal">
         <ul class="menu-lista">
-          <li><a href="/soee/src/backend/php/pages/home.php">Início</a></li>
-          <li><a href="/soee/src/backend/php/pages/mds.php">Modalidades</a></li>
-          <li><a href="/soee/src/backend/php/pages/qs.php" aria-current="page">Quem Somos</a></li>
+          <li><a href="/soee/src/backend/php/pages/inicio.php">Início</a></li>
+          <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
+          <li><a href="/soee/src/backend/php/pages/sobre-etec.php">Sobre a ETEC</a></li>
+          <li><a href="/soee/src/backend/php/pages/redes-sociais.php">Redes Sociais</a></li>
         </ul>
       </nav>
 
@@ -347,7 +348,7 @@
     </div>
   </footer>
 
-  <script src="/soee/src/frontend/js/home.js"></script>
+  <script src="/soee/src/frontend/js/inicio.js"></script>
 
 </body>
 </html>

@@ -1,21 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-br" data-theme="light">
 <head>
+  <!-- (Meta dados) -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- (TÍTULO GUIA) -->
   <title>Início</title>
-
+  <!-- (Línks) -->
+  <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
   <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
-
-  <!-- Fontes -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
-
-  <!-- CSS da home -->
-  <link rel="stylesheet" href="/soee/src/frontend/css/home.css">
 </head>
 
 <body>
@@ -44,17 +40,14 @@
         <img src="/soee/src/images/logo-cps.png" alt="Centro Paula Souza">
       </div>
 
-      <nav class="menu-principal" aria-label="Menu principal">
-        <ul class="menu-lista">
-
-       
-          <li><a href="/soee/src/backend/php/pages/home.php" aria-current="page">Início</a></li>
-          <li><a href="/soee/src/backend/php/pages/mds.php">Modalidades</a></li>
-          <li><a href="/soee/src/backend/php/pages/qs.php">Quem Somos</a></li>
-          <li><a href="/soee/src/backend/php/pages/se.php">Sobre a ETEC</a></li>
-          <li><a href="/soee/src/backend/php/pages/rs.php">Redes Sociais</a></li>
-        </ul>
-      </nav>
+<nav class="menu-principal" aria-label="Menu principal">
+    <ul class="menu-lista">
+      <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
+      <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
+      <li><a href="/soee/src/backend/php/pages/sobre-etec.php">Sobre a ETEC</a></li>
+      <li><a href="/soee/src/backend/php/pages/redes-sociais.php">Redes Sociais</a></li>
+    </ul>
+  </nav>
 
       <div class="cabecalho-acoes">
         <button id="toggle-theme" class="botao-icone" aria-label="Alternar tema">
@@ -283,7 +276,7 @@
   </footer>
 
   <!-- JS da home -->
-  <script src="/soee/src/frontend/js/home.js"></script>
+  <script src="/soee/src/frontend/js/inicio.js"></script>
 
 </body>
 </html>

@@ -1,6 +1,6 @@
+drop database if exists soee;
 create database if not exists soee;
 use soee;
-drop database if exists soee;
 
 create table curso (
     id_curso int auto_increment primary key,

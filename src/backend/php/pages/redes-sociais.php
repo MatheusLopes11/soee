@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redes Socias</title>
+    <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
 </head>
     <body>
 
@@ -17,11 +18,10 @@
 
       <nav class="menu-principal" aria-label="Menu principal">
         <ul class="menu-lista">
-          <li><a href="/soee/src/backend/php/pages/home.php" aria-current="page">Início</a></li>
-          <li><a href="/soee/src/backend/php/pages/mds.php">Modalidades</a></li>
-          <li><a href="/soee/src/backend/php/pages/qs.php">Quem Somos</a></li>
-          <li><a href="/soee/src/backend/php/pages/se.php">Sobre a ETEC</a></li
-          <li><a href="/soee/src/backend/php/pages/rs.php">Redes Sociais</a></li>
+          <li><a href="/soee/src/backend/php/pages/inicio.php">Início</a></li>
+          <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
+          <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
+          <li><a href="/soee/src/backend/php/pages/sobre-etec.php">Sobre a ETEC</a></li>
         </ul>
       </nav>
 
