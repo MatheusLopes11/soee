@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="/soee/src/frontend/css/login.css">
+    <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
 </head>
     <body>
 
@@ -99,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
             <?php endif; ?>
 
-            <form method="POST" action="soee/src/backend/php/pages/home.php" id="loginForm" novalidate>
+            <form method="POST" action="soee/src/backend/php/pages/inicio.php" id="loginForm" novalidate>
 
                 <div class="form-group">
                     <label for="username">Usuário ou E-mail</label>
@@ -142,11 +142,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </button>
 
                 <div class="links-row">
-                    <a href="/soee/src/backend/php/pages/home.php">
+                    <a href="/soee/src/backend/php/pages/inicio.php">
                         <i class="fa-solid fa-arrow-left"></i> Voltar
                     </a>
                     <span class="register-link">
-                        Esqueceu a Senha? <a href="/soee/src/backend/php/form/form-cadastro.php">Cadastrar-se</a>
+                        Esqueceu a Senha? <a href="/soee/src/backend/php/form/form-cadastrar.php">Cadastrar-se</a>
                     </span>
                 </div>
 
