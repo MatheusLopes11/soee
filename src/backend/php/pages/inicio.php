@@ -231,14 +231,7 @@
       <div class="rodape-institucional">
         <h3>Etec Juscelino Kubitschek de Oliveira</h3>
         <p>Plataforma digital para organização dos interclasses e eventos esportivos da escola.</p>
-        <a
-          href="https://www.instagram.com/etecjko"
-          class="rodape-rede-social"
-          target="_blank"
-          aria-label="Instagram da Etec JK"
-        >
-          <i class="fa-brands fa-instagram"></i>
-        </a>
+        
       </div>
 
       <ul class="rodape-lista">

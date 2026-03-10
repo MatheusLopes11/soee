@@ -118,7 +118,7 @@
               <i class="fa-solid fa-lightbulb"></i>
             </div>
             <div class="timeline-conteudo">
-              <span class="timeline-tag">O pivô</span>
+              <span class="timeline-tag">A "luz no fim do túnel"</span>
               <h3>Uma nova direção</h3>
               <p>
                 Mantendo o espírito de <strong>"de aluno para aluno"</strong>, o grupo buscou
@@ -228,22 +228,22 @@
                ───────────────────────────── -->
           <article class="membro-card reveal reveal-delay-3">
             <div class="membro-avatar">
-              <!-- <img src="/soee/src/images/equipe/matheus.jpg" alt="Matheus Lopes"> -->
+              <img src="/soee/src/images/foto_matheus.jpeg" alt="Matheus Lopes"> 
               <div class="membro-iniciais">ML</div>
             </div>
             <div class="membro-info">
-              <h3>Matheus Lopes</h3>
-              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> ?? anos</span>
-              <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> Cidade, SP</span>
+              <h3>Matheus Ferreira Lopes</h3>
+              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> 18 anos</span>
+              <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> Diadema, SP</span>
               <p class="membro-descricao">
-                Descrição breve sobre o Matheus Lopes — sua relação com tecnologia,
-                o que gosta de fazer, sua contribuição no projeto, etc.
+                Cursando Técnologo em Desenvolvimento de Software Multiplataforma na FATEC DIADEMA.
+                Amante de gatinhos, jogos e música.
               </p>
               <div class="membro-links">
-                <a href="#" target="_blank" class="membro-link" aria-label="GitHub de Matheus Lopes">
+                <a href="https://github.com/MatheusLopes167" target="_blank" class="membro-link" aria-label="GitHub de Matheus Lopes">
                   <i class="fa-brands fa-github"></i> GitHub
                 </a>
-                <a href="#" target="_blank" class="membro-link membro-link-linkedin" aria-label="LinkedIn de Matheus Lopes">
+                <a href="https://www.linkedin.com/in/matheusflopes/" target="_blank" class="membro-link membro-link-linkedin" aria-label="LinkedIn de Matheus Lopes">
                   <i class="fa-brands fa-linkedin"></i> LinkedIn
                 </a>
               </div>
@@ -328,9 +328,6 @@
       <div class="rodape-institucional">
         <h3>Etec Juscelino Kubitschek de Oliveira</h3>
         <p>Plataforma digital para organização dos interclasses e eventos esportivos da escola.</p>
-        <a href="https://www.instagram.com/etecjko" class="rodape-rede-social" target="_blank" aria-label="Instagram">
-          <i class="fa-brands fa-instagram"></i>
-        </a>
       </div>
       <ul class="rodape-lista">
         <li><h3>Comunicação</h3></li>

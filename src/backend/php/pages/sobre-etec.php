@@ -76,7 +76,7 @@
 
         <div class="sobre-escola-grid reveal">
           <div class="sobre-escola-texto">
-            <div class="secao-tag">Quem somos</div>
+            
             <h2>Uma escola de <em>referência</em> em Diadema</h2>
             <p>
               A ETEC Juscelino Kubitschek de Oliveira é uma unidade de ensino do
@@ -182,11 +182,9 @@
             </div>
             <div class="curso-corpo">
               <div class="curso-tipo">Técnico</div>
-              <h3>Informática</h3>
+              <h3>Finanças</h3>
               <p>
-                Forma profissionais para desenvolver programas, trabalhar com
-                banco de dados, instalar e manter sistemas computacionais e
-                realizar manutenção básica de computadores.
+              Capacita profissionais para realizar operações de tesouraria, contas a pagar/receber, análise de crédito, orçamentos e fluxo de caixa. 
               </p>
               <div class="curso-detalhes">
                 <span><i class="fa-solid fa-hourglass-half"></i> ~1200 horas</span>
@@ -201,11 +199,9 @@
             </div>
             <div class="curso-corpo">
               <div class="curso-tipo">Técnico</div>
-              <h3>Informática para Internet</h3>
+              <h3>Recursos Humanos</h3>
               <p>
-                Foco no desenvolvimento de sites e aplicações web: programação
-                para internet, design de páginas, banco de dados e integração
-                de sistemas online.
+              Prepara profissionais para atuar na gestão de pessoas, abrangendo recrutamento e seleção, treinamento, departamento pessoal (folha de pagamento, benefícios, admissão/demissão) e avaliação de desempenho.
               </p>
               <div class="curso-detalhes">
                 <span><i class="fa-solid fa-hourglass-half"></i> ~1200 horas</span>
@@ -244,6 +240,40 @@
                 O aluno cursa o ensino médio e o técnico simultaneamente,
                 saindo com os dois diplomas ao final — uma formação completa
                 em 3 anos.
+              </p>
+              <div class="curso-detalhes">
+                <span><i class="fa-solid fa-hourglass-half"></i> ~3000–3600 horas</span>
+                <span><i class="fa-solid fa-calendar"></i> 6 semestres</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="curso-card curso-card-especial reveal reveal-delay-2">
+            <div class="curso-icone">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <div class="curso-corpo">
+              <div class="curso-tipo curso-tipo-especial">Ensino Médio com Habilitação Profissional de Técnico em Período Integral</div>
+              <h3>MTec-PI</h3>
+              <p>
+             Integra o Ensino Médio à formação técnica em uma jornada de até 8 aulas diárias, totalizando 3 anos. O aluno obtém o diploma do ensino médio e do técnico simultaneamente, com foco prático e inserção no mercado de trabalho.
+              </p>
+              <div class="curso-detalhes">
+                <span><i class="fa-solid fa-hourglass-half"></i> ~3000–3600 horas</span>
+                <span><i class="fa-solid fa-calendar"></i> 6 semestres</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="curso-card curso-card-especial reveal reveal-delay-2">
+            <div class="curso-icone">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <div class="curso-corpo">
+              <div class="curso-tipo curso-tipo-especial">Ensino Médio com Itinerário Formativo</div>
+              <h3>EMIF</h3>
+              <p>
+                EMIF (Ensino Médio com Itinerário Formativo) nas Etecs é uma modalidade que une a Base Nacional Comum Curricular (BNCC) a um aprofundamento específico em Ciências da Natureza ou Humanas
               </p>
               <div class="curso-detalhes">
                 <span><i class="fa-solid fa-hourglass-half"></i> ~3000–3600 horas</span>
@@ -361,9 +391,7 @@
       <div class="rodape-institucional">
         <h3>Etec Juscelino Kubitschek de Oliveira</h3>
         <p>Plataforma digital para organização dos interclasses e eventos esportivos da escola.</p>
-        <a href="https://www.instagram.com/etecjko" class="rodape-rede-social" target="_blank" aria-label="Instagram">
-          <i class="fa-brands fa-instagram"></i>
-        </a>
+        
       </div>
       <ul class="rodape-lista">
         <li><h3>Comunicação</h3></li>
