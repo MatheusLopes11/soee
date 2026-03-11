@@ -34,7 +34,7 @@ Técnico em Desenvolvimento de Sistemas
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apache/apache-original.svg" width="50"/>
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg" width="50"/>
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="50"/>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Hack_%28programming_language%29_logo.svg" width="50"/>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Hack_%28programming_language%29_logo.svg/512px-Hack_%28programming_language%29_logo.svg.png" width="50"/>
 </p>
 
 ## Desenvolvedores
