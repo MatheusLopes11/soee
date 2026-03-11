@@ -69,11 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="left-title">S<span>.</span>O<span>.</span>E<span>.</span>E<span>.</span></div>
                 <div class="left-sub">Sistema de Organização Esportiva Escolar</div>
                 <div class="sport-chips">
-                    <span class="chip">⚽ Futsal</span>
-                    <span class="chip">🏐 Vôlei</span>
-                    <span class="chip">🏀 Basquete</span>
-                    <span class="chip">♟ Xadrez</span>
-                    <span class="chip">🏓 Tênis de Mesa</span>
+                   
                 </div>
             </div>
         </div>
@@ -146,7 +142,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <i class="fa-solid fa-arrow-left"></i> Voltar
                     </a>
                     <span class="register-link">
-                        Esqueceu a Senha? <a href="/soee/src/backend/php/form/form-cadastrar.php">Cadastrar-se</a>
+                         <a href="/soee/src/backend/php/form/form-cadastrar.php">Cadastrar-se</a>
                     </span>
                 </div>
 
