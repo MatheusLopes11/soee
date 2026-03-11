@@ -1,7 +1,9 @@
 drop database if exists soee;
 create database if not exists soee;
 use soee;
-
+--------------------------------
+-- --- ESTRUTURA DAS TABELAS ---
+--------------------------------
 create table curso (
     id_curso int auto_increment primary key,
     nome_curso varchar(60) not null,
@@ -24,12 +26,8 @@ create table usuario (
     nome_usuario varchar(100) not null,
     email_usuario varchar(120) not null unique,
     senha_usuario varchar(255) not null,
-    rm_usuario varchar(10) not null,
-    ra_usuario varchar(15),
-    cpf_usuario varchar(14) not null unique,
     genero_usuario char(1) not null,
-    data_nasc_usuario date not null,
-    tipo_usuario enum('aluno','adm_sala','adm_geral') not null default 'aluno',
+    tipo_usuario enum('aluno','adm_sala','adm_geral','professor') not null default 'aluno',
     foto_perfil_usuario varchar(255),
     ativo_usuario tinyint(1) default 1,
     foreign key (turma_id_turma) references turma(id_turma) on delete set null on update cascade
@@ -77,8 +75,8 @@ create table inscricao (
     capitao_inscricao tinyint(1) default 0,
     data_inscricao datetime default current_timestamp,
     status_inscricao enum('ativa','cancelada') default 'ativa',
-    foreign key (usuario_id_usuario)references usuario(id_usuario)on delete cascade on update cascade,
-    foreign key (edicao_modalidade_id)references edicao_modalidade(id_edicao_modalidade) on delete cascade on update cascade
+    foreign key (usuario_id_usuario) references usuario(id_usuario) on delete cascade on update cascade,
+    foreign key (edicao_modalidade_id) references edicao_modalidade(id_edicao_modalidade) on delete cascade on update cascade
 );
 
 create table partida (
@@ -149,13 +147,20 @@ create table foto_perfil (
     atual_foto tinyint(1) default 1,
     foreign key (usuario_id_usuario) references usuario(id_usuario) on delete cascade on update cascade
 );
+--------------------------------------
+---- Area de Alimentação de Dados ----
+--------------------------------------
 
--- valores teste
 insert into curso (nome_curso, sigla_curso)
-values ('técnico em informática', 'mtec');
+values ('Técnico em Informática', 'MTEC');
 
-insert into turma(curso_id_curso,nome_turma,ano_serie_turma,ano_letivo_turma,periodo_turma) 
-values (1,'3 mtec',3,2026,'manha');
+insert into turma (curso_id_curso, nome_turma, ano_serie_turma, ano_letivo_turma, periodo_turma) 
+values (1, '3 MTEC', 3, 2026, 'manha');
 
-insert into usuario(turma_id_turma,nome_usuario,email_usuario,senha_usuario,rm_usuario,ra_usuario,cpf_usuario,genero_usuario,data_nasc_usuario,tipo_usuario,ativo_usuario) 
-values (1,'henrique','henrique@soee.com','12345hb','00001','00001','000.000.000-00','m','2009-03-13','adm_geral',1);
+insert into usuario (turma_id_turma, nome_usuario, email_usuario, senha_usuario, genero_usuario, tipo_usuario, ativo_usuario) 
+values 
+(1, 'Henrique Batista Orlovas', 'batista.henriqui@gmail.com', '12345hbo', 'm', 'adm_geral', 1),
+(1, 'Carlos Henrique Valentim', 'rikcar22@gmail.com', '12345chv', 'm', 'adm_geral', 1),
+(1, 'Miguel Lopes Aquinez da Silva', 'miguelaquinez17@gmail.com', '12345mlas', 'm', 'adm_geral', 1),
+(1, 'Matheus Ferreira Lopes', 'matheusflopes167@gmail.com', '12345mfl', 'm', 'adm_geral', 1),
+(1, 'Isabelly Barbosa Santos', 'isabellybarbosantos1357@gmail.com', '12345ibs', 'f', 'adm_geral', 1);
