@@ -18,7 +18,10 @@ Técnico em Desenvolvimento de Sistemas
     CSS,
     JavaScript ,
     PHP,
-    MySQL.
+    MySQL,
+    Apache HTTP Server,
+    Trello,
+    Git
 </p>
 
 <p style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;"> 
@@ -28,6 +31,8 @@ Técnico em Desenvolvimento de Sistemas
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/php/php-original.svg" width="50"/>
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg" width="50"/>
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apache/apache-original.svg" width="50"/>
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg" width="50"/>
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="50"/>
 </p>
 
 ## Desenvolvedores
