@@ -175,21 +175,20 @@
             <div class="membro-info">
               <h3>Carlos Henrique</h3>
               <!-- IDADE: substitua o ?? pela idade real -->
-              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> ?? anos</span>
+              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> 17 anos</span>
               <!-- CIDADE: substitua pelo município/estado real -->
-              <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> Cidade, SP</span>
+              <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> Diadema, SP</span>
               <!-- DESCRIÇÃO: escreva uma breve descrição sobre o integrante -->
               <p class="membro-descricao">
-                Descrição breve sobre o Carlos Henrique — sua relação com tecnologia,
-                o que gosta de fazer, sua contribuição no projeto, etc.
+                Cursando desenvolvimento de sistemas na Etec JK sou interessado em tecnologia
               </p>
               <div class="membro-links">
                 <!-- GITHUB: substitua # pela URL real do GitHub -->
-                <a href="#" target="_blank" class="membro-link" aria-label="GitHub de Carlos Henrique">
+                <a href="https://github.com/CarlosHenriqueValentim" target="_blank" class="membro-link" aria-label="GitHub de Carlos Henrique">
                   <i class="fa-brands fa-github"></i> GitHub
                 </a>
                 <!-- LINKEDIN: substitua # pela URL real do LinkedIn -->
-                <a href="#" target="_blank" class="membro-link membro-link-linkedin" aria-label="LinkedIn de Carlos Henrique">
+                <a href="https://www.linkedin.com/in/carlos-henrique-57a87b274/" target="_blank" class="membro-link membro-link-linkedin" aria-label="LinkedIn de Carlos Henrique">
                   <i class="fa-brands fa-linkedin"></i> LinkedIn
                 </a>
               </div>
@@ -201,19 +200,18 @@
                ───────────────────────────── -->
           <article class="membro-card reveal reveal-delay-2">
             <div class="membro-avatar">
-              <!-- <img src="/soee/src/images/equipe/miguel.jpg" alt="Miguel Lopes"> -->
+               <img src="/soee/src/images/foto_miguel.jpeg" alt="Miguel Lopes"> 
               <div class="membro-iniciais">ML</div>
             </div>
             <div class="membro-info">
               <h3>Miguel Lopes</h3>
-              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> ?? anos</span>
-              <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> Cidade, SP</span>
+              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> 17 anos</span>
+              <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> Diadema, SP</span>
               <p class="membro-descricao">
-                Descrição breve sobre o Miguel Lopes — sua relação com tecnologia,
-                o que gosta de fazer, sua contribuição no projeto, etc.
+                Cursando desenvolvimento de sistemas na Etec JK e interessado em engenharia de circuito elétrico apreciador de arte em geral.
               </p>
               <div class="membro-links">
-                <a href="#" target="_blank" class="membro-link" aria-label="GitHub de Miguel Lopes">
+                <a href="https://github.com/Dark34521" target="_blank" class="membro-link" aria-label="GitHub de Miguel Lopes">
                   <i class="fa-brands fa-github"></i> GitHub
                 </a>
                 <a href="#" target="_blank" class="membro-link membro-link-linkedin" aria-label="LinkedIn de Miguel Lopes">
@@ -260,14 +258,14 @@
             </div>
             <div class="membro-info">
               <h3>Henrique Orlovas</h3>
-              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> ?? anos</span>
-              <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> Cidade, SP</span>
+              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> 17 anos</span>
+              <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> São Paulo, SP</span>
               <p class="membro-descricao">
-                Descrição breve sobre o Henrique Orlovas — sua relação com tecnologia,
-                o que gosta de fazer, sua contribuição no projeto, etc.
+                Cursando o ensino médio com tecnico em administração e Desesnvolvimento de Sistemas na Etec JK
+                interessado em cursar analise de dados e engenharia de software 
               </p>
               <div class="membro-links">
-                <a href="#" target="_blank" class="membro-link" aria-label="GitHub de Henrique Orlovas">
+                <a href="https://github.com/HenriqueBOrlovas" target="_blank" class="membro-link" aria-label="GitHub de Henrique Orlovas">
                   <i class="fa-brands fa-github"></i> GitHub
                 </a>
                 <a href="#" target="_blank" class="membro-link membro-link-linkedin" aria-label="LinkedIn de Henrique Orlovas">
@@ -287,11 +285,10 @@
             </div>
             <div class="membro-info">
               <h3>Isabelly Barbosa</h3>
-              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> ?? anos</span>
-              <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> Cidade, SP</span>
+              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> 17 anos</span>
+              <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> Diadema, SP</span>
               <p class="membro-descricao">
-                Descrição breve sobre a Isabelly Barbosa — sua relação com tecnologia,
-                o que gosta de fazer, sua contribuição no projeto, etc.
+                Cursando desenvolvimento de sistemas na Etec JK e cursando administração, gosto de desenhar, jogar, musica e passear.
               </p>
               <div class="membro-links">
                 <a href="#" target="_blank" class="membro-link" aria-label="GitHub de Isabelly Barbosa">
