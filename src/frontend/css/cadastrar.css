@@ -1,64 +1,131 @@
-:root{
-    --blue:        #1a4a63;
-    --blue-light:  #246584;
-    --blue-glow:   #2e8ab8;
-    --orange:      #ff4103;
-    --orange-dark: #cc3402;
-    --black:       #0d0f10;
-    --surface:     #111518;
-    --white:       #f0f4f8;
-    --white-dim:   rgba(240,244,248,0.55);
-    --white-ghost: rgba(240,244,248,0.08);
-    --error:       #ff3b3b;
-    --radius:      18px;
-    --transition:  0.35s cubic-bezier(.4,0,.2,1);
+:root {
+  --azul-principal: #1e5671;
+  --azul-secundario: #2c7da3;
+  --laranja-destaque: #ff4d12;
+  --laranja-sombra: rgba(255, 77, 18, 0.25);
+  --fundo-pagina: #f8fafc;
+  --fundo-bloco: #ffffff;
+  --texto-principal: #1e293b;
+  --texto-secundario: #64748b;
+  --branco: #ffffff;
+  --vidro: rgba(248, 250, 252, 0.88);
+  --sombra-leve: 0 10px 40px -10px rgba(0,0,0,0.08);
+  --sombra-hover: 0 24px 48px -12px rgba(0,0,0,0.14);
+  --raio-grande: 20px;
+  --raio-medio: 10px;
+  --transicao: all 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  --borda-sutil: rgba(30,86,113,0.09);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+[data-theme="dark"] {
+  --fundo-pagina: #060d14;
+  --fundo-bloco: #0c1825;
+  --texto-principal: #e2e8f0;
+  --texto-secundario: #8da8bc;
+  --vidro: rgba(6,13,20,0.88);
+  --borda-sutil: rgba(44,125,163,0.12);
 }
 
-.all_forms {    
-    align-items: center;
-    justify-content: center;
+.cadastro-page{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#0a2d3d,#1e5671);
+    padding:40px;
 }
 
-html, body {
-    height: 100%;
-    font-family: 'Inter', sans-serif;
-    background: var(--black);
-    overflow: hidden;
+.cadastro-card{
+    width:100%;
+    max-width:420px;
+    background:var(--vidro);
+    backdrop-filter:blur(20px);
+    border-radius:var(--raio-grande);
+    padding:40px;
+    box-shadow:var(--sombra-hover);
+    animation:fadeUp .7s ease;
 }
 
-.bg-blur {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    background: url('/soee/src/images/Fundo-borrado.png') center/cover no-repeat;
-    filter: brightness(0.25) saturate(0.6);
+.cadastro-card h1{
+    font-family:'Playfair Display',serif;
+    color:var(--azul-principal);
+    margin-bottom:8px;
+    text-align:center;
 }
 
-.card {
-    display: flex;
-    width: min(920px, 100%);
-    height: min(560px, 92vh);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow:
-        0 0 0 1px rgba(46,138,184,0.15),
-        0 30px 80px rgba(0,0,0,0.7),
-        0 0 60px rgba(26,74,99,0.3);
-    animation: cardIn 0.7s cubic-bezier(.16,1,.3,1) both;
+.cadastro-sub{
+    text-align:center;
+    font-size:.9rem;
+    color:var(--texto-secundario);
+    margin-bottom:30px;
 }
 
-.wrapper {
-    position: relative;
-    z-index: 1;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+.form-grupo{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-bottom:18px;
+}
+
+.form-grupo label{
+    font-size:.8rem;
+    font-weight:600;
+    color:var(--texto-secundario);
+}
+
+.form-grupo input,
+.form-grupo select,
+.form-grupo textarea{
+    padding:10px 12px;
+    border-radius:var(--raio-medio);
+    border:1px solid var(--borda-sutil);
+    font-family:'DM Sans',sans-serif;
+    transition:var(--transicao);
+}
+
+.form-grupo input:focus,
+.form-grupo select:focus,
+.form-grupo textarea:focus{
+    outline:none;
+    border-color:var(--azul-secundario);
+    box-shadow:0 0 0 3px rgba(44,125,163,.15);
+}
+
+textarea{
+    resize:none;
+}
+
+.botao-cadastrar{
+    width:100%;
+    padding:12px;
+    background:var(--laranja-destaque);
+    border:none;
+    border-radius:var(--raio-medio);
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+    transition:var(--transicao);
+    box-shadow:0 6px 18px var(--laranja-sombra);
+}
+
+.botao-cadastrar:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 26px var(--laranja-sombra);
+}
+
+.link-login{
+    display:block;
+    text-align:center;
+    margin-top:18px;
+    font-size:.85rem;
+    color:var(--azul-secundario);
+    text-decoration:none;
+}
+
+.link-login:hover{
+    text-decoration:underline;
+}
+
+.campo-extra{
+    animation:fadeUp .4s ease;
 }

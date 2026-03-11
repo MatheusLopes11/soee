@@ -129,8 +129,10 @@ body:has(button:hover) .cursor-ring {
 .cabecalho-container {
   max-width: 1300px; margin: auto;
   padding: 14px 32px;
-  display: flex; align-items: center;
-  justify-content: space-between; gap: 24px;
+  display: flex; 
+  align-items: center;
+  justify-content: space-between; 
+  gap: 24px;
 }
 .cabecalho-logos { display: flex; align-items: center; gap: 14px; }
 .cabecalho-logos img { height: 3.2rem; transition: var(--transicao); }
@@ -163,7 +165,11 @@ body:has(button:hover) .cursor-ring {
   border-radius: 50%;
 }
 
-.cabecalho-acoes { display: flex; align-items: center; gap: 14px; }
+.cabecalho-acoes { 
+  display: flex; 
+  align-items: center; 
+  gap: 14px; 
+}
 
 .botao-icone {
   background: none; border: none; cursor: pointer;
