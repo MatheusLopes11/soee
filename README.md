@@ -21,7 +21,8 @@ Técnico em Desenvolvimento de Sistemas
     MySQL,
     Apache HTTP Server,
     Trello,
-    Git
+    Git,
+    Hack.
 </p>
 
 <p style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;"> 
@@ -33,6 +34,7 @@ Técnico em Desenvolvimento de Sistemas
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apache/apache-original.svg" width="50"/>
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg" width="50"/>
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="50"/>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Hack_%28programming_language%29_logo.svg" width="50"/>
 </p>
 
 ## Desenvolvedores
