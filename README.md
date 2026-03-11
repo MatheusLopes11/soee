@@ -13,17 +13,6 @@ Técnico em Desenvolvimento de Sistemas
 </p>
 
 ## Tecnologias Aplicadas
-<p>
-    HTML,
-    CSS,
-    JavaScript ,
-    PHP,
-    MySQL,
-    Apache HTTP Server,
-    Trello,
-    Git,
-    Hack.
-</p>
 
 <p style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;"> 
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original.svg" width="50"/>
