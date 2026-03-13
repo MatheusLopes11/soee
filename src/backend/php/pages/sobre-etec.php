@@ -33,7 +33,7 @@
           <li><a href="/soee/src/backend/php/pages/inicio.php">Início</a></li>
           <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
           <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
-          <li><a href="/soee/src/backend/php/pages/redes-sociais.php">Redes Sociais</a></li>
+          <li><a href="/soee/src/backend/php/pages/contato-redes.php.php">Contato & Redes</a></li>
         </ul>
       </nav>
 
