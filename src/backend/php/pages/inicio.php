@@ -4,12 +4,21 @@
   <!-- (Meta dados) -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Tema persistido — deve ser o PRIMEIRO script, antes de qualquer CSS -->
+  <script>
+    const _t = localStorage.getItem('theme');
+    if (_t) document.documentElement.setAttribute('data-theme', _t);
+  </script>
+
   <!-- (TÍTULO GUIA) -->
   <title>Início</title>
-  <!-- (Línks) -->
+
+  <!-- (Links — sem duplicatas) -->
   <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
   <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
 </head>
@@ -35,39 +44,57 @@
   <header class="cabecalho">
     <div class="cabecalho-container">
 
+      <!-- Esquerda: logos institucionais -->
       <div class="cabecalho-logos">
         <img src="/soee/src/images/logo-jk.png"  alt="ETEC Juscelino Kubitschek de Oliveira">
         <img src="/soee/src/images/logo-cps.png" alt="Centro Paula Souza">
       </div>
 
-<nav class="menu-principal" aria-label="Menu principal">
+      <!-- Centro: nav (desktop) -->
+      <nav class="menu-principal" aria-label="Menu principal">
+        <ul class="menu-lista">
+          <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
+          <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
+          <li><a href="/soee/src/backend/php/pages/sobre-etec.php">Sobre a ETEC</a></li>
+          <li><a href="/soee/src/backend/php/pages/contato-redes.php">Contato & Redes</a></li>
+        </ul>
+      </nav>
+
+      <!-- Direita: ações -->
+      <div class="cabecalho-acoes">
+        <button id="toggle-theme" class="botao-icone" aria-label="Alternar tema">
+          <i class="fa-solid fa-moon" id="icone-tema"></i>
+        </button>
+
+        <a href="/soee/index.php" class="botao-login">
+          <i class="fa-solid fa-user"></i>
+          <span>Entrar</span>
+        </a>
+
+        <img
+          src="/soee/src/images/logo-soee.png"
+          alt="SOEE"
+          class="logo-sistema"
+        >
+
+        <!-- Hamburguer — só aparece em mobile via CSS -->
+        <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu-drawer">
+          <i class="fa-solid fa-bars" id="icone-menu"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Drawer mobile -->
+  <div class="menu-drawer" id="menu-drawer" aria-hidden="true">
     <ul class="menu-lista">
       <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
       <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
       <li><a href="/soee/src/backend/php/pages/sobre-etec.php">Sobre a ETEC</a></li>
       <li><a href="/soee/src/backend/php/pages/contato-redes.php">Contato & Redes</a></li>
     </ul>
-  </nav>
-
-      <div class="cabecalho-acoes">
-        <button id="toggle-theme" class="botao-icone" aria-label="Alternar tema">
-          <i class="fa-solid fa-moon"></i>
-        </button>
-
-        <a href="/soee/index.php" class="botao-login">
-          <i class="fa-solid fa-user"></i>
-          Entrar
-        </a>
-
-        <img
-          src="/soee/src/images/logo-soee.png"
-          alt="SOEE - Sistema de Organização de Esportes Escolares"
-          class="logo-sistema"
-        >
-      </div>
-
-    </div>
-  </header>
+  </div>
 
   <!-- ─── CONTEÚDO PRINCIPAL ─── -->
   <main id="pagina-inicial">
@@ -107,8 +134,6 @@
           </a>
         </div>
       </div>
-
-      
     </section>
 
     <!-- Sobre -->
@@ -231,7 +256,6 @@
       <div class="rodape-institucional">
         <h3>Etec Juscelino Kubitschek de Oliveira</h3>
         <p>Plataforma digital para organização dos interclasses e eventos esportivos da escola.</p>
-        
       </div>
 
       <ul class="rodape-lista">

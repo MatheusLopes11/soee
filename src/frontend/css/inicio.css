@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
-
 /* ─────────────────────────────────────────
    VARIÁVEIS
 ───────────────────────────────────────── */
@@ -536,7 +535,9 @@ body:has(button:hover) .cursor-ring {
   box-shadow: var(--sombra-hover);
   border-color: rgba(255,77,18,0.15);
 }
-.funcionalidade-item:hover::after { transform: scaleY(1); }
+.funcionalidade-item:hover::after { 
+  transform: scaleY(1); 
+}
 .func-icone {
   width: 56px; height: 56px;
   background: linear-gradient(135deg, var(--azul-principal), var(--azul-secundario));
@@ -577,7 +578,10 @@ body:has(button:hover) .cursor-ring {
   letter-spacing: -0.02em; white-space: nowrap;
   pointer-events: none;
 }
-.chamada-sistema-inner { position: relative; z-index: 1; }
+.chamada-sistema-inner { 
+  position: relative; 
+  z-index: 1; 
+}
 .chamada-sistema h2 {
   font-family: 'Playfair Display', serif;
   font-size: clamp(1.8rem, 4vw, 3rem);
@@ -594,23 +598,42 @@ body:has(button:hover) .cursor-ring {
 .chamada-sistema .botao-primario:hover {
   box-shadow: 0 20px 50px rgba(0,0,0,0.3);
 }
-
 /* RODAPÉ */
-.rodape { background: #060d14; color: #94a3b8; }
+.rodape { 
+  background: #060d14; 
+  color: #94a3b8; 
+}
 .rodape-conteudo {
   max-width: 1200px; margin: auto;
   padding: 80px 24px;
   display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px;
 }
-.rodape h3 { color: #e2e8f0; font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
-.rodape p  { font-size: 0.9rem; line-height: 1.7; }
-.rodape-lista { list-style: none; }
-.rodape-lista li { margin-bottom: 10px; font-size: 0.9rem; }
+.rodape h3 { 
+  color: #e2e8f0; 
+  font-size: 1rem; 
+  font-weight: 700; 
+  margin-bottom: 16px; 
+}
+.rodape p  { 
+  font-size: 0.9rem; 
+  line-height: 1.7; 
+}
+.rodape-lista { 
+  list-style: none; 
+}
+.rodape-lista li { 
+  margin-bottom: 10px; 
+  font-size: 0.9rem; 
+}
+
 .rodape a {
   color: #94a3b8; text-decoration: none;
   transition: var(--transicao); display: inline-block;
 }
-.rodape a:hover { color: var(--laranja-destaque); transform: translateX(5px); }
+.rodape a:hover { 
+  color: var(--laranja-destaque); 
+  transform: translateX(5px); 
+}
 .rodape-rede-social {
   display: inline-flex; align-items: center; justify-content: center;
   width: 40px; height: 40px;
@@ -631,7 +654,6 @@ body:has(button:hover) .cursor-ring {
   font-size: 0.78rem;
   border-top: 1px solid rgba(255,255,255,0.04);
 }
-
 /* ANIMAÇÕES */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(28px); }
@@ -646,22 +668,46 @@ body:has(button:hover) .cursor-ring {
   transform: translateY(36px);
   transition: opacity 0.7s ease, transform 0.7s ease;
 }
-.reveal.visible { opacity: 1; transform: translateY(0); }
-.reveal-delay-1 { transition-delay: 0.1s; }
-.reveal-delay-2 { transition-delay: 0.2s; }
-.reveal-delay-3 { transition-delay: 0.3s; }
-.reveal-delay-4 { transition-delay: 0.4s; }
-
+.reveal.visible { 
+  opacity: 1; transform: translateY(0); 
+}
+.reveal-delay-1 { 
+  transition-delay: 0.1s; 
+}
+.reveal-delay-2 { 
+  transition-delay: 0.2s; 
+}
+.reveal-delay-3 { 
+  transition-delay: 0.3s; }
+.reveal-delay-4 { 
+  transition-delay: 0.4s; 
+}
 /* RESPONSIVO */
 @media (max-width: 900px) {
-  .menu-principal { display: none; }
-  .sobre-grid { grid-template-columns: 1fr; }
-  .rodape-conteudo { grid-template-columns: 1fr; gap: 36px; }
-  .hero-stats { display: none; }
-  .cursor-dot, .cursor-ring { display: none; }
+.menu-principal { 
+    display: none; 
 }
+.sobre-grid { 
+    grid-template-columns: 1fr; 
+  }
+.rodape-conteudo { 
+    grid-template-columns: 1fr; gap: 36px; 
+}
+.hero-stats { 
+    display: none; 
+}
+.cursor-dot, .cursor-ring { 
+  display: none; }
+}
+
 @media (max-width: 600px) {
-  .intro-conteudo h1 { font-size: 2rem; }
-  .intro-acoes { flex-direction: column; align-items: center; }
-  .chamada-sistema { padding: 90px 24px; }
+.intro-conteudo h1 { 
+    font-size: 2rem; 
+  }
+.intro-acoes { 
+    flex-direction: column; align-items: center; 
+  }
+.chamada-sistema { 
+    padding: 90px 24px; 
+  }
 }

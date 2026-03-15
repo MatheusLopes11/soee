@@ -1,5 +1,5 @@
 <?php
-//incluindo o banco
+// Incluindo o banco
 require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/include/conexao.php";
 
 // Verifica se o formulário foi enviado
@@ -52,7 +52,7 @@ try {
     ]);
 
     // Redireciona para login
-    header("Location: /soee/index.php?cadastro=sucesso");
+    header("Location:/soee/index.php?cadastro=sucesso");
     die();
 
 }catch(PDOException $e) {
