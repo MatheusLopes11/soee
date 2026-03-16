@@ -186,12 +186,22 @@
   font-size: 1.9rem;
   transition: var(--transicao);
   border: 1px solid var(--borda-sutil);
+  overflow: hidden;
 }
 
 .modalidade-card:hover .card-icone {
   transform: rotate(-8deg) scale(1.1);
   background: linear-gradient(135deg, rgba(255,77,18,0.12), rgba(255,77,18,0.06));
   border-color: rgba(255,77,18,0.2);
+}
+
+/* Imagem dentro do quadrado do ícone */
+.card-icone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
 }
 
 /* Tag categoria */
@@ -265,12 +275,67 @@
   display: none;
 }
 
+/* ─── CARD DE ADICIONAR MODALIDADE ─── */
+.add-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: 2px dashed var(--laranja-destaque);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.add-card:hover {
+  transform: scale(1.03);
+  background: rgba(255,77,18,0.03);
+}
+
+.add-card .card-icone {
+  font-size: 1.6rem;
+}
+
+/* ─── TOAST DE SUCESSO ─── */
+.toast-sucesso {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9000;
+  background: var(--azul-principal);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.6rem;
+  border-radius: 999px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(30,86,113,0.35);
+  pointer-events: none;
+  animation: toastEntrar 0.4s ease both, toastSair 0.5s 3.5s ease forwards;
+}
+
+.toast-sucesso i {
+  color: #5de3a0;
+  font-size: 1.1em;
+}
+
+@keyframes toastEntrar {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastSair {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(20px); }
+}
+
 /* ─── RESPONSIVO ─── */
 @media (max-width: 768px) {
   .modalidades-grid {
     grid-template-columns: 1fr;
-  }
-  .pagina-hero-conteudo {
-    padding: 60px 24px 80px;
   }
 }

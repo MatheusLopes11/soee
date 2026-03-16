@@ -95,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
             <?php endif; ?>
 
-            <form method="POST" action="soee/src/backend/php/pages/inicio.php" id="loginForm" novalidate>
+            <form method="POST" action="/soee/src/backend/php/pages/inicio.php" id="loginForm" novalidate>
 
                 <div class="form-group">
                     <label for="username">Usuário ou E-mail</label>

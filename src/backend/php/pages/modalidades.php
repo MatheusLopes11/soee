@@ -1,12 +1,33 @@
+<?php
+session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/include/conexao.php";
+
+$stmt = $conn->query("SELECT * FROM modalidade WHERE ativo_modalidade = 1 ORDER BY nome_modalidade ASC");
+$modalidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+function iconeModalidade(string $tipo): string {
+    return match($tipo) {
+        'quadra' => '🏀', 'mesa' => '🏓', 'campo' => '⚽', default => '🎯',
+    };
+}
+function categoriaFiltro(string $p): string {
+    return in_array($p, ['dupla','trio','time']) ? 'coletivo' : 'individual';
+}
+function labelCategoria(string $p): string {
+    return in_array($p, ['dupla','trio','time']) ? 'Coletiva' : 'Individual';
+}
+function labelTipo(string $t): string {
+    return match($t) { 'quadra'=>'Quadra','mesa'=>'Mesa','campo'=>'Campo',default=>'Outro' };
+}
+function numCard(int $n): string { return str_pad($n,2,'0',STR_PAD_LEFT); }
+?>
 <!DOCTYPE html>
 <html lang="pt-br" data-theme="light">
 <head>
-  <!-- (META DADOS) -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- (TÍTULO GUIA) -->
+  <script>const _t=localStorage.getItem('theme');if(_t)document.documentElement.setAttribute('data-theme',_t);</script>
   <title>Modalidades</title>
-  <!-- (LÍNKS) -->
   <link rel="stylesheet" href="/soee/src/frontend/css/modalidades.css">
   <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
   <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
@@ -14,20 +35,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
 </head>
-
 <body>
 
   <div class="cursor-dot" id="cursorDot"></div>
   <div class="cursor-ring" id="cursorRing"></div>
 
-  <!-- ─── HEADER (idêntico à home) ─── -->
+  <?php if(isset($_GET['cadastro']) && $_GET['cadastro']==='ok'): ?>
+  <div class="toast-sucesso">
+    <i class="fa-solid fa-circle-check"></i>
+    Modalidade cadastrada com sucesso!
+  </div>
+  <?php endif; ?>
+
   <header class="cabecalho">
     <div class="cabecalho-container">
       <div class="cabecalho-logos">
         <img src="/soee/src/images/logo-jk.png"  alt="ETEC Juscelino Kubitschek de Oliveira">
         <img src="/soee/src/images/logo-cps.png" alt="Centro Paula Souza">
       </div>
-
       <nav class="menu-principal" aria-label="Menu principal">
         <ul class="menu-lista">
           <li><a href="/soee/src/backend/php/pages/inicio.php">Início</a></li>
@@ -36,7 +61,6 @@
           <li><a href="/soee/src/backend/php/pages/contato-redes.php">Contato & Redes</a></li>
         </ul>
       </nav>
-
       <div class="cabecalho-acoes">
         <button id="toggle-theme" class="botao-icone" aria-label="Alternar tema">
           <i class="fa-solid fa-moon"></i>
@@ -52,7 +76,6 @@
 
   <main>
 
-    
     <section class="pagina">
       <div class="pagina-bg"></div>
       <div class="pagina-grid"></div>
@@ -64,7 +87,6 @@
         <h1>Modalidades <em>Esportivas</em></h1>
         <p>Conheça todas as modalidades que fazem parte dos interclasses da ETEC Juscelino Kubitschek de Oliveira.</p>
       </div>
-      <!-- Onda decorativa na base -->
       <div class="pagina-onda">
         <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="var(--fundo-pagina)"/>
@@ -72,7 +94,6 @@
       </div>
     </section>
 
-    <!-- ─── FILTRO ─── -->
     <section class="modalidades-filtro-section">
       <div class="modalidades-filtro">
         <button class="filtro-btn ativo" data-filtro="todos">
@@ -87,198 +108,91 @@
       </div>
     </section>
 
-    <!-- ─── GRID DE MODALIDADES ─── -->
     <section class="modalidades-section">
       <div class="modalidades-grid">
 
-        <!-- Futsal -->
-        <article class="modalidade-card reveal reveal-delay-1" data-categoria="coletivo">
-          <div class="card-icone-wrap">
-            <div class="card-icone">⚽</div>
-          </div>
-          <div class="card-numero">01</div>
-          <div class="card-corpo">
-            <div class="card-tag">Coletiva</div>
-            <h2>Futsal</h2>
-            <p>
-              O futsal é uma das modalidades mais aguardadas do interclasse! Jogado em quadra
-              com times de 5 jogadores, exige raciocínio rápido, trabalho em equipe e muita
-              habilidade com a bola. As turmas se enfrentam em busca do título de campeão.
-            </p>
-            <div class="card-info">
-              <span><i class="fa-solid fa-users"></i> 5 por time</span>
-              <span><i class="fa-solid fa-clock"></i> 2 × 20 min</span>
-              <span><i class="fa-solid fa-location-dot"></i> Quadra</span>
-            </div>
-          </div>
-          <div class="card-hover-line"></div>
-        </article>
+        <?php if(empty($modalidades)): ?>
 
-        <!-- Vôlei -->
-        <article class="modalidade-card reveal reveal-delay-2" data-categoria="coletivo">
-          <div class="card-icone-wrap">
-            <div class="card-icone">🏐</div>
-          </div>
-          <div class="card-numero">02</div>
-          <div class="card-corpo">
-            <div class="card-tag">Coletiva</div>
-            <h2>Vôlei</h2>
-            <p>
-              O vôlei une força, precisão e sincronismo. Com 6 jogadores por lado, cada toque
-              conta para garantir pontos e manter a bola no ar. Um dos esportes mais técnicos
-              do interclasse, capaz de virar em qualquer set.
-            </p>
-            <div class="card-info">
-              <span><i class="fa-solid fa-users"></i> 6 por time</span>
-              <span><i class="fa-solid fa-trophy"></i> Sets de 25 pts</span>
-              <span><i class="fa-solid fa-location-dot"></i> Quadra</span>
-            </div>
-          </div>
-          <div class="card-hover-line"></div>
-        </article>
+          <p style="grid-column:1/-1;text-align:center;color:var(--texto-secundario);padding:3rem 0;">
+            Nenhuma modalidade cadastrada ainda.
+            <a href="/soee/src/backend/php/pages/cad-esporte.php" style="color:var(--laranja-destaque);font-weight:600;">Cadastrar a primeira →</a>
+          </p>
 
-        <!-- Handebol -->
-        <article class="modalidade-card reveal reveal-delay-3" data-categoria="coletivo">
-          <div class="card-icone-wrap">
-            <div class="card-icone">🤾</div>
-          </div>
-          <div class="card-numero">03</div>
-          <div class="card-corpo">
-            <div class="card-tag">Coletiva</div>
-            <h2>Handebol</h2>
-            <p>
-              Velocidade e contato: o handebol é dinâmico e intenso. 7 jogadores por time
-              se revezam em ataques e defesas rápidas, exigindo coordenação e estratégia
-              coletiva para superar o goleiro adversário.
-            </p>
-            <div class="card-info">
-              <span><i class="fa-solid fa-users"></i> 7 por time</span>
-              <span><i class="fa-solid fa-clock"></i> 2 × 30 min</span>
-              <span><i class="fa-solid fa-location-dot"></i> Quadra</span>
-            </div>
-          </div>
-          <div class="card-hover-line"></div>
-        </article>
+        <?php else: ?>
+          <?php foreach($modalidades as $i => $m):
+            $num      = numCard($i + 1);
+            $cat      = categoriaFiltro($m['tipo_participacao']);
+            $label    = labelCategoria($m['tipo_participacao']);
+            $icone    = iconeModalidade($m['tipo_modalidade']);
+            $local    = labelTipo($m['tipo_modalidade']);
+            $delay    = ($i % 4) + 1;
+            $min      = $m['qtd_min_jogadores'];
+            $max      = $m['qtd_max_jogadores'];
+            $jogadores = ($min === $max) ? $min . " por time" : $min . "–" . $max . " por time";
+          ?>
 
-        <!-- Queimada -->
-        <article class="modalidade-card reveal reveal-delay-4" data-categoria="coletivo">
-          <div class="card-icone-wrap">
-            <div class="card-icone">🎯</div>
-          </div>
-          <div class="card-numero">04</div>
-          <div class="card-corpo">
-            <div class="card-tag">Coletiva</div>
-            <h2>Queimada</h2>
-            <p>
-              Clássico das escolas brasileiras! A queimada resgata a nostalgia e a diversão
-              em formato competitivo. O objetivo é eliminar todos os adversários com arremessos
-              precisos, enquanto se esquiva dos ataques inimigos.
-            </p>
-            <div class="card-info">
-              <span><i class="fa-solid fa-users"></i> Turma completa</span>
-              <span><i class="fa-solid fa-fire"></i> Alta energia</span>
-              <span><i class="fa-solid fa-location-dot"></i> Quadra</span>
-            </div>
-          </div>
-          <div class="card-hover-line"></div>
-        </article>
+          <article class="modalidade-card reveal reveal-delay-<?= $delay ?>" data-categoria="<?= $cat ?>">
 
-        <!-- Basquete -->
-        <article class="modalidade-card reveal reveal-delay-1" data-categoria="coletivo">
-          <div class="card-icone-wrap">
-            <div class="card-icone">🏀</div>
-          </div>
-          <div class="card-numero">05</div>
-          <div class="card-corpo">
-            <div class="card-tag">Coletiva</div>
-            <h2>Basquete</h2>
-            <p>
-              Com cestas valendo 2 ou 3 pontos, o basquete exige agilidade, visão de jogo
-              e pontaria. Os times de 5 jogadores disputam em quadra numa batalha de
-              dribles, passes e enterradas que agitam toda a torcida.
-            </p>
-            <div class="card-info">
-              <span><i class="fa-solid fa-users"></i> 5 por time</span>
-              <span><i class="fa-solid fa-clock"></i> 4 × 10 min</span>
-              <span><i class="fa-solid fa-location-dot"></i> Quadra</span>
-            </div>
-          </div>
-          <div class="card-hover-line"></div>
-        </article>
 
-        <!-- Xadrez -->
-        <article class="modalidade-card reveal reveal-delay-2" data-categoria="individual">
-          <div class="card-icone-wrap">
-            <div class="card-icone">♟️</div>
-          </div>
-          <div class="card-numero">06</div>
-          <div class="card-corpo">
-            <div class="card-tag">Individual</div>
-            <h2>Xadrez</h2>
-            <p>
-              O esporte da mente! O xadrez testa concentração, planejamento e inteligência
-              estratégica. Cada movimento pode definir o destino da partida — uma modalidade
-              que prova que esporte vai muito além da força física.
-            </p>
-            <div class="card-info">
-              <span><i class="fa-solid fa-user"></i> 1 vs 1</span>
-              <span><i class="fa-solid fa-brain"></i> Estratégia</span>
-              <span><i class="fa-solid fa-location-dot"></i> Sala</span>
+            <div class="card-icone-wrap">
+              <div class="card-icone">
+                <?php if(!empty($m['foto_modalidade'])): ?>
+                  <img class="card-icone-img" src="<?= htmlspecialchars($m['foto_modalidade']) ?>" alt="<?= htmlspecialchars($m['nome_modalidade']) ?>">
+                <?php else: ?>
+                  <?= $icone ?>
+                <?php endif; ?>
+              </div>
             </div>
-          </div>
-          <div class="card-hover-line"></div>
-        </article>
 
-        <!-- Damas -->
-        <article class="modalidade-card reveal reveal-delay-3" data-categoria="individual">
-          <div class="card-icone-wrap">
-            <div class="card-icone">🔴</div>
-          </div>
-          <div class="card-numero">07</div>
-          <div class="card-corpo">
-            <div class="card-tag">Individual</div>
-            <h2>Damas</h2>
-            <p>
-              Simples de aprender, difícil de dominar. O jogo de damas é pura lógica:
-              capture as peças do adversário e leve sua dama ao outro lado do tabuleiro.
-              Uma disputa intensa de raciocínio e antecipação de jogadas.
-            </p>
-            <div class="card-info">
-              <span><i class="fa-solid fa-user"></i> 1 vs 1</span>
-              <span><i class="fa-solid fa-chess-board"></i> Tabuleiro</span>
-              <span><i class="fa-solid fa-location-dot"></i> Sala</span>
-            </div>
-          </div>
-          <div class="card-hover-line"></div>
-        </article>
+            <!-- Número decorativo de fundo -->
+            <div class="card-numero"><?= $num ?></div>
 
-        <!-- Tênis de Mesa -->
-        <article class="modalidade-card reveal reveal-delay-4" data-categoria="individual">
+            <div class="card-corpo">
+              <!-- Tag de categoria -->
+              <div class="card-tag"><?= $label ?></div>
+
+              <!-- Título -->
+              <h2><?= htmlspecialchars($m['nome_modalidade']) ?></h2>
+
+              <!-- Descrição -->
+              <?php if(!empty($m['descricao_modalidade'])): ?>
+                <p><?= nl2br(htmlspecialchars($m['descricao_modalidade'])) ?></p>
+              <?php endif; ?>
+
+              <!-- Badges de info — igual ao original -->
+              <div class="card-info">
+                <span><i class="fa-solid fa-users"></i> <?= $jogadores ?></span>
+                <span><i class="fa-solid fa-location-dot"></i> <?= $local ?></span>
+                <span><i class="fa-solid fa-<?= $cat === 'coletivo' ? 'users' : 'user' ?>"></i> <?= ucfirst($m['tipo_participacao']) ?></span>
+              </div>
+            </div>
+
+            <div class="card-hover-line"></div>
+          </article>
+
+          <?php endforeach; ?>
+        <?php endif; ?>
+
+        <!-- Card de adicionar — igual ao original -->
+        <a href="/soee/src/backend/php/pages/cad-esporte.php" class="modalidade-card add-card">
           <div class="card-icone-wrap">
-            <div class="card-icone">🏓</div>
-          </div>
-          <div class="card-numero">08</div>
-          <div class="card-corpo">
-            <div class="card-tag">Individual</div>
-            <h2>Tênis de Mesa</h2>
-            <p>
-              Velocidade de reflexo e precisão milimétrica. O ping-pong coloca dois
-              competidores frente a frente numa mesa em partidas eletrizantes. Cada
-              ponto exige foco total — um segundo de distração pode custar o set.
-            </p>
-            <div class="card-info">
-              <span><i class="fa-solid fa-user"></i> 1 vs 1</span>
-              <span><i class="fa-solid fa-trophy"></i> Sets de 11 pts</span>
-              <span><i class="fa-solid fa-location-dot"></i> Sala</span>
+            <div class="card-icone">
+              <i class="fa-solid fa-plus"></i>
             </div>
           </div>
-          <div class="card-hover-line"></div>
-        </article>
+          <div class="card-corpo">
+            <div class="card-tag">Admin</div>
+            <h2>Adicionar Modalidade</h2>
+            <p>
+              Crie uma nova modalidade esportiva para o interclasse.
+              Defina tipo, formato da competição e número de jogadores.
+            </p>
+          </div>
+        </a>
 
       </div>
     </section>
 
-    <!-- ─── CTA ─── -->
     <section class="chamada-sistema">
       <div class="chamada-sistema-inner">
         <h2>Pronto para competir?</h2>
@@ -292,7 +206,6 @@
 
   </main>
 
-  <!-- ─── RODAPÉ ----->
   <footer class="rodape">
     <div class="rodape-conteudo">
       <div class="rodape-institucional">

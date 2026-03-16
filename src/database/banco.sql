@@ -157,6 +157,13 @@ values ('Técnico em Informática', 'MTEC');
 insert into turma (curso_id_curso, nome_turma, ano_serie_turma, ano_letivo_turma, periodo_turma) 
 values (1, '3 MTEC', 3, 2026, 'manha');
 
+ALTER TABLE modalidade
+  ADD COLUMN foto_modalidade        VARCHAR(255)         NULL AFTER ativo_modalidade,
+  ADD COLUMN regulamento_modalidade TEXT                 NULL AFTER foto_modalidade,
+  ADD COLUMN tipo_duracao           ENUM('minutos','pontos') NULL AFTER regulamento_modalidade,
+  ADD COLUMN duracao_minutos        VARCHAR(10)          NULL AFTER tipo_duracao,
+  ADD COLUMN duracao_pontos         TINYINT UNSIGNED     NULL AFTER duracao_minutos;
+
 insert into usuario (turma_id_turma, nome_usuario, email_usuario, senha_usuario, genero_usuario, tipo_usuario, ativo_usuario) 
 values 
 (1, 'Henrique Batista Orlovas', 'batista.henriqui@gmail.com', '12345hbo', 'm', 'adm_geral', 1),
