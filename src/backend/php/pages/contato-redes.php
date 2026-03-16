@@ -28,11 +28,10 @@
 
       <nav class="menu-principal" aria-label="Menu principal">
         <ul class="menu-lista">
-          <li><a href="/soee/inicio.php">Início</a></li>
-          <li><a href="/soee/modalidades.php">Modalidades</a></li>
-          <li><a href="/soee/quem-somos.php">Quem Somos</a></li>
-          <li><a href="/soee/sobre-etec.php">Sobre a ETEC</a></li>
-          <li><a href="/soee/contato-redes.php" aria-current="page">Contato & Redes</a></li>
+          <li><a href="/soee/src/backend/php/pages/inicio.php">Início</a></li>
+          <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
+          <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
+          <li><a href="/soee/src/backend/php/pages/sobre-etec.php">Sobre a ETEC</a></li>
         </ul>
       </nav>
 
