@@ -85,17 +85,7 @@
 
     </div>
   </header>
-
-  <!-- Drawer mobile -->
-  <div class="menu-drawer" id="menu-drawer" aria-hidden="true">
-    <ul class="menu-lista">
-      <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
-      <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
-      <li><a href="/soee/src/backend/php/pages/sobre-etec.php">Sobre a ETEC</a></li>
-      <li><a href="/soee/src/backend/php/pages/contato-redes.php">Contato & Redes</a></li>
-    </ul>
-  </div>
-
+  
   <!-- ─── CONTEÚDO PRINCIPAL ─── -->
   <main id="pagina-inicial">
 
