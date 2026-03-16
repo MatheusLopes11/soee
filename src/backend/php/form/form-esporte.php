@@ -73,7 +73,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/auth/auth-esport
         </div>
       <?php endif; ?>
 
-      <form action="cad-esporte.php" method="POST" id="formModalidade" enctype="multipart/form-data" novalidate>
+      <form action="" method="POST" id="formModalidade" enctype="multipart/form-data" novalidate>
         <div class="form-card">
 
 

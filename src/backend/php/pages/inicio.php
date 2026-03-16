@@ -76,11 +76,6 @@
           alt="SOEE"
           class="logo-sistema"
         >
-
-        <!-- Hamburguer — só aparece em mobile via CSS -->
-        <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu-drawer">
-          <i class="fa-solid fa-bars" id="icone-menu"></i>
-        </button>
       </div>
 
     </div>

@@ -115,7 +115,7 @@ function numCard(int $n): string { return str_pad($n,2,'0',STR_PAD_LEFT); }
 
           <p style="grid-column:1/-1;text-align:center;color:var(--texto-secundario);padding:3rem 0;">
             Nenhuma modalidade cadastrada ainda.
-            <a href="/soee/src/backend/php/pages/cad-esporte.php" style="color:var(--laranja-destaque);font-weight:600;">Cadastrar a primeira →</a>
+            <a href="/soee/src/backend/php/form/form-esporte.php" style="color:var(--laranja-destaque);font-weight:600;">Cadastrar a primeira →</a>
           </p>
 
         <?php else: ?>
@@ -174,7 +174,7 @@ function numCard(int $n): string { return str_pad($n,2,'0',STR_PAD_LEFT); }
         <?php endif; ?>
 
         <!-- Card de adicionar — igual ao original -->
-        <a href="/soee/src/backend/php/pages/cad-esporte.php" class="modalidade-card add-card">
+        <a href="/soee/src/backend/php/form/form-esporte.php" class="modalidade-card add-card">
           <div class="card-icone-wrap">
             <div class="card-icone">
               <i class="fa-solid fa-plus"></i>
