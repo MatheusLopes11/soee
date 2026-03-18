@@ -13,7 +13,7 @@ Técnico em Desenvolvimento de Sistemas
 </p>
 
 <div align="center">
-    ## Tecnologias Aplicadas
+## Tecnologias Aplicadas
 </div>
     
 <div align="center">
