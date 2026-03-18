@@ -12,10 +12,8 @@ https://etecjk.cps.sp.gov.br/
 Técnico em Desenvolvimento de Sistemas
 </p>
 
-<div align="center">
 ## Tecnologias Aplicadas
-</div>
-    
+
 <div align="center">
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original.svg" width="50"/>
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original.svg" width="50"/>
