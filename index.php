@@ -1,66 +1,28 @@
-<?php
-session_start();
-require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/include/conexao.php";
-
-$erro = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
-    $username = trim($_POST['username'] ?? '');
-    $password = trim($_POST['password'] ?? '');
-
-    if (empty($username) || empty($password)) {
-        $erro = "Preencha todos os campos.";
-    } else {
-
-        $sql = "SELECT * FROM usuario WHERE nome_usuario = :username LIMIT 1";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindValue(":username", $username);
-        $stmt->execute();
-
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user && $password === $user['senha_usuario']) {
-
-            $_SESSION['user_id']   = $user['id_usuario'];
-            $_SESSION['user_nome'] = $user['nome_usuario'];
-            $_SESSION['user_tipo'] = $user['tipo_usuario'];
-
-            header("Location: /soee/src/backend/php/pages/home.php");
-            exit;
-
-        } else {
-            $erro = "Usuário ou senha inválidos.";
-        }
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
     <title>Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
 
-    <!-- Fontes -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
+<!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <!-- Font Awesome -->
+<!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- CSS -->
+<!-- CSS -->
     <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
 </head>
     <body>
 
-<div class="bg-blur"></div>
-<canvas id="particles"></canvas>
+        <div class="bg-blur"></div>
+            <canvas id="particles"></canvas>
 
-<div class="wrapper">
-    <div class="card">
+            <div class="wrapper">
+                <div class="card">
 
         <!-- ── Lado Esquerdo ── -->
         <div class="left">
@@ -140,22 +102,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="links-row">
                     <a href="/soee/src/backend/php/pages/inicio.php">
                         <i class="fa-solid fa-arrow-left"></i> Voltar
-                    </a>
-                    <span class="register-link">
-                         <a href="/soee/src/backend/php/form/form-cadastrar.php">Cadastrar-se</a>
-                    </span>
+                        </a>
+                            <span class="register-link">
+                                <a href="/soee/src/backend/php/form/form-cadastrar.php">Cadastrar-se</a>
+                            </span>
+                        </div>
+
+                    </form>
                 </div>
-
-            </form>
+            </div>
         </div>
-
-    </div>
-</div>
-
 <!-- JS -->
-<script src="/soee/src/frontend/js/login.js">
-
-</script>
-
+        <script src="/soee/src/frontend/js/login.js"></script>
     </body>
 </html>
+
+<?php
+include __DIR__ . '/../../../../auth/auth-index.php';
+?>

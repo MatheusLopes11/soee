@@ -1,6 +1,6 @@
 <?php
 // Incluindo o banco
-require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/include/conexao.php";
+include __DIR__ . '/../../../../pages/conexao.php';
 
 // Verifica se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {

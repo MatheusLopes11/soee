@@ -1,12 +1,8 @@
 <?php
-/* ─────────────────────────────────────────
-   cad-esporte.php — SOEE
-───────────────────────────────────────── */
-
 session_start();
-require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/include/conexao.php";
+include __DIR__ . '/../../../../pages/conexao.php';
 
-$erro = '';
+$erro;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -31,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($duracao_pontos  === 'outro') $duracao_pontos  = $outro_pontos;
 
     /* ── 2. Foto ── */
-    $foto_path  = '';
+    $foto_path;
     $origem_foto = trim($_POST['origem_foto'] ?? 'upload'); // 'upload'|'url'|'nenhuma'
 
     if ($origem_foto === 'upload' && !empty($_FILES['foto_arquivo']['name'])) {
@@ -108,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':foto'           => $foto_path,
             ]);
             header('Location: /soee/src/backend/php/pages/modalidades.php?cadastro=ok');
-            exit;
+            die();
         } catch (PDOException $e) {
             $erro = $e->getCode() === '23000'
                 ? 'Já existe uma modalidade com esse nome.'

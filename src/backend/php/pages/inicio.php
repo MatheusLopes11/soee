@@ -1,26 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-br" data-theme="light">
 <head>
-  <!-- (Meta dados) -->
+<!-- (Título Guia) -->
+  <title>Início</title>
+
+<!-- (Meta Dados) -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Tema persistido — deve ser o PRIMEIRO script, antes de qualquer CSS -->
-  <script>
-    const _t = localStorage.getItem('theme');
-    if (_t) document.documentElement.setAttribute('data-theme', _t);
-  </script>
-
-  <!-- (TÍTULO GUIA) -->
-  <title>Início</title>
-
-  <!-- (Links — sem duplicatas) -->
+<!-- (Links — sem duplicatas) -->
   <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
   <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+
+<!-- Tema persistido — deve ser o PRIMEIRO script, antes de qualquer CSS -->
+  <script>
+    const _t = localStorage.getItem('theme');
+    if (_t) document.documentElement.setAttribute('data-theme', _t);
+  </script>
+  
 </head>
 
 <body>
