@@ -14,7 +14,7 @@ Técnico em Desenvolvimento de Sistemas
 
 ## Tecnologias Aplicadas
 
-<p style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;"> 
+<div align="center">
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original.svg" width="50"/>
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original.svg" width="50"/>
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" width="50"/>
@@ -24,7 +24,7 @@ Técnico em Desenvolvimento de Sistemas
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg" width="50"/>
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="50"/>
     <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/hackthebox.svg" width="50"/>
-</p>
+</div>
 
 ## Desenvolvedores
 
