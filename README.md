@@ -14,7 +14,7 @@ Técnico em Desenvolvimento de Sistemas
 
 <div align="center">
     ## Tecnologias Aplicadas
-<div>
+</div>
     
 <div align="center">
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original.svg" width="50"/>
