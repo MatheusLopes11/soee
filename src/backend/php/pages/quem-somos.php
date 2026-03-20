@@ -214,7 +214,7 @@
                 <a href="https://github.com/Dark34521" target="_blank" class="membro-link" aria-label="GitHub de Miguel Lopes">
                   <i class="fa-brands fa-github"></i> GitHub
                 </a>
-                <a href="#" target="_blank" class="membro-link membro-link-linkedin" aria-label="LinkedIn de Miguel Lopes">
+                <a href="https://www.linkedin.com/in/miguel-lopes-b768a03b6/" target="_blank" class="membro-link membro-link-linkedin" aria-label="LinkedIn de Miguel Lopes">
                   <i class="fa-brands fa-linkedin"></i> LinkedIn
                 </a>
               </div>
