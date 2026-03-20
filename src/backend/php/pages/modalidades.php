@@ -111,7 +111,67 @@ function numCard(int $n): string { return str_pad($n,2,'0',STR_PAD_LEFT); }
     <section class="modalidades-section">
       <div class="modalidades-grid">
 
-        <!-- Card de adicionar — igual ao original -->
+              <?php if(empty($modalidades)): ?>
+
+          <p style="grid-column:1/-1;text-align:center;color:var(--texto-secundario);padding:3rem 0;">
+            Nenhuma modalidade cadastrada ainda.
+            <a href="/soee/src/backend/php/form/form-esporte.php" style="color:var(--laranja-destaque);font-weight:600;">Cadastrar a primeira →</a>
+          </p>
+
+        <?php else: ?>
+          <?php foreach($modalidades as $i => $m):
+            $num      = numCard($i + 1);
+            $cat      = categoriaFiltro($m['tipo_participacao']);
+            $label    = labelCategoria($m['tipo_participacao']);
+            $icone    = iconeModalidade($m['tipo_modalidade']);
+            $local    = labelTipo($m['tipo_modalidade']);
+            $delay    = ($i % 4) + 1;
+            $min      = $m['qtd_min_jogadores'];
+            $max      = $m['qtd_max_jogadores'];
+            $jogadores = ($min === $max) ? $min . " por time" : $min . "–" . $max . " por time";
+          ?>
+
+          <article class="modalidade-card reveal reveal-delay-<?= $delay ?>" data-categoria="<?= $cat ?>">
+
+
+            <div class="card-icone-wrap">
+              <div class="card-icone">
+                <?php if(!empty($m['foto_modalidade'])): ?>
+                  <img class="card-icone-img" src="<?= htmlspecialchars($m['foto_modalidade']) ?>" alt="<?= htmlspecialchars($m['nome_modalidade']) ?>">
+                <?php else: ?>
+                  <?= $icone ?>
+                <?php endif; ?>
+              </div>
+            </div>
+
+            <!-- Número decorativo de fundo -->
+            <div class="card-numero"><?= $num ?></div>
+
+            <div class="card-corpo">
+              <!-- Tag de categoria -->
+              <div class="card-tag"><?= $label ?></div>
+
+              <!-- Título -->
+              <h2><?= htmlspecialchars($m['nome_modalidade']) ?></h2>
+
+              <!-- Descrição -->
+              <?php if(!empty($m['descricao_modalidade'])): ?>
+                <p><?= nl2br(htmlspecialchars($m['descricao_modalidade'])) ?></p>
+              <?php endif; ?>
+
+              <div class="card-info">
+                <span><i class="fa-solid fa-users"></i> <?= $jogadores ?></span>
+                <span><i class="fa-solid fa-location-dot"></i> <?= $local ?></span>
+                <span><i class="fa-solid fa-<?= $cat === 'coletivo' ? 'users' : 'user' ?>"></i> <?= ucfirst($m['tipo_participacao']) ?></span>
+              </div>
+            </div>
+
+            <div class="card-hover-line"></div>
+          </article>
+
+          <?php endforeach; ?>
+        <?php endif; ?>
+
         <a href="/soee/src/backend/php/form/form-esporte.php" class="modalidade-card add-card">
           <div class="card-icone-wrap">
             <div class="card-icone">

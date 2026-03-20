@@ -1,3 +1,13 @@
+<?php if (!empty($erro)): ?>
+    <div class="error-msg" style="color: #ff4d4d; margin-bottom: 15px; font-weight: bold;">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <?= htmlspecialchars($erro) ?>
+    </div>
+<?php endif; ?>
+
+<form method="POST" action="" id="loginForm"> 
+    ...
+</form>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -97,6 +107,11 @@
 
                 <button type="submit" class="btn-login" id="btnLogin">
                     ENTRAR
+                </button>
+
+                <button type="button" class="btn-login btn-guest"
+                    onclick="window.location.href='/soee/src/backend/php/pages/inicio.php'">
+                    ENTRAR SEM CADASTRO
                 </button>
 
                 <div class="links-row">

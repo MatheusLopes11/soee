@@ -1,6 +1,6 @@
 <?php
 session_start();
-include __DIR__ . '/../../../../pages/conexao.php';
+include __DIR__ . '/../include/conexao.php';
 
 $erro;
 
