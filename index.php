@@ -1,137 +1,125 @@
-<?php if (!empty($erro)): ?>
-    <div class="error-msg" style="color: #ff4d4d; margin-bottom: 15px; font-weight: bold;">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        <?= htmlspecialchars($erro) ?>
-    </div>
-<?php endif; ?>
+<?php
+$authPath = __DIR__ . '/src/backend/php/auth/auth-index.php';
 
-<form method="POST" action="" id="loginForm"> 
-    ...
-</form>
+
+if (!file_exists($authPath)) {
+    die("ERRO: auth-index.php não encontrado em: " . $authPath);
+}
+
+include $authPath;
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <title>Login</title>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
     <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
-<!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- CSS -->
     <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
 </head>
-    <body>
+<body>
 
-        <div class="bg-blur"></div>
-            <canvas id="particles"></canvas>
+    <div class="bg-blur"></div>
+    <canvas id="particles"></canvas>
 
-            <div class="wrapper">
-                <div class="card">
+    <div class="wrapper">
+        <div class="card">
 
-        <!-- ── Lado Esquerdo ── -->
-        <div class="left">
-            <div class="left-content">
-                <img class="left-img" src="/soee/src/images/soee-login.png" alt="SOEE">
-                <div class="left-title">S<span>.</span>O<span>.</span>E<span>.</span>E<span>.</span></div>
-                <div class="left-sub">Sistema de Organização Esportiva Escolar</div>
-                <div class="sport-chips">
-                   
-                </div>
-            </div>
-        </div>
-
-        <!-- ── Lado Direito ── -->
-        <div class="right">
-
-            <div class="avatar-wrap">
-                <div class="avatar" id="avatarIcon">
-                    <i class="fa-solid fa-user"></i>
+            <!-- ── Lado Esquerdo ── -->
+            <div class="left">
+                <div class="left-content">
+                    <img class="left-img" src="/soee/src/images/soee-login.png" alt="SOEE">
+                    <div class="left-title">S<span>.</span>O<span>.</span>E<span>.</span>E<span>.</span></div>
+                    <div class="left-sub">Sistema de Organização Esportiva Escolar</div>
+                    <div class="sport-chips"></div>
                 </div>
             </div>
 
-            <div class="right-header">
-                <h2>Bem-vindo de volta</h2>
-                <p>Faça login para acessar o sistema</p>
-            </div>
+            <!-- ── Lado Direito ── -->
+            <div class="right">
 
-            <?php if (!empty($erro)): ?>
-            <div class="error-msg">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <?= htmlspecialchars($erro) ?>
-            </div>
-            <?php endif; ?>
-
-            <form method="POST" action="/soee/src/backend/php/pages/inicio.php" id="loginForm" novalidate>
-
-                <div class="form-group">
-                    <label for="username">Usuário ou E-mail</label>
-                    <div class="input-wrap">
+                <div class="avatar-wrap">
+                    <div class="avatar" id="avatarIcon">
                         <i class="fa-solid fa-user"></i>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Digite seu usuário"
-                            value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
-                            autocomplete="username"
-                        >
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <div class="input-wrap">
-                        <i class="fa-solid fa-lock"></i>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Digite sua senha"
-                            autocomplete="current-password"
-                        >
-                        <i class="fa-solid fa-eye toggle-pw" id="togglePw" title="Mostrar senha"></i>
-                    </div>
+                <div class="right-header">
+                    <h2>Bem-vindo de volta</h2>
+                    <p>Faça login para acessar o sistema</p>
                 </div>
 
-                <div class="options">
-                    <label>
-                        <input type="checkbox" name="remember"> Lembrar-me
-                    </label>
+                <?php if (!empty($erro)): ?>
+                <div class="error-msg">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <?= htmlspecialchars($erro) ?>
                 </div>
+                <?php endif; ?>
 
-                <button type="submit" class="btn-login" id="btnLogin">
-                    ENTRAR
-                </button>
+                <form method="POST" action="" id="loginForm" novalidate>
 
-                <button type="button" class="btn-login btn-guest"
-                    onclick="window.location.href='/soee/src/backend/php/pages/inicio.php'">
-                    ENTRAR SEM CADASTRO
-                </button>
-
-                <div class="links-row">
-                    <a href="/soee/src/backend/php/pages/inicio.php">
-                        <i class="fa-solid fa-arrow-left"></i> Voltar
-                        </a>
-                            <span class="register-link">
-                                <a href="/soee/src/backend/php/form/form-cadastrar.php">Cadastrar-se</a>
-                            </span>
+                    <div class="form-group">
+                        <label for="username">Usuário ou E-mail</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-user"></i>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Digite seu usuário"
+                                value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
+                                autocomplete="username"
+                            >
                         </div>
+                    </div>
 
-                    </form>
-                </div>
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock"></i>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Digite sua senha"
+                                autocomplete="current-password"
+                            >
+                            <i class="fa-solid fa-eye toggle-pw" id="togglePw" title="Mostrar senha"></i>
+                        </div>
+                    </div>
+
+                    <div class="options">
+                        <label>
+                            <input type="checkbox" name="remember"> Lembrar-me
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-login" id="btnLogin">
+                        ENTRAR
+                    </button>
+
+                    <a href="/soee/src/backend/php/pages/home.php" class="btn-login btn-guest">
+                        ENTRAR SEM CADASTRO
+                    </a>
+
+                    <div class="links-row">
+                        <a href="/soee/src/backend/php/pages/inicio.php">
+                            <i class="fa-solid fa-arrow-left"></i> Voltar
+                        </a>
+                        <span class="register-link">
+                            <a href="/soee/src/backend/php/form/form-cadastrar.php">Cadastrar-se</a>
+                        </span>
+                    </div>
+
+                </form>
             </div>
         </div>
-<!-- JS -->
-        <script src="/soee/src/frontend/js/login.js"></script>
-    </body>
-</html>
+    </div>
 
-<?php
-include __DIR__ . '/../../../../auth/auth-index.php';
-?>
+    <script src="/soee/src/frontend/js/login.js"></script>
+</body>
+</html>

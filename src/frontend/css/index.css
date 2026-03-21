@@ -61,7 +61,7 @@ html, body {
 .card {
     display: flex;
     width: min(920px, 100%);
-    height: min(560px, 92vh);
+    height: min(620px, 92vh);
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow:
@@ -511,4 +511,10 @@ html, body {
     .left  { display: none; }
     .card  { height: auto; }
     .right { padding: 36px 28px; }
+}
+
+a.btn-guest {
+    display: block;
+    text-align: center;
+    text-decoration: none;
 }

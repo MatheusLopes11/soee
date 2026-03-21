@@ -257,7 +257,7 @@
               <div class="membro-iniciais">HO</div>
             </div>
             <div class="membro-info">
-              <h3>Henrique Orlovas</h3>
+              <h3>Henrique Batista Orlovas</h3>
               <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> 17 anos</span>
               <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> São Paulo, SP</span>
               <p class="membro-descricao">
@@ -268,7 +268,7 @@
                 <a href="https://github.com/HenriqueBOrlovas" target="_blank" class="membro-link" aria-label="GitHub de Henrique Orlovas">
                   <i class="fa-brands fa-github"></i> GitHub
                 </a>
-                <a href="#" target="_blank" class="membro-link membro-link-linkedin" aria-label="LinkedIn de Henrique Orlovas">
+                <a href="https://www.linkedin.com/in/henriqueorlovas/" target="_blank" class="membro-link membro-link-linkedin" aria-label="LinkedIn de Henrique Orlovas">
                   <i class="fa-brands fa-linkedin"></i> LinkedIn
                 </a>
               </div>
