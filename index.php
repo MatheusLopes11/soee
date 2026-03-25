@@ -102,7 +102,7 @@ include $authPath;
                         ENTRAR
                     </button>
 
-                    <a href="/soee/src/backend/php/pages/home.php" class="btn-login btn-guest">
+                    <a href="/soee/src/backend/php/pages/inicio.php" class="btn-login btn-guest">
                         ENTRAR SEM CADASTRO
                     </a>
 
