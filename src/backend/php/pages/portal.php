@@ -262,7 +262,7 @@
       </section>
 
       <!-- PLACAR -->
-      <section aria-labelledby="titulo-placar" style="margin-top:60px">
+      <section aria-labelledby="titulo-placar" style="margin-top:96px">
 
         <header class="secao-cabecalho reveal">
           <div class="secao-tag">Resultados</div>
@@ -320,38 +320,12 @@
 
       </section>
 
-      <!-- CTA -->
-      <section class="chamada-sistema" style="margin-top:60px">
-        <div class="chamada-sistema-inner">
-          <h2>SOEE — Tecnologia a favor do esporte escolar</h2>
-          <p>Mais organização, transparência e eficiência para toda a comunidade escolar.</p>
-          <a href="/soee/index.php" class="botao-primario">
-            <i class="fa-solid fa-arrow-right"></i>
-            Acessar o Sistema
-          </a>
-        </div>
-      </section>
+
 
     </main>
 
     <!-- SIDEBAR -->
     <aside class="portal-sidebar">
-
-      <!-- LOGIN -->
-      <div class="sidebar-card login-card reveal">
-        <div class="login-card-header">
-          <i class="fa-solid fa-lock"></i>
-          <div>
-            <h3>Acesso Usuário</h3>
-            <p>Entre para se inscrever nos eventos</p>
-          </div>
-        </div>
-        <input type="email"    class="campo-login" placeholder="Seu e-mail">
-        <input type="password" class="campo-login" placeholder="Sua senha">
-        <button class="btn-entrar">Entrar</button>
-        <div class="login-ou"><span>ou</span></div>
-        <button class="btn-cadastrar">Cadastre-se</button>
-      </div>
 
       <!-- NOTÍCIAS -->
       <div id="noticias" class="sidebar-card reveal">
