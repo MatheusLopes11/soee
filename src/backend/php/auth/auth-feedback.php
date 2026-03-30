@@ -6,7 +6,7 @@ if(!isset($_POST['nome'],$_POST['email'],$_POST['mensagem'])) {
     header('Location: /soee/src/backend/php/form/form-feedback.php');
     die("Preenha os campos Obrigatórios.");
 } else if((empty(['nome']) && empty(['email']) && empty(['mensagem']))) {
-    header();
+    header('Location: /soee/src/backend/php/form/form-feedback.php');
     die("Preencha os campos Obrigatórios.");
 }
 
@@ -16,9 +16,9 @@ $email = $_POST['email'];
 $mensagem = $_POST['mensagem'];
 
 try{
-    $query_inserir = "insert into"
+    $query_inserir = "insert into";
 
-}catch(PDOExeption $erro) {
-    echo "Erro: " . $erro->getMessage();
+} catch(PDOException $erro) {
+    echo "Erro: " . $this->erro->getMessage();
 }
 ?>
