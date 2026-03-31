@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/../include/conexao.php'; // Verifique se o caminho está correto
+include $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/php/include/conexao.php';
 
 $erro = "";
 
@@ -26,12 +26,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['username'])) {
             if ($user['ativo_usuario'] == 0) {
                 $erro = "Sua conta está desativada.";
             } else {
-                // Sucesso: Cria a sessão
+                // Cria a sessão
                 $_SESSION['user_id']   = $user['id_usuario'];
                 $_SESSION['user_nome'] = $user['nome_usuario'];
                 $_SESSION['user_tipo'] = $user['tipo_usuario'];
-
-                header("Location: /soee/src/backend/php/pages/home.php");
+                
+                // Verifica se é adm_geral
+                if ($user['tipo_usuario'] === 'adm_geral') {
+                    header('Location: /soee/src/backend/php/dashboard/dash-adm.php');
+                } else {
+                    header("Location: /soee/src/backend/php/pages/home.php");
+                }
                 exit();
             }
         } else {

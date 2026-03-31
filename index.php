@@ -1,9 +1,8 @@
 <?php
 $authPath = __DIR__ . '/src/backend/php/auth/auth-index.php';
 
-
 if (!file_exists($authPath)) {
-    die("ERRO: auth-index.php não encontrado em: " . $authPath);
+    die("ERRO: auth-index.php não encontrado");
 }
 
 include $authPath;
@@ -12,8 +11,10 @@ include $authPath;
 <html lang="pt-br">
 <head>
     <title>Login</title>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
