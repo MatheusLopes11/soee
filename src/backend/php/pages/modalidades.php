@@ -171,23 +171,6 @@ function numCard(int $n): string { return str_pad($n,2,'0',STR_PAD_LEFT); }
 
           <?php endforeach; ?>
         <?php endif; ?>
-
-        <a href="/soee/src/backend/php/form/form-esporte.php" class="modalidade-card add-card">
-          <div class="card-icone-wrap">
-            <div class="card-icone">
-              <i class="fa-solid fa-plus"></i>
-            </div>
-          </div>
-          <div class="card-corpo">
-            <div class="card-tag">Admin</div>
-            <h2>Adicionar Modalidade</h2>
-            <p>
-              Crie uma nova modalidade esportiva para o interclasse.
-              Defina tipo, formato da competição e número de jogadores.
-            </p>
-          </div>
-        </a>
-
       </div>
     </section>
 
