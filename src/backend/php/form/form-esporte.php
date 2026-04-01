@@ -2,7 +2,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/auth/auth-esporte.php";
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,47 +14,22 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/auth/auth-esport
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
   <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css" />
-  <link rel="stylesheet" href="/soee/src/frontend/css/cad-esporte.css" />
+  <link rel="stylesheet" href="/soee/src/frontend/css/cad-esporte.css"/>
 </head>
 <body>
 
   <div class="cursor-dot"  id="cursorDot"></div>
   <div class="cursor-ring" id="cursorRing"></div>
 
-  <header class="cabecalho">
-    <div class="cabecalho-container">
-      <div class="cabecalho-logos">
-        <img src="/soee/src/images/logo-jk.png"  alt="ETEC Juscelino Kubitschek de Oliveira" />
-        <img src="/soee/src/images/logo-cps.png" alt="Centro Paula Souza" />
-      </div>
-      <nav class="menu-principal" aria-label="Menu principal">
-        <ul class="menu-lista">
-          <li><a href="/soee/src/backend/php/pages/inicio.php">Início</a></li>
-          <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
-          <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
-          <li><a href="/soee/src/backend/php/pages/contato-redes.php">Contato & Redes</a></li>
-        </ul>
-      </nav>
-      <div class="cabecalho-acoes">
-        <button id="toggle-theme" class="botao-icone" aria-label="Alternar tema">
-          <i class="fa-solid fa-moon"></i>
-        </button>
-        <a href="/soee/index.php" class="botao-login">
-          <i class="fa-solid fa-user"></i> Entrar
-        </a>
-        <img src="/soee/src/images/logo-soee.png" alt="SOEE" class="logo-sistema" />
-      </div>
-    </div>
-  </header>
-
   <main>
-
+    
     <section class="pagina-hero" aria-label="Cabeçalho da página">
       <div class="pagina-hero-bg"></div>
       <div class="pagina-hero-grid"></div>
       <div class="pagina-hero-conteudo">
         <div class="badge"><i class="fa-solid fa-shield-halved"></i> Painel Administrativo</div>
-        <h1>Nova <em>Modalidade</em></h1>
+        <h1>Nova <em>Modalidade</em> <button id="toggle-theme" class="botao-icone" aria-label="Alternar tema">
+          <i class="fa-solid fa-moon"></i></h1>
         <p>Cadastre um esporte, defina seu formato e inclua o regulamento oficial da competição.</p>
       </div>
       <div class="pagina-onda">
@@ -420,7 +395,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/auth/auth-esport
   </footer>
 
   <script src="/soee/src/frontend/js/inicio.js"></script>
-  <script src="/soee/src/frontend/js/cad-esporte.js"></script>
+  <script src="/soee/src/frontend/js/dash-adm.js"></script>
 
 </body>
 </html>

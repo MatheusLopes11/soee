@@ -1,12 +1,3 @@
-<?php
-$authPath = __DIR__ . '/src/backend/php/auth/auth-index.php';
-
-if (!file_exists($authPath)) {
-    die("ERRO: auth-index.php não encontrado");
-}
-
-include $authPath;
-?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -15,12 +6,13 @@ include $authPath;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+    <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
     <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
+
 </head>
 <body>
 
@@ -61,20 +53,13 @@ include $authPath;
                 </div>
                 <?php endif; ?>
 
-                <form method="POST" action="" id="loginForm" novalidate>
+                <form method="POST" action="/soee/src/backend/php/auth/auth-index.php" id="loginForm" novalidate>
 
                     <div class="form-group">
                         <label for="username">Usuário ou E-mail</label>
                         <div class="input-wrap">
                             <i class="fa-solid fa-user"></i>
-                            <input
-                                type="text"
-                                id="username"
-                                name="username"
-                                placeholder="Digite seu usuário"
-                                value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
-                                autocomplete="username"
-                            >
+                            <input type="text" id="username" name="username" placeholder="Digite seu usuário" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" autocomplete="username">
                         </div>
                     </div>
 
@@ -82,13 +67,7 @@ include $authPath;
                         <label for="password">Senha</label>
                         <div class="input-wrap">
                             <i class="fa-solid fa-lock"></i>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Digite sua senha"
-                                autocomplete="current-password"
-                            >
+                            <input type="password" id="password" name="password" placeholder="Digite sua senha" autocomplete="current-password">
                             <i class="fa-solid fa-eye toggle-pw" id="togglePw" title="Mostrar senha"></i>
                         </div>
                     </div>
@@ -121,6 +100,6 @@ include $authPath;
         </div>
     </div>
 
-    <script src="/soee/src/frontend/js/login.js"></script>
+    <script src="/soee/src/frontend/js/incio.js"></script>
 </body>
 </html>

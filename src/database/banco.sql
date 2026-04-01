@@ -178,7 +178,7 @@ values
 -- PI
 (1, '1 PI', 1, 2026, 'manha'),
 (1, '2 PI', 2, 2026, 'manha'),
-(1, '3 PI', 3, 2026, 'manha');
+(1, '3 PI', 3, 2026, 'manha');  
 
 insert into usuario (turma_id_turma, nome_usuario, email_usuario, senha_usuario, genero_usuario, tipo_usuario, ativo_usuario) 
 values 
