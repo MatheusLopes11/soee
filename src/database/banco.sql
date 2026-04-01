@@ -1,4 +1,4 @@
-#drop database if exists soee;
+drop database if exists soee;
 create database if not exists soee;
 use soee;
 --------------------------------
@@ -29,6 +29,7 @@ create table usuario (
     genero_usuario char(1) not null,
     tipo_usuario enum('aluno','adm_sala','adm_geral','professor') not null default 'aluno',
     foto_perfil_usuario varchar(255),
+    remember_token VARCHAR(255) NULL,
     ativo_usuario tinyint(1) default 1,
     foreign key (turma_id_turma) references turma(id_turma) on delete set null on update cascade
 );

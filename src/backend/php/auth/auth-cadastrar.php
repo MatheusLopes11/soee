@@ -1,61 +1,62 @@
 <?php
-// Incluindo o banco
-include __DIR__ . '/../../../../pages/conexao.php';
+ob_start();
+include __DIR__ . '/../include/conexao.php';
 
-// Verifica se o formulário foi enviado
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    header("Location: form-cadastro.php");
-    die();
+    header("Location: /soee/src/backend/php/form/form-cadastrar.php");
+    exit();
 }
 
-// Verifica campos obrigatórios
 if (
-    empty($_POST['nome']) ||
-    empty($_POST['email']) ||
-    empty($_POST['senha']) ||
+    empty($_POST['nome'])   ||
+    empty($_POST['email'])  ||
+    empty($_POST['senha'])  ||
     empty($_POST['genero'])
 ) {
     die("Preencha todos os campos obrigatórios.");
 }
 
-// Recebe os dados
-$nome = trim($_POST['nome']);
-$email = trim($_POST['email']);
-$senha = $_POST['senha'];
-$genero = $_POST['genero'];
+$nome   = trim($_POST['nome']);
+$email  = trim($_POST['email']);
+$senha  = $_POST['senha'];
 
-// Criptografa senha
+// gênero
+$generoRaw = $_POST['genero'];
+$genero = ($generoRaw === 'm' || $generoRaw === 'f') ? $generoRaw : 'n';
+
+// senha segura
 $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
 try {
-    // Verifica se email já existe
-    $stmt = $pdo->prepare("SELECT id FROM usuarios WHERE email = ?");
-    $stmt->execute([$email]);
+    // verifica email
+    $stmt = $conn->prepare("SELECT id_usuario FROM usuario WHERE email_usuario = :email LIMIT 1");
+    $stmt->execute([':email' => $email]);
 
-    if ($verifica->rowCount() > 0) {
-        die("Email já cadastrado.");
+    if ($stmt->fetch()) {
+        die("E-mail já cadastrado.");
     }
 
-    // Inserção no banco
-    $stmt = $pdo->prepare("
-        INSERT INTO usuarios 
-        (nome,email,senha,genero)
+    // insert
+    $stmt = $conn->prepare("
+        INSERT INTO usuario
+        (nome_usuario, email_usuario, senha_usuario, genero_usuario)
         VALUES
-        (:nome,:email,:senha,genero)
+        (:nome, :email, :senha, :genero)
     ");
 
     $stmt->execute([
-        ':nome' => $nome,
-        ':email' => $email,
-        ':senha' => $senhaHash,
+        ':nome'   => $nome,
+        ':email'  => $email,
+        ':senha'  => $senhaHash,
         ':genero' => $genero,
     ]);
 
-    // Redireciona para login
-    header("Location:/soee/index.php?cadastro=sucesso");
-    die();
+    header("Location: /soee/index.php?cadastro=sucesso");
+    exit();
 
-}catch(PDOException $e) {
+} catch (PDOException $e) {
     echo "Erro no cadastro: " . $e->getMessage();
 }
-?>
