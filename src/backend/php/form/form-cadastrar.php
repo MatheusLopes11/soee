@@ -124,7 +124,7 @@
         </div>
 
         <!-- Formulário multi-step -->
-        <form action="auth-cadastrar.php" method="POST" id="formCadastro" novalidate>
+        <form action="/soee/src/backend/php/auth/auth-cadastrar.php" method="POST" id="formCadastro" novalidate>
 
           <!-- ── STEP 1: Dados pessoais ── -->
           <div class="cad-passo" id="passo1">
@@ -362,7 +362,7 @@
 
   </div><!-- /.cad-scene -->
 
-        <script src="/soee/src/frontend/js/inicio.js"></script>
-      <script src="/soee/src/frontend/js/cadastrar.js"></script>
-  </body>
+  <script src="/soee/src/frontend/js/inicio.js"></script>
+  <script src="/soee/src/frontend/js/cadastrar.js"></script>
+</body>
 </html>
