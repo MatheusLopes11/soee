@@ -1,0 +1,664 @@
+/* ═══════════════════════════════════════════════════════════
+   cadastrar.css  —  SOEE · Página de Cadastro Premium
+   Depende de inicio.css (variáveis, animações, cursor, loader)
+═══════════════════════════════════════════════════════════ */
+
+/* ── Importação de fontes (garante no standalone também) ── */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+/* ─────────────────────────────────────────
+   CENA PRINCIPAL
+───────────────────────────────────────── */
+.cad-scene {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Fundo — mesmo DNA do hero */
+.cad-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+  radial-gradient(ellipse 70% 60% at 20% 50%, rgba(44,125,163,0.18) 0%, transparent 65%),
+  linear-gradient(145deg, #071520 0%, #0f2f42 40%, #0a1e2d 100%);
+}
+.cad-grid {
+  position: fixed; inset: 0; z-index: 1;
+  background-image:
+  linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 30%, transparent 100%);
+  pointer-events: none;
+}
+.cad-particles {
+  position: fixed; inset: 0; z-index: 1; overflow: hidden; pointer-events: none;
+}
+.cad-particles span {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  animation: floatParticle linear infinite;
+}
+.cad-particles span:nth-child(1) { width:380px; height:380px; top:-120px; left:-100px; animation-duration:22s; }
+.cad-particles span:nth-child(2) { width:200px; height:200px; top:30%; right:5%; animation-duration:16s; animation-delay:-4s; }
+.cad-particles span:nth-child(3) { width:120px; height:120px; bottom:10%; left:8%; animation-duration:11s; animation-delay:-7s; background:rgba(255,77,18,0.06); }
+.cad-particles span:nth-child(4) { width:70px; height:70px; bottom:40%; right:15%; animation-duration:9s; background:rgba(255,255,255,0.03); }
+.cad-particles span:nth-child(5) { width:260px; height:260px; bottom:-80px; right:-80px; animation-duration:20s; animation-delay:-10s; }
+
+/* ─────────────────────────────────────────
+   PAINEL ESQUERDO — LATERAL
+───────────────────────────────────────── */
+.cad-lateral {
+  position: relative; z-index: 10;
+  width: 420px; flex-shrink: 0;
+  display: flex; align-items: stretch;
+  padding: 48px 0;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+.cad-lateral-inner {
+  width: 100%;
+  padding: 0 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Link voltar */
+.cad-back-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 8px 0;
+  margin-bottom: 52px;
+  transition: var(--transicao);
+  width: fit-content;
+}
+.cad-back-link i { font-size: 0.7rem; transition: var(--transicao); }
+.cad-back-link:hover {
+  color: var(--laranja-destaque);
+}
+.cad-back-link:hover i { transform: translateX(-4px); }
+
+/* Marca */
+.cad-brand {
+  margin-bottom: 56px;
+}
+.cad-brand-logo {
+  width: 56px; height: 56px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.cad-brand-logo img { width: 38px; height: 38px; object-fit: contain; }
+.cad-brand-nome {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem; font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.cad-brand-tagline {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+/* Benefícios */
+.cad-beneficios {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 24px;
+  margin-bottom: auto;
+  padding-bottom: 52px;
+}
+.cad-beneficios li {
+  display: flex; align-items: flex-start; gap: 16px;
+  animation: fadeUp 0.6s both;
+}
+.cad-beneficios li:nth-child(1) { animation-delay: 0.3s; }
+.cad-beneficios li:nth-child(2) { animation-delay: 0.45s; }
+.cad-beneficios li:nth-child(3) { animation-delay: 0.6s; }
+.cad-beneficios li:nth-child(4) { animation-delay: 0.75s; }
+
+.cad-ben-icone {
+  width: 38px; height: 38px; flex-shrink: 0;
+  background: rgba(255,77,18,0.12);
+  border: 1px solid rgba(255,77,18,0.2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--laranja-destaque);
+  font-size: 0.9rem;
+  transition: var(--transicao);
+}
+.cad-beneficios li:hover .cad-ben-icone {
+  background: var(--laranja-destaque);
+  color: white;
+  transform: rotate(-6deg) scale(1.08);
+}
+.cad-beneficios li strong {
+  display: block;
+  font-size: 0.88rem; font-weight: 700;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 3px;
+}
+.cad-beneficios li span {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.5;
+}
+
+/* Badge ETEC */
+.cad-etec-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 16px; border-radius: 999px;
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.35);
+  width: fit-content;
+}
+.cad-etec-badge i { color: var(--laranja-destaque); }
+
+/* ─────────────────────────────────────────
+   PAINEL DIREITO — FORMULÁRIO
+───────────────────────────────────────── */
+.cad-main {
+  position: relative; z-index: 10;
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px 32px;
+  overflow-y: auto;
+}
+
+.cad-card {
+  width: 100%; max-width: 520px;
+  background: rgba(255,255,255,0.96);
+  border-radius: 28px;
+  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.12);
+  overflow: hidden;
+  animation: fadeUp 0.8s 0.2s both;
+}
+
+[data-theme="dark"] .cad-card {
+  background: rgba(12,24,37,0.97);
+  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(44,125,163,0.15);
+}
+
+/* ─────────────────────────────────────────
+   STEP TRACKER
+───────────────────────────────────────── */
+.cad-card-header {
+  padding: 28px 36px 0;
+}
+
+.cad-step-track {
+  display: flex; align-items: center;
+  margin-bottom: 32px;
+}
+
+.cad-step {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  flex-shrink: 0;
+  cursor: default;
+}
+.cad-step-circle {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem;
+  border: 2px solid var(--borda-sutil);
+  background: var(--fundo-pagina);
+  color: var(--texto-secundario);
+  transition: var(--transicao);
+  position: relative;
+}
+.cad-step span {
+  font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--texto-secundario);
+  transition: var(--transicao);
+}
+.cad-step.active .cad-step-circle {
+  background: var(--azul-principal);
+  border-color: var(--azul-principal);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(30,86,113,0.15);
+}
+.cad-step.active span { color: var(--azul-principal); }
+
+.cad-step.completo .cad-step-circle {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: white;
+}
+.cad-step.completo span { color: #16a34a; }
+
+.cad-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--borda-sutil);
+  margin: 0 8px;
+  margin-bottom: 20px;
+  border-radius: 1px;
+  transition: background 0.5s;
+  position: relative;
+  overflow: hidden;
+}
+.cad-step-line::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: var(--azul-principal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.cad-step-line.preenchido::after { transform: scaleX(1); }
+
+/* ─────────────────────────────────────────
+   PASSOS DO FORMULÁRIO
+───────────────────────────────────────── */
+form#formCadastro {
+  padding: 0 36px 0;
+}
+
+.cad-passo { animation: fadeUp 0.45s ease; }
+.cad-passo.hidden { display: none; }
+
+.cad-passo-titulo {
+  display: flex; align-items: flex-start; gap: 18px;
+  margin-bottom: 28px;
+}
+.cad-passo-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem; font-weight: 800;
+  line-height: 1;
+  color: var(--azul-principal);
+  opacity: 0.12;
+  flex-shrink: 0;
+  user-select: none;
+}
+.cad-passo-titulo h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem; font-weight: 800;
+  color: var(--azul-principal);
+  margin: 0 0 4px;
+  line-height: 1.1;
+}
+.cad-passo-titulo p {
+  font-size: 0.85rem;
+  color: var(--texto-secundario);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────
+   GRUPOS DE CAMPOS
+───────────────────────────────────────── */
+.form-grupo {
+  display: flex; flex-direction: column; gap: 7px;
+  margin-bottom: 20px;
+}
+.form-grupo label {
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--texto-secundario);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 7px;
+  transition: var(--transicao);
+}
+.form-grupo label i {
+  color: var(--azul-secundario);
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+/* Wrapper do input */
+.input-wrapper {
+  position: relative;
+  display: flex; align-items: center;
+}
+.input-wrapper input,
+.input-wrapper select,
+.input-wrapper textarea {
+  width: 100%;
+  padding: 13px 44px 13px 16px;
+  border: 1.5px solid var(--borda-sutil);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: var(--texto-principal);
+  background: var(--fundo-pagina);
+  transition: var(--transicao);
+  outline: none;
+  -webkit-appearance: none;
+}
+[data-theme="dark"] .input-wrapper input,
+[data-theme="dark"] .input-wrapper select,
+[data-theme="dark"] .input-wrapper textarea {
+  background: rgba(255,255,255,0.04);
+}
+.input-wrapper input:focus,
+.input-wrapper select:focus,
+.input-wrapper textarea:focus {
+  border-color: var(--azul-secundario);
+  background: var(--fundo-bloco);
+  box-shadow: 0 0 0 4px rgba(44,125,163,0.12);
+}
+.input-wrapper input::placeholder { color: rgba(100,116,139,0.5); }
+
+/* Estado de erro */
+.form-grupo.erro .input-wrapper input,
+.form-grupo.erro .input-wrapper select {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 4px rgba(229,62,62,0.1);
+}
+.form-grupo.ok .input-wrapper input,
+.form-grupo.ok .input-wrapper select {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 4px rgba(22,163,74,0.1);
+}
+
+/* Label animada no focus */
+.form-grupo:focus-within label {
+  color: var(--azul-principal);
+}
+.form-grupo:focus-within label i { opacity: 1; }
+
+/* Ícones de status */
+.input-status {
+  position: absolute; right: 14px;
+  display: flex; align-items: center;
+  pointer-events: none;
+  font-size: 0.9rem;
+}
+.status-ok  { color: #16a34a; display: none; }
+.status-erro{ color: #e53e3e; display: none; }
+.form-grupo.ok   .status-ok   { display: block; }
+.form-grupo.erro .status-erro { display: block; }
+
+/* Mensagem de campo */
+.campo-msg {
+  font-size: 0.74rem;
+  font-weight: 500;
+  min-height: 16px;
+  padding-left: 2px;
+  transition: var(--transicao);
+}
+.form-grupo.erro .campo-msg { color: #e53e3e; }
+.form-grupo.ok   .campo-msg { color: #16a34a; }
+
+/* Select */
+.select-wrapper select { padding-right: 42px; cursor: pointer; }
+.select-arrow {
+  position: absolute; right: 14px;
+  color: var(--texto-secundario);
+  font-size: 0.75rem; pointer-events: none;
+  transition: var(--transicao);
+}
+.select-wrapper:focus-within .select-arrow { transform: rotate(180deg); color: var(--azul-secundario); }
+
+/* Toggle senha */
+.toggle-senha {
+  position: absolute; right: 13px;
+  background: none; border: none; cursor: pointer;
+  color: var(--texto-secundario); font-size: 0.9rem;
+  padding: 4px; border-radius: 6px;
+  transition: var(--transicao);
+  display: flex; align-items: center; justify-content: center;
+}
+.toggle-senha:hover { color: var(--azul-secundario); background: rgba(44,125,163,0.08); }
+
+/* Campo extra com animação */
+.campo-extra { animation: fadeUp 0.4s ease; }
+
+/* ─────────────────────────────────────────
+   MEDIDOR DE FORÇA DA SENHA
+───────────────────────────────────────── */
+.forca-barra {
+  height: 4px;
+  background: var(--borda-sutil);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+.forca-fill {
+  height: 100%; width: 0;
+  border-radius: 999px;
+  transition: width 0.4s cubic-bezier(0.4,0,0.2,1), background 0.4s;
+}
+.forca-fill.f1 { width: 25%; background: #e53e3e; }
+.forca-fill.f2 { width: 50%; background: #f59e0b; }
+.forca-fill.f3 { width: 75%; background: #3b82f6; }
+.forca-fill.f4 { width: 100%; background: #16a34a; }
+
+.forca-label {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 6px;
+}
+#forcaTxt {
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.forca-dica { font-size: 0.7rem; color: var(--texto-secundario); }
+
+/* Requisitos */
+.senha-requisitos {
+  list-style: none;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  margin-top: 12px;
+}
+.senha-requisitos li {
+  font-size: 0.74rem;
+  color: var(--texto-secundario);
+  display: flex; align-items: center; gap: 6px;
+  transition: color 0.3s;
+}
+.senha-requisitos li i { font-size: 0.45rem; color: var(--borda-sutil); transition: color 0.3s; }
+.senha-requisitos li.ok { color: #16a34a; }
+.senha-requisitos li.ok i { color: #16a34a; }
+
+/* ─────────────────────────────────────────
+   RESUMO (step 3)
+───────────────────────────────────────── */
+.cad-resumo {
+  background: var(--fundo-pagina);
+  border: 1.5px solid var(--borda-sutil);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.resumo-linha {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--borda-sutil);
+  gap: 16px;
+}
+.resumo-linha:last-child { border-bottom: none; }
+.resumo-linha span {
+  color: var(--texto-secundario);
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.resumo-linha span i { color: var(--azul-secundario); font-size: 0.8rem; }
+.resumo-linha strong {
+  font-weight: 700; color: var(--texto-principal);
+  text-align: right; word-break: break-all;
+}
+
+/* Termo */
+.cad-termo {
+  display: flex; align-items: flex-start; gap: 12px;
+  cursor: pointer;
+  margin-bottom: 28px;
+  padding: 16px 18px;
+  border: 1.5px solid var(--borda-sutil);
+  border-radius: 12px;
+  background: var(--fundo-pagina);
+  transition: var(--transicao);
+  user-select: none;
+}
+.cad-termo:hover { border-color: var(--azul-secundario); background: var(--fundo-bloco); }
+.cad-termo input[type="checkbox"] { display: none; }
+.cad-termo-check {
+  width: 22px; height: 22px; flex-shrink: 0;
+  border: 2px solid var(--borda-sutil);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; color: transparent;
+  background: var(--fundo-bloco);
+  transition: var(--transicao);
+  margin-top: 1px;
+}
+.cad-termo input:checked + .cad-termo-check {
+  background: var(--azul-principal);
+  border-color: var(--azul-principal);
+  color: white;
+}
+.cad-termo > span:last-child {
+  font-size: 0.83rem; line-height: 1.55; color: var(--texto-secundario);
+}
+.cad-termo a { color: var(--azul-secundario); text-decoration: none; font-weight: 600; }
+.cad-termo a:hover { text-decoration: underline; }
+
+/* ─────────────────────────────────────────
+   BOTÕES
+───────────────────────────────────────── */
+.botao-proximo {
+  width: 100%; padding: 15px 28px;
+  background: var(--azul-principal);
+  color: white; border: none;
+  border-radius: 12px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 10px;
+  transition: var(--transicao);
+  box-shadow: 0 6px 20px rgba(30,86,113,0.3);
+  letter-spacing: 0.02em;
+}
+.botao-proximo:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(30,86,113,0.38);
+  background: var(--azul-secundario);
+}
+.botao-proximo:active { transform: translateY(0) scale(0.98); }
+
+.botao-cadastrar {
+  flex: 1; padding: 15px 28px;
+  background: var(--laranja-destaque);
+  color: white; border: none;
+  border-radius: 12px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 10px;
+  transition: var(--transicao);
+  box-shadow: 0 6px 20px var(--laranja-sombra);
+}
+.botao-cadastrar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px var(--laranja-sombra);
+}
+.botao-cadastrar:disabled {
+  opacity: 0.6; cursor: not-allowed; transform: none;
+}
+
+.botao-voltar {
+  padding: 14px 20px;
+  background: transparent;
+  border: 1.5px solid var(--borda-sutil);
+  border-radius: 12px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem; font-weight: 600;
+  color: var(--texto-secundario); cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  transition: var(--transicao);
+}
+.botao-voltar:hover {
+  border-color: var(--azul-secundario);
+  color: var(--azul-principal);
+  background: rgba(44,125,163,0.06);
+}
+
+/* Navegação lado a lado */
+.cad-passo-nav {
+  display: flex; gap: 12px; align-items: stretch;
+}
+
+/* Spinner no botão */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: white;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─────────────────────────────────────────
+   RODAPÉ DO CARD
+───────────────────────────────────────── */
+.cad-card-footer {
+  text-align: center;
+  padding: 22px 36px 28px;
+  font-size: 0.85rem;
+  color: var(--texto-secundario);
+  border-top: 1px solid var(--borda-sutil);
+  margin-top: 24px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.cad-card-footer a {
+  color: var(--azul-secundario);
+  text-decoration: none; font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+  transition: var(--transicao);
+}
+.cad-card-footer a:hover {
+  color: var(--laranja-destaque);
+  gap: 10px;
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVO
+───────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .cad-lateral { width: 340px; }
+  .cad-lateral-inner { padding: 0 32px; }
+}
+
+@media (max-width: 820px) {
+  .cad-lateral { display: none; }
+  .cad-main { padding: 24px 16px; }
+  .cad-card { border-radius: 20px; }
+  form#formCadastro { padding: 0 24px; }
+  .cad-card-header { padding: 24px 24px 0; }
+}
+
+@media (max-width: 480px) {
+  .cad-main { padding: 16px; }
+  .cad-card { border-radius: 16px; }
+  form#formCadastro { padding: 0 20px; }
+  .cad-card-header { padding: 20px 20px 0; }
+  .cad-passo-titulo h1 { font-size: 1.3rem; }
+  .cad-passo-num { font-size: 2.4rem; }
+  .senha-requisitos { grid-template-columns: 1fr; }
+  .cad-card-footer { padding: 18px 20px 24px; flex-direction: column; gap: 6px; }
+  .cad-passo-nav { flex-direction: column; }
+  .botao-cadastrar { width: 100%; }
+}
+
+/* ─────────────────────────────────────────
+   DARK MODE AJUSTES EXTRAS
+───────────────────────────────────────── */
+[data-theme="dark"] .cad-resumo { background: rgba(255,255,255,0.03); }
+[data-theme="dark"] .cad-termo  { background: rgba(255,255,255,0.02); }
+[data-theme="dark"] .cad-step-circle { background: rgba(255,255,255,0.04); }
+[data-theme="dark"] .cad-step.active .cad-step-circle { background: var(--azul-secundario); border-color: var(--azul-secundario); }
+[data-theme="dark"] .input-wrapper input::placeholder { color: rgba(141,168,188,0.4); }

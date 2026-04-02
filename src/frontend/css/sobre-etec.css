@@ -1,0 +1,387 @@
+/* ─────────────────────────────────────────
+   sobre-etec.css — SOEE
+───────────────────────────────────────── */
+
+/* ─── (padrão das páginas) ─── */
+.pagina {
+  position: relative;
+  min-height: 52vh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; overflow: hidden;
+}
+.pagina-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 0%, rgba(44,125,163,0.2) 0%, transparent 70%),
+    linear-gradient(160deg, #0a2d3d 0%, #1e5671 45%, #0f3447 100%);
+}
+.pagina-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+.pagina-conteudo {
+  position: relative; z-index: 2;
+  color: white; padding: 80px 24px 100px; max-width: 760px;
+}
+.pagina-conteudo h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 800; line-height: 1.12;
+  margin: 20px 0 16px;
+  animation: fadeUp 0.7s 0.4s both;
+}
+.pagina-conteudo h1 em {
+  font-style: normal; color: var(--laranja-destaque);
+}
+.pagina-conteudo p {
+  font-size: 1.05rem; color: #c8dce8;
+  max-width: 560px; margin: 0 auto;
+  animation: fadeUp 0.7s 0.6s both;
+}
+.pagina-conteudo .hero-badge { animation: fadeUp 0.7s 0.2s both; }
+.pagina-onda {
+  position: absolute; bottom: -1px; left: 0; right: 0;
+  z-index: 3; line-height: 0;
+}
+.pagina-onda svg { width: 100%; height: 80px; }
+
+/* ─── SOBRE A ESCOLA ─── */
+.sobre-escola-section { padding: 100px 24px; }
+.sobre-escola-container { max-width: 1200px; margin: 0 auto; }
+
+.sobre-escola-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.sobre-escola-texto .secao-tag { margin-bottom: 16px; }
+
+.sobre-escola-texto h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  color: var(--azul-principal);
+  margin-bottom: 24px; line-height: 1.2;
+}
+.sobre-escola-texto h2 em {
+  font-style: normal; color: var(--laranja-destaque);
+}
+
+.sobre-escola-texto p {
+  font-size: 0.97rem;
+  color: var(--texto-secundario);
+  line-height: 1.8; margin-bottom: 18px;
+}
+.sobre-escola-texto p strong { color: var(--azul-principal); font-weight: 600; }
+
+/* Cards de destaque */
+.sobre-escola-destaque {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.destaque-card {
+  background: var(--fundo-bloco);
+  border: 1px solid var(--borda-sutil);
+  border-radius: var(--raio-grande);
+  padding: 28px 24px;
+  text-align: center;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  transition: var(--transicao);
+  box-shadow: var(--sombra-leve);
+}
+
+.destaque-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--sombra-hover);
+  border-color: rgba(30,86,113,0.2);
+}
+
+.destaque-card i {
+  font-size: 1.4rem;
+  color: var(--laranja-destaque);
+  margin-bottom: 4px;
+}
+
+.destaque-card strong {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem; font-weight: 800;
+  color: var(--azul-principal);
+  line-height: 1;
+}
+
+.destaque-card span {
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--texto-secundario);
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.destaque-card-full {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, var(--azul-principal), var(--azul-secundario));
+  border-color: transparent;
+  color: white;
+}
+.destaque-card-full i     { color: rgba(255,255,255,0.7); }
+.destaque-card-full strong { color: white; font-size: 1.2rem; }
+.destaque-card-full span  { color: rgba(255,255,255,0.7); }
+
+/* ─── CURSOS ─── */
+.cursos-section {
+  padding: 100px 24px;
+  background: var(--fundo-bloco);
+  position: relative;
+}
+.cursos-section::before,
+.cursos-section::after {
+  content: '';
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--borda-sutil), transparent);
+}
+.cursos-section::before { top: 0; }
+.cursos-section::after  { bottom: 0; }
+
+.cursos-container { max-width: 1200px; margin: 0 auto; }
+
+.cursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 0;
+}
+
+.curso-card {
+  background: var(--fundo-pagina);
+  border: 1px solid var(--borda-sutil);
+  border-radius: var(--raio-grande);
+  padding: 32px 28px;
+  display: flex; gap: 20px;
+  align-items: flex-start;
+  transition: var(--transicao);
+  position: relative;
+  overflow: hidden;
+}
+
+.curso-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--sombra-hover);
+  border-color: rgba(30,86,113,0.2);
+}
+
+.curso-icone {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, var(--azul-principal), var(--azul-secundario));
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; color: white;
+  flex-shrink: 0;
+  transition: var(--transicao);
+  box-shadow: 0 6px 16px rgba(30,86,113,0.25);
+}
+
+.curso-card:hover .curso-icone {
+  transform: rotate(-8deg) scale(1.1);
+  background: linear-gradient(135deg, var(--laranja-destaque), #c2410c);
+  box-shadow: 0 6px 16px var(--laranja-sombra);
+}
+
+.curso-tipo {
+  display: inline-block;
+  font-size: 0.67rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--azul-secundario);
+  background: rgba(44,125,163,0.08);
+  padding: 3px 10px; border-radius: 999px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(44,125,163,0.15);
+}
+
+.curso-tipo-especial {
+  color: var(--laranja-destaque);
+  background: rgba(255,77,18,0.08);
+  border-color: rgba(255,77,18,0.15);
+}
+
+.curso-corpo h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--texto-principal);
+  margin-bottom: 10px; line-height: 1.25;
+}
+
+.curso-corpo p {
+  font-size: 0.88rem;
+  color: var(--texto-secundario);
+  line-height: 1.7; margin-bottom: 16px;
+}
+
+.curso-detalhes {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+
+.curso-detalhes span {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.76rem; font-weight: 600;
+  color: var(--texto-secundario);
+  background: var(--fundo-bloco);
+  padding: 3px 10px; border-radius: 999px;
+  border: 1px solid var(--borda-sutil);
+}
+
+/* Badge "Nosso curso" */
+.curso-destaque-badge {
+  position: absolute; top: 16px; right: 16px;
+  background: var(--laranja-destaque);
+  color: white;
+  font-size: 0.68rem; font-weight: 700;
+  padding: 4px 10px; border-radius: 999px;
+  display: flex; align-items: center; gap: 5px;
+  box-shadow: 0 4px 10px var(--laranja-sombra);
+}
+
+/* Card especial (integrado) */
+.curso-card-especial {
+  border-color: rgba(255,77,18,0.15);
+  background: linear-gradient(135deg, rgba(255,77,18,0.03), var(--fundo-pagina));
+}
+
+/* ─── INFORMAÇÕES / CONTATO ─── */
+.info-section { padding: 100px 24px; }
+.info-container { max-width: 1200px; margin: 0 auto; }
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 24px;
+}
+
+.info-card {
+  background: var(--fundo-bloco);
+  border: 1px solid var(--borda-sutil);
+  border-radius: var(--raio-grande);
+  padding: 32px 28px;
+  box-shadow: var(--sombra-leve);
+  transition: var(--transicao);
+}
+
+.info-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--sombra-hover);
+  border-color: rgba(30,86,113,0.2);
+}
+
+.info-icone {
+  width: 52px; height: 52px;
+  background: rgba(255,77,18,0.08);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; color: var(--laranja-destaque);
+  margin-bottom: 18px;
+  border: 1px solid rgba(255,77,18,0.12);
+  transition: var(--transicao);
+}
+
+.info-card:hover .info-icone {
+  background: var(--laranja-destaque);
+  color: white;
+  transform: rotate(-6deg) scale(1.08);
+}
+
+.info-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--texto-principal);
+  margin-bottom: 12px;
+}
+
+.info-card p {
+  font-size: 0.93rem;
+  color: var(--texto-secundario);
+  line-height: 1.6; margin-bottom: 4px;
+}
+
+.info-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 16px;
+  font-size: 0.82rem; font-weight: 700;
+  color: var(--azul-principal);
+  text-decoration: none;
+  background: rgba(30,86,113,0.07);
+  padding: 7px 16px; border-radius: 999px;
+  border: 1px solid rgba(30,86,113,0.12);
+  transition: var(--transicao);
+}
+
+.info-link:hover {
+  background: var(--azul-principal);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(30,86,113,0.25);
+}
+
+/* Horários */
+.horario-lista { display: flex; flex-direction: column; gap: 10px; }
+
+.horario-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 12px;
+  background: var(--fundo-pagina);
+  border-radius: var(--raio-medio);
+  border: 1px solid var(--borda-sutil);
+}
+
+.horario-periodo {
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--texto-secundario);
+}
+
+.horario-horas {
+  font-size: 0.88rem; font-weight: 700;
+  color: var(--azul-principal);
+  font-feature-settings: "tnum";
+}
+
+.horario-dias {
+  margin-top: 6px;
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--texto-secundario);
+  display: flex; align-items: center; gap: 6px;
+}
+.horario-dias i { color: var(--laranja-destaque); }
+
+/* Card do mapa — ocupa a linha inteira */
+.info-card-mapa {
+  grid-column: 1 / -1;
+  padding: 0;
+  height: 320px;
+  overflow: hidden;
+}
+
+/* ─── RESPONSIVO ─── */
+@media (max-width: 1024px) {
+  .sobre-escola-grid { grid-template-columns: 1fr; }
+  .info-grid { grid-template-columns: 1fr 1fr; }
+  .info-card-mapa { grid-column: 1 / -1; }
+}
+
+@media (max-width: 768px) {
+  .cursos-grid { grid-template-columns: 1fr; }
+  .info-grid { grid-template-columns: 1fr; }
+  .sobre-escola-destaque { grid-template-columns: 1fr 1fr; }
+  .pagina-hero-conteudo { padding: 60px 24px 80px; }
+}
+
+@media (max-width: 480px) {
+  .sobre-escola-destaque { grid-template-columns: 1fr; }
+  .destaque-card-full { grid-column: auto; }
+}

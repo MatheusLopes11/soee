@@ -1,50 +1,50 @@
 # *SOEE - Sistema de Organização Esportiva Escolar*
 
-## HISTÓRIA 
+## HISTÓRIA ⤵
 
 <p>
 
 </p>
 
-## INSTITUIÇÃO 
+## INSTITUIÇÃO ⤵
 <p>
 Etec Juscelino Kubitschek de Oliveira<br>
 https://etecjk.cps.sp.gov.br/
 </p>
 
-## CURSO
+## CURSO⤵
 <p>
 Técnico em Desenvolvimento de Sistemas
 </p>
 
-## TECNOLOGIAS APLICADAS
+## TECNOLOGIAS APLICADAS ⤵
 
 <p align="center">
   <table>
     <tr>
       <td align="center">
         <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original.svg" height="40"/><br>
-        <p>HTML5</p>
+        <sub>HTML5</sub>
       </td>
       <td align="center">
         <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original.svg" height="40"/><br>
-        <p>CSS3</p>
+        <sub>CSS3</sub>
       </td>
       <td align="center">
         <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" height="40"/><br>
-        <p>JavaScript</p>
+        <sub>JavaScript</sub>
       </td>
       <td align="center">
         <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/php/php-original.svg" height="40"/><br>
-        <p>PHP</p>
+        <sub>PHP</sub>
       </td>
       <td align="center">
         <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg" height="40"/><br>
-        <p>MySQL</p>
+        <sub>MySQL</sub>
       </td>
       <td align="center">
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apache/apache-original.svg" height="40"/><br>
-        <p>Apache</p>
+        <sub>Apache</sub>
       </td>
     </tr>
     <tr>
@@ -77,7 +77,7 @@ Técnico em Desenvolvimento de Sistemas
   </table>
 </p>
 
-## DESENVOLVEDORES 
+## DESENVOLVEDORES ⤵
 
 <p>
 
