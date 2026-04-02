@@ -97,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['username'])) {
                 if ($user['tipo_usuario'] === 'adm_geral') {
                     header('Location: /soee/src/backend/php/dashboard/dash-adm.php');
                 } else {
-                    header("Location: /soee/src/backend/php/pages/home.php");
+                    header("Location: /soee/src/backend/php/pages/inicio.php");
                 }
                 exit();
             }
