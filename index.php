@@ -1,105 +1,82 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<?php include __DIR__ . '/src/frontend/views/includes/html-above.php';?>
+
 <head>
-    <title>Login</title>
+
+    <title>Entrar</title>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
-    <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/soee/src/frontend/styles/forms/index.css">
+    <link rel="icon" type="image/png" href="/soee/src/frontend/assets/icons/logo-soee.png">
 
 </head>
+
 <body>
+        <form action="/soee/src/backend/controllers/index.php" method="POST">
+            <section class="todo-form">
+                <div class="todo-form">
 
-    <div class="bg-blur"></div>
-    <canvas id="particles"></canvas>
+                <section class="section-informacoes-breve">
+                    <div class="section-informacoes-breve"> <!-- (TÍTULO BREVE DIZENDO OQUE FAZER PARA CONTINUAR) -->
 
-    <div class="wrapper">
-        <div class="card">
-
-            <!-- ── Lado Esquerdo ── -->
-            <div class="left">
-                <div class="left-content">
-                    <img class="left-img" src="/soee/src/images/soee-login.png" alt="SOEE">
-                    <div class="left-title">S<span>.</span>O<span>.</span>E<span>.</span>E<span>.</span></div>
-                    <div class="left-sub">Sistema de Organização Esportiva Escolar</div>
-                    <div class="sport-chips"></div>
-                </div>
-            </div>
-
-            <!-- ── Lado Direito ── -->
-            <div class="right">
-
-                <div class="avatar-wrap">
-                    <div class="avatar" id="avatarIcon">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
-                </div>
-
-                <div class="right-header">
-                    <h2>Bem-vindo de volta</h2>
-                    <p>Faça login para acessar o sistema</p>
-                </div>
-
-                <?php if (!empty($erro)): ?>
-                <div class="error-msg">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <?= htmlspecialchars($erro) ?>
-                </div>
-                <?php endif; ?>
-
-                <form method="POST" action="/soee/src/backend/php/auth/auth-index.php" id="loginForm" novalidate>
-
-                    <div class="form-group">
-                        <label for="username">Usuário ou E-mail</label>
-                        <div class="input-wrap">
-                            <i class="fa-solid fa-user"></i>
-                            <input type="text" id="username" name="username" placeholder="Digite seu usuário" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" autocomplete="username">
+                        <div class="h1-conteudo">
+                            <h1>Bem vindo!</h1>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="password">Senha</label>
-                        <div class="input-wrap">
-                            <i class="fa-solid fa-lock"></i>
-                            <input type="password" id="password" name="password" placeholder="Digite sua senha" autocomplete="current-password">
-                            <i class="fa-solid fa-eye toggle-pw" id="togglePw" title="Mostrar senha"></i>
+                        <div class="p-conteudo">
+                            <p>Digite dados para conhecer nosso sistema</p>
                         </div>
+
+                    </div><br>
+                </section>
+
+                <div class="campo-label-input"> <!-- (PARTE DO E-MAIL) -->
+
+                    <div class="label-conteudo">
+                        <label>E-mail</label>
                     </div>
 
-                    <div class="options">
-                        <label>
-                            <input type="checkbox" name="remember"> Lembrar-me
-                        </label>
+                    <div class="input-conteudo">
+                        <input type="text" name="email" placeholder="Digite seu Email" required>
                     </div>
 
-                    <button type="submit" class="btn-login" id="btnLogin">
-                        ENTRAR
-                    </button>
+                </div>
 
-                    <a href="/soee/src/backend/php/pages/inicio.php" class="btn-login btn-guest">
-                        ENTRAR SEM CADASTRO
-                    </a>
 
-                    <div class="links-row">
-                        <a href="/soee/src/backend/php/pages/inicio.php">
-                            <i class="fa-solid fa-arrow-left"></i> Voltar
-                        </a>
-                        <span class="register-link">
-                            <a href="/soee/src/backend/php/form/form-cadastrar.php">Cadastrar-se</a>
-                        </span>
+                <div class="campo-label-input"> <!-- (PARTE DA SENHA) -->
+
+                    <div class="label-conteudo">
+                        <label>Senha</label>
+                    </div>
+                    <div class="input-conteudo">
+                        <input type="password" name="senha" placeholder="Digite sua Senha" required>
                     </div>
 
-                </form>
-            </div>
-        </div>
-    </div>
+                </div><br>
 
-    <script src="/soee/src/frontend/js/incio.js"></script>
+
+                <div class="input-submit"> <!-- (PARTE BOTÃO CADASTRAR) -->
+                    <input type="submit" name="botao" value="CADASTRAR"> 
+                </div>
+
+
+                <div class="a-entrar-sem-conta"> <!-- (CAMINHO PARA ENTRAR NA HOME SEM CADASTRO) -->
+                    <a href="/soee/src/frontend/views/pages/home.php">Entrar sem Conta</a> 
+                </div>
+
+
+                <div class="a-cadastrar"> <!-- (CAMINHO PARA CADASTRAR) -->
+                    <a href="/soee/src/frontend/views/forms/cadastrar.php">Cadastrar-se</a>
+                </div>
+
+                
+                </div>
+            </section>
+        </form>
+
+    <script src="/soee/src/frontend/scripts/index.js"></script> <!-- (Link JavaScript SE A GENTE USAR!) -->
+
 </body>
-</html>
+
+<?php include __DIR__ . '/src/frontend/views/includes/html-down.php';?>
