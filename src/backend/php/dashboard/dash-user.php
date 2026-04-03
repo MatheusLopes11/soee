@@ -1,3 +1,14 @@
+<?php
+require_once __DIR__ . '/../include/conexao.php';
+require_once __DIR__ . '/../auth/auth-home.php';
+
+AuthHome::exigirTipo(['aluno']);
+
+$userId   = AuthHome::getId();
+$userNome = AuthHome::getNome();
+?>
+
+
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>

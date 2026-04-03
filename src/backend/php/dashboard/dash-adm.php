@@ -1,16 +1,18 @@
 <?php
-// dash-adm.php
-session_start();
-$usuario_logado = $_SESSION['usuario']['nome'] ?? 'Administrador';
-$tipo_usuario   = $_SESSION['usuario']['tipo'] ?? 'adm_geral';
+require_once __DIR__ . '/../include/conexao.php';
+require_once __DIR__ . '/../auth/auth-home.php';
 
-require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/include/conexao.php";
+AuthHome::exigirTipo(['adm_geral']);
+
+$usuario_logado = AuthHome::getNome();
+$tipo_usuario   = AuthHome::getTipo();
 
 // ── KPIs ──────────────────────────────────────────────────
 $kpi_alunos      = $conn->query("SELECT COUNT(*) FROM usuario WHERE tipo_usuario = 'aluno' AND ativo_usuario = 1")->fetchColumn();
 $kpi_partidas    = $conn->query("SELECT COUNT(*) FROM partida WHERE status_partida = 'agendada'")->fetchColumn();
 $kpi_realizadas  = $conn->query("SELECT COUNT(*) FROM partida WHERE status_partida = 'realizada'")->fetchColumn();
 $kpi_modalidades = $conn->query("SELECT COUNT(*) FROM modalidade WHERE ativo_modalidade = 1")->fetchColumn();
+
 
 // ── USUÁRIOS ───────────────────────────────────────────────
 $usuarios = $conn->query("
@@ -221,15 +223,15 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
     </a>
   </nav>
 
-  <div class="sidebar-footer">
-    <div class="user-card">
+<div class="sidebar-footer">
+    <a href="/soee/src/backend/php/pages/user-conta.php" class="user-card" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:var(--raio-medio);transition:background .2s;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='none'">
       <div class="user-avatar"><?= strtoupper(substr($usuario_logado, 0, 2)) ?></div>
       <div class="user-info">
         <strong><?= htmlspecialchars($usuario_logado) ?></strong>
         <span>Adm. Geral</span>
       </div>
-    </div>
-  </div>
+    </a>
+</div>
 </aside>
 
 <!-- ══════════════════════════════════════

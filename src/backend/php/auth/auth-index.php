@@ -5,6 +5,22 @@ include __DIR__ . '/../include/conexao.php';
 
 $erro = "";
 
+/* ==========================================
+   FUNÇÃO AUXILIAR — REDIRECIONA POR TIPO
+========================================== */
+function redirecionarPorTipo($tipo) {
+    $rotas = [
+        'adm_geral' => '/soee/src/backend/php/dashboard/dash-adm.php',
+        'adm_sala'  => '/soee/src/backend/php/dashboard/dash-adm-sala.php',
+        'professor' => '/soee/src/backend/php/dashboard/dash-prof.php',
+        'aluno'     => '/soee/src/backend/php/dashboard/dash-user.php',
+    ];
+
+    $destino = isset($rotas[$tipo]) ? $rotas[$tipo] : '/soee/src/backend/php/pages/inicio.php';
+    header('Location: ' . $destino);
+    exit();
+}
+
 /* =========================
    LOGIN AUTOMÁTICO (COOKIE)
 ========================= */
@@ -12,27 +28,22 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
 
     $token = $_COOKIE['remember_token'];
 
-    $sql = "SELECT * FROM usuario WHERE remember_token = :token LIMIT 1";
+    $sql  = "SELECT * FROM usuario WHERE remember_token = :token LIMIT 1";
     $stmt = $conn->prepare($sql);
     $stmt->bindValue(":token", $token);
     $stmt->execute();
 
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user) {
+    if ($user && $user['ativo_usuario'] == 1) {
         $_SESSION['user_id']   = $user['id_usuario'];
         $_SESSION['user_nome'] = $user['nome_usuario'];
         $_SESSION['user_tipo'] = $user['tipo_usuario'];
 
-        if ($user['tipo_usuario'] === 'adm_geral') {
-            header('Location: /soee/src/backend/php/dashboard/dash-adm.php');
-        } else {
-            header("Location: /soee/src/backend/php/pages/home.php");
-        }
-        exit();
+        redirecionarPorTipo($user['tipo_usuario']);
     }
 
-    // Token inválido/expirado — limpa o cookie
+    // Token inválido ou conta inativa — limpa o cookie
     setcookie("remember_token", "", time() - 3600, "/");
 }
 
@@ -50,8 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['username'])) {
     } else {
 
         $sql = "SELECT * FROM usuario 
-                WHERE nome_usuario = :login 
-                OR email_usuario = :login 
+                WHERE (nome_usuario = :login OR email_usuario = :login)
                 LIMIT 1";
 
         $stmt = $conn->prepare($sql);
@@ -73,33 +83,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['username'])) {
                 if ($remember) {
                     $token = bin2hex(random_bytes(32));
 
-                    $sql = "UPDATE usuario 
-                            SET remember_token = :token 
-                            WHERE id_usuario = :id";
+                    $upd = $conn->prepare("UPDATE usuario SET remember_token = :token WHERE id_usuario = :id");
+                    $upd->execute([":token" => $token, ":id" => $user['id_usuario']]);
 
-                    $stmt = $conn->prepare($sql);
-                    $stmt->execute([
-                        ":token" => $token,
-                        ":id"    => $user['id_usuario']
-                    ]);
-
-                    setcookie(
-                        "remember_token",
-                        $token,
-                        time() + (86400 * 30),
-                        "/",
-                        "",
-                        false,
-                        true
-                    );
+                    setcookie("remember_token", $token, time() + (86400 * 30), "/", "", false, true);
                 }
 
-                if ($user['tipo_usuario'] === 'adm_geral') {
-                    header('Location: /soee/src/backend/php/dashboard/dash-adm.php');
-                } else {
-                    header("Location: /soee/src/backend/php/pages/inicio.php");
-                }
-                exit();
+                redirecionarPorTipo($user['tipo_usuario']);
             }
 
         } else {

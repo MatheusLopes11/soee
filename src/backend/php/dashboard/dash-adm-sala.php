@@ -1,19 +1,12 @@
 <?php
-session_start();
-include __DIR__ . '/../include/conexao.php';
+require_once __DIR__ . '/../include/conexao.php';
+require_once __DIR__ . '/../auth/auth-home.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: /soee/index.php');
-    exit();
-}
+AuthHome::exigirTipo(['adm_sala']);
 
-if ($_SESSION['user_tipo'] !== 'adm_sala') {
-    header('Location: /soee/index.php');
-    exit();
-}
+$userId   = AuthHome::getId();
+$userNome = AuthHome::getNome();
 
-$userId   = (int) $_SESSION['user_id'];
-$userNome = $_SESSION['user_nome'];
 
 $stmtUser = $conn->prepare("
     SELECT u.nome_usuario, u.email_usuario, u.foto_perfil_usuario,
@@ -479,19 +472,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--texto)
     </div>
     <?php endif; ?>
 
-    <div class="sidebar-perfil">
-        <div class="perfil-avatar">
-            <?php if (!empty($userData['foto_perfil_usuario'])): ?>
-                <img src="<?= htmlspecialchars($userData['foto_perfil_usuario']) ?>" alt="">
-            <?php else: ?>
-                <i class="fa-solid fa-user-shield"></i>
-            <?php endif; ?>
-        </div>
-        <div class="perfil-info">
-            <div class="perfil-nome"><?= htmlspecialchars($userNome) ?></div>
-            <div class="perfil-cargo">ADM de Sala</div>
-        </div>
+<a href="/soee/src/backend/php/pages/user-conta.php" class="sidebar-perfil" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid rgba(255,255,255,.08);margin-top:12px;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">
+    <div class="perfil-avatar">
+        <?php if (!empty($userData['foto_perfil_usuario'])): ?>
+            <img src="<?= htmlspecialchars($userData['foto_perfil_usuario']) ?>" alt="">
+        <?php else: ?>
+            <i class="fa-solid fa-user-shield"></i>
+        <?php endif; ?>
     </div>
+    <div class="perfil-info">
+        <div class="perfil-nome"><?= htmlspecialchars($userNome) ?></div>
+        <div class="perfil-cargo">ADM de Sala</div>
+    </div>
+</a>
 
     <nav class="sidebar-nav">
         <div class="nav-secao">Painel</div>

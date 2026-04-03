@@ -25,7 +25,7 @@ class AuthHome
         'adm_geral'  => '/soee/src/backend/php/dashboard/dash-adm.php',
         'adm_sala'   => '/soee/src/backend/php/dashboard/dash-adm-sala.php',
         'professor'  => '/soee/src/backend/php/dashboard/dash-prof.php',
-        'usuario'      => '/soee/src/backend/php/pages/dash-user.php',
+        'aluno'      => '/soee/src/backend/php/dashboard/dash-user.php',
     ];
 
     private static string $paginaLogin  = '/soee/index.php';

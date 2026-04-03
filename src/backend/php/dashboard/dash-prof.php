@@ -1,19 +1,12 @@
 <?php
-session_start();
-include __DIR__ . '/../include/conexao.php';
+require_once __DIR__ . '/../include/conexao.php';
+require_once __DIR__ . '/../auth/auth-home.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: /soee/index.php');
-    exit();
-}
+AuthHome::exigirTipo(['professor']);
 
-if ($_SESSION['user_tipo'] !== 'professor') {
-    header('Location: /soee/index.php');
-    exit();
-}
+$userId   = AuthHome::getId();
+$userNome = AuthHome::getNome();
 
-$userId   = (int) $_SESSION['user_id'];
-$userNome = $_SESSION['user_nome'];
 
 $stmtUser = $conn->prepare("
     SELECT u.nome_usuario, u.email_usuario, u.foto_perfil_usuario, u.genero_usuario

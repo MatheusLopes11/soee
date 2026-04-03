@@ -13,9 +13,9 @@ if (AuthHome::estaLogado()) {
 $erro = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
-    $login    = trim($_POST['username']  ?? '');
-    $senha    = trim($_POST['password']  ?? '');
-    $lembrar  = isset($_POST['remember']);
+    $login   = trim($_POST['username'] ?? '');
+    $senha   = trim($_POST['password'] ?? '');
+    $lembrar = isset($_POST['remember']);
 
     $resultado = AuthHome::processarLogin($conn, $login, $senha, $lembrar);
 
@@ -385,7 +385,6 @@ body:has(button:hover) .cursor-ring{width:52px;height:52px;border-color:rgba(255
                 <i class="fa-solid fa-house"></i> Início
             </a>
             <button class="btn-icone-header" id="toggleTema" aria-label="Tema">
-                <i class="fa-solid fa-moon" id="iconeTema"></i>
             </button>
         </div>
 

@@ -166,6 +166,9 @@ values
 insert into turma 
 (curso_id_curso, nome_turma, ano_serie_turma, ano_letivo_turma, periodo_turma) 
 values
+-- Professores
+(1, 'Professores', 4, 2026, 'manha'),
+
 -- MTEC
 (1, '1 MTEC', 1, 2026, 'manha'),
 (1, '2 MTEC', 2, 2026, 'manha'),
@@ -190,6 +193,13 @@ values
 (NULL, 'Miguel Lopes Aquinez da Silva', 'miguelaquinez17@gmail.com', '12345mlas', 'm', 'adm_geral', 1),
 (NULL, 'Matheus Ferreira Lopes', 'matheusflopes167@gmail.com', '12345mfl', 'm', 'adm_geral', 1),
 (NULL, 'Isabelly Barbosa Santos', 'isabellybarbosantos1357@gmail.com', '12345ibs', 'f', 'adm_geral', 1),
+
+
+-- Professores --
+(10, 'Silmara Beltrame', 'silmara.beltrame@gmail.com', '123456', 'f', 'professor', 1),
+
+-- Adm sala --
+
 
 -- EMIF 1 (ID 4)
 (4, 'Guilherme Luiz', 'guilherme.luiz@gmail.com', '123456', 'n', 'aluno', 1),
