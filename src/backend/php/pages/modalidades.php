@@ -21,19 +21,14 @@ function labelTipo(string $t): string {
 }
 function numCard(int $n): string { return str_pad($n,2,'0',STR_PAD_LEFT); }
 ?>
-<!DOCTYPE html>
-<html lang="pt-br" data-theme="light">
+
+<!-- ( HTML ) -->
+<?php include __DIR__ . '/../include/doctype.php';?>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script>const _t=localStorage.getItem('theme');if(_t)document.documentElement.setAttribute('data-theme',_t);</script>
   <title>Modalidades</title>
-  <link rel="stylesheet" href="/soee/src/frontend/css/modalidades.css">
-  <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
-  <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="/soee/src/frontend/css/modalidades.css">
+    <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
+  <?php include __DIR__ . '/../include/head-data.php';?>
 </head>
 <body>
 
@@ -211,6 +206,6 @@ function numCard(int $n): string { return str_pad($n,2,'0',STR_PAD_LEFT); }
 
   <script src="/soee/src/frontend/js/inicio.js"></script>
   <script src="/soee/src/frontend/js/modalidades.js"></script>
+  <script>const _t=localStorage.getItem('theme');if(_t)document.documentElement.setAttribute('data-theme',_t);</script>
 
-</body>
-</html>
+<?php include __DIR__ . '/../include/end.php';?>

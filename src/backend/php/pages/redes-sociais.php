@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<?php include __DIR__ . '/../include/doctype.php';?>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redes Socias</title>
+  <title>Redes Socias</title>
     <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
+  <?php include __DIR__ . '/../include/head-data.php';?>
 </head>
     <body>
 
@@ -45,5 +43,4 @@
     </div>
   </header>
 
-    </body>
-</html>
+<?php include __DIR__ . '/../include/end.php';?>

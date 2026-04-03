@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html lang="pt-br" data-theme="light">
+<?php include __DIR__ . '/../include/doctype.php';?>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contato & Redes | SOEE</title>
-
-  <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
-  <link rel="stylesheet" href="/soee/src/frontend/css/contato-redes.css">
+    <title>Contato & Redes | SOEE</title>
+      <link rel="stylesheet" href="/soee/src/frontend/css/contato-redes.css">
+    <?php include __DIR__ . '/../include/head-data.php';?>
 </head>
 
 <body>
@@ -199,6 +191,9 @@
   </footer>
 
   <script src="/soee/src/frontend/js/inicio.js"></script>
+  <script>
+    const _t = localStorage.getItem('theme');
+    if (_t) document.documentElement.setAttribute('data-theme', _t);
+  </script>
 
-</body>
-</html>
+<?php include __DIR__ . '/../include/end.php';?>

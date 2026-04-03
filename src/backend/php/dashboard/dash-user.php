@@ -9,21 +9,12 @@ $userNome = AuthHome::getNome();
 ?>
 
 
-<!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
-<head>
-  <title>SOEE — Dashboard</title>
-
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <link rel="stylesheet" href="/soee/src/frontend/css/dash-user.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
-</head>
+<?php include __DIR__ . '/../include/doctype.php';?>
+  <head>
+    <title>SOEE — Dashboard</title>
+      <link rel="stylesheet" href="/soee/src/frontend/css/dash-user.css">
+    <?php include __DIR__ . '/../include/head-data.php';?>  
+  </head>
 <body>
 
 <!-- CURSOR -->
@@ -243,5 +234,5 @@ $userNome = AuthHome::getNome();
 </div>
 
     <script src="/soee/src/frontend/js/dash-user.js"></script>
-  </body>
-</html>
+
+<?php include __DIR__ . '/../include/end.php';?>

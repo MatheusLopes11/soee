@@ -160,18 +160,13 @@ function badgeStatus($s) {
 function fmtData($d) { return $d ? date('d/m/Y', strtotime($d)) : '—'; }
 function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+
+<!-- ( HTML ) -->
+<?php include __DIR__ . '/../include/doctype.php';?>
 <head>
     <title>SOEE | Dashboard Administrativo</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/soee/src/frontend/css/dash-adm.css">
-    <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+      <link rel="stylesheet" href="/soee/src/frontend/css/dash-adm.css">
+    <?php include __DIR__ . '/../include/head-data.php';?>  
 </head>
 <body>
 
@@ -1072,5 +1067,5 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
 <div class="toast-container" id="toast-container"></div>
 
 <script src="/soee/src/frontend/js/dash-adm.js"></script>
-</body>
-</html>
+
+<?php include __DIR__ . '/../include/end.php';?>

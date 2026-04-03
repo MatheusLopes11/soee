@@ -27,24 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+
+<?PHP include __DIR__ . '/src/backend/php/include/doctype.php';?>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOEE — Entrar</title>
-<link rel="stylesheet" href="/soee/src/frontend/css/index.css">
-<link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
-
-<script>
-    const _t = localStorage.getItem('theme');
-    if (_t) document.documentElement.setAttribute('data-theme', _t);
-</script>
-
+    <title>SOEE — Entrar</title>
+        <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
+    <?php include __DIR__ . '/src/backend/php/include/head-data.php';?>
 </head>
 <body>
 
@@ -178,5 +166,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
     </footer>
 
     <script src="/soee/src/frontend/js/index.js"></script>
-</body>
-</html>
+    <script>
+    const _t = localStorage.getItem('theme');
+    if (_t) document.documentElement.setAttribute('data-theme', _t);
+    </script>
+
+<?php include __DIR__ . '/src/backend/php/include/end.php';?>

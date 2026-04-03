@@ -1,21 +1,15 @@
-<?php
+<?php 
 require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/auth/auth-esporte.php";
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cadastro de Modalidade — SOEE</title>
-  <script>const _t=localStorage.getItem('theme');if(_t)document.documentElement.setAttribute('data-theme',_t);</script>
-  <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
-  <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css" />
-  <link rel="stylesheet" href="/soee/src/frontend/css/cad-esporte.css"/>
-</head>
+
+<!-- ( HTML ) -->
+<?php include __DIR__ . '/../include/doctype.php';?>
+  <head>
+    <title>Cadastro de Modalidade — SOEE</title>
+      <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css" />
+      <link rel="stylesheet" href="/soee/src/frontend/css/cad-esporte.css"/>
+    <?php include __DIR__ . '/../include/head-data.php';?>
+  </head>
 <body>
 
   <div class="cursor-dot"  id="cursorDot"></div>
@@ -48,7 +42,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/auth/auth-esport
         </div>
       <?php endif; ?>
 
-      <form action="" method="POST" id="formModalidade" enctype="multipart/form-data" novalidate>
+      <form action="/soee/src/backend/php/auth/auth-esporte.php" method="POST" id="formModalidade" enctype="multipart/form-data" novalidate>
         <div class="form-card">
 
 
@@ -394,8 +388,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/auth/auth-esport
     <div class="rodape-direitos">© 2026 — SOEE | Todos os direitos reservados</div>
   </footer>
 
+  <!-- ( JS ) -->
   <script src="/soee/src/frontend/js/inicio.js"></script>
   <script src="/soee/src/frontend/js/dash-adm.js"></script>
+  <script>
+  const _t=localStorage.getItem('theme');if(_t)document.documentElement.setAttribute('data-theme',_t);
+  </script>
 
-</body>
-</html>
+<?php include __DIR__ . '/../include/end.php';?>

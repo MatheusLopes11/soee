@@ -103,22 +103,13 @@ $statusLabel = [
     'encerrado'    => 'Encerrado',
 ];
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+
+<!-- ( HTML ) -->
+<?php include __DIR__ . '/../include/doctype.php';?>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Professor | SOEE</title>
-<link rel="stylesheet" href="/soee/src/frontend/css/dash-prof.css">
-<link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
-<script>
-    const _t = localStorage.getItem('theme');
-    if (_t) document.documentElement.setAttribute('data-theme', _t);
-</script>
+    <title>Dashboard — Professor | SOEE</title>
+        <link rel="stylesheet" href="/soee/src/frontend/css/dash-prof.css">
+    <?php include __DIR__ . '/../include/head-data.php';?>
 </head>
 <body>
 
@@ -345,6 +336,11 @@ $statusLabel = [
     </main>
 </div>
 
-<script src="/soee/src/frontend/js/dash-prof.js"></script>
-</body>
-</html>
+                    <!-- ( JS ) -->
+    <script src="/soee/src/frontend/js/dash-prof.js"></script>
+    <script>
+        const _t = localStorage.getItem('theme');
+        if (_t) document.documentElement.setAttribute('data-theme', _t);
+    </script>
+
+<?php include __DIR__ . '/../include/end.php';?>
