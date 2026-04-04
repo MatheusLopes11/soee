@@ -1,23 +1,23 @@
 # *SOEE - Sistema de Organização Esportiva Escolar*
 
-## HISTÓRIA ⤵
+## HISTÓRIA
 
 <p>
 
 </p>
 
-## INSTITUIÇÃO ⤵
+## INSTITUIÇÃO
 <p>
 Etec Juscelino Kubitschek de Oliveira<br>
 https://etecjk.cps.sp.gov.br/
 </p>
 
-## CURSO⤵
+## CURSO
 <p>
 Técnico em Desenvolvimento de Sistemas
 </p>
 
-## TECNOLOGIAS APLICADAS ⤵
+## TECNOLOGIAS APLICADAS
 
 <p align="center">
   <table>
@@ -77,7 +77,7 @@ Técnico em Desenvolvimento de Sistemas
   </table>
 </p>
 
-## DESENVOLVEDORES ⤵
+## DESENVOLVEDORES
 
 <p>
 

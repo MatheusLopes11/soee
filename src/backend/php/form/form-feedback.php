@@ -28,7 +28,9 @@
     <nav class="menu-principal">
       <ul class="menu-lista">
         <li><a href="/soee/src/backend/php/pages/inicio.php">Início</a></li>
-        <li><a href="form-feedback.php" aria-current="page">Feedback</a></li>
+        <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
+        <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
+        <li><a href="/soee/src/backend/php/pages/contato-redes.php">Contato & Redes</a></li>
       </ul>
     </nav>
     <div class="cabecalho-acoes">

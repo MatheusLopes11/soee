@@ -37,6 +37,7 @@
           <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
           <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
           <li><a href="/soee/src/backend/php/pages/contato-redes.php">Redes Sociais</a></li>
+          <li><a href="/soee/src/backend/php/form/form-feedback.php">Feedback</a></li>
         </ul>
       </nav>
 

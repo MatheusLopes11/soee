@@ -2,6 +2,7 @@
 <head>
     <title>Contato & Redes | SOEE</title>
       <link rel="stylesheet" href="/soee/src/frontend/css/contato-redes.css">
+      <link rel="stylesheet" href="/soee/src/frontend/css/inicio.css">
     <?php include __DIR__ . '/../include/head-data.php';?>
 </head>
 
@@ -24,6 +25,7 @@
           <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
           <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
           <li><a href="/soee/src/backend/php/pages/sobre-etec.php">Sobre a ETEC</a></li>
+          <li><a href="/soee/src/backend/php/form/form-feedback.php">Feedback</a></li>
         </ul>
       </nav>
 
