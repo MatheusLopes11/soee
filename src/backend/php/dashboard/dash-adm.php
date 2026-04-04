@@ -179,41 +179,44 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
     <div class="sidebar-logo-sub">Sistema Esportivo Escolar</div>
   </div>
 
-  <nav class="sidebar-nav">
+<nav class="sidebar-nav">
     <div class="nav-group-label">Visão Geral</div>
-    <a class="nav-item active" data-painel="overview" onclick="trocarPainel(this)">
+    <a class="nav-item active" href="javascript:void(0)" data-painel="overview" onclick="trocarPainel(this)">
       <i class="fas fa-chart-line"></i> Dashboard
     </a>
-    <a class="nav-item" data-painel="agenda" onclick="trocarPainel(this)">
+    <a class="nav-item" href="javascript:void(0)" data-painel="agenda" onclick="trocarPainel(this)">
       <i class="fas fa-calendar-alt"></i> Agenda de Partidas
       <?php if(count($agenda)): ?><span class="nav-badge"><?= count($agenda) ?></span><?php endif; ?>
     </a>
 
     <div class="nav-group-label">Cadastros</div>
-    <a class="nav-item" data-painel="usuarios" onclick="trocarPainel(this)">
+    <a class="nav-item" href="javascript:void(0)" data-painel="usuarios" onclick="trocarPainel(this)">
       <i class="fas fa-users"></i> Usuários / Alunos
     </a>
-    <a class="nav-item" data-painel="turmas" onclick="trocarPainel(this)">
+    <a class="nav-item" href="javascript:void(0)" data-painel="turmas" onclick="trocarPainel(this)">
       <i class="fas fa-door-open"></i> Turmas
     </a>
-    <a class="nav-item" data-painel="modalidades" onclick="trocarPainel(this)">
+    <a class="nav-item" href="javascript:void(0)" data-painel="modalidades" onclick="trocarPainel(this)">
       <i class="fas fa-futbol"></i> Modalidades
     </a>
 
     <div class="nav-group-label">Competições</div>
-    <a class="nav-item" data-painel="edicoes" onclick="trocarPainel(this)">
+    <a class="nav-item" href="javascript:void(0)" data-painel="edicoes" onclick="trocarPainel(this)">
       <i class="fas fa-trophy"></i> Edições / Eventos
     </a>
-    <a class="nav-item" data-painel="partidas" onclick="trocarPainel(this)">
-      <i class="fas fa-whistle"></i> Partidas
+    <a class="nav-item" href="javascript:void(0)" data-painel="partidas" onclick="trocarPainel(this)">
+      <i class="fas fa-calendar-days"></i> Partidas
     </a>
-    <a class="nav-item" data-painel="resultados" onclick="trocarPainel(this)">
+    <a class="nav-item" href="javascript:void(0)" data-painel="resultados" onclick="trocarPainel(this)">
       <i class="fas fa-flag-checkered"></i> Resultados
     </a>
 
     <div class="nav-group-label">Documentos</div>
-    <a class="nav-item" data-painel="sumulas" onclick="trocarPainel(this)">
+    <a class="nav-item" href="javascript:void(0)" data-painel="sumulas" onclick="trocarPainel(this)">
       <i class="fas fa-file-alt"></i> Súmulas
+      <?php if(count($sumulas_pendentes)): ?><span class="nav-badge"><?= count($sumulas_pendentes) ?></span><?php endif; ?>
+    </a>
+</nav>
       <?php if(count($sumulas_pendentes)): ?><span class="nav-badge"><?= count($sumulas_pendentes) ?></span><?php endif; ?>
     </a>
   </nav>

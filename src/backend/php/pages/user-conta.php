@@ -13,9 +13,9 @@ $msgFoto = '';
 $tipoMsg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['foto_perfil'])) {
-    $file     = $_FILES['foto_perfil'];
+    $file       = $_FILES['foto_perfil'];
     $permitidos = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    $maxSize  = 5 * 1024 * 1024; // 5MB
+    $maxSize    = 5 * 1024 * 1024;
 
     if ($file['error'] !== UPLOAD_ERR_OK) {
         $msgFoto = 'Erro ao enviar o arquivo.';
@@ -27,33 +27,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['foto_perfil'])) {
         $msgFoto = 'Arquivo muito grande. Máximo 5MB.';
         $tipoMsg = 'erro';
     } else {
-        $ext     = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
         $nomeFoto = 'usuario_' . $userId . '_' . time() . '.' . $ext;
         $destino  = $_SERVER['DOCUMENT_ROOT'] . '/soee/src/images/perfil/' . $nomeFoto;
         $caminhoWeb = '/soee/src/images/perfil/' . $nomeFoto;
 
-        if (!is_dir(dirname($destino))) {
-            mkdir(dirname($destino), 0755, true);
-        }
+        if (!is_dir(dirname($destino))) mkdir(dirname($destino), 0755, true);
 
         if (move_uploaded_file($file['tmp_name'], $destino)) {
-            // Desativa fotos antigas
             $conn->prepare("UPDATE foto_perfil SET atual_foto = 0 WHERE usuario_id_usuario = :id")
                  ->execute([':id' => $userId]);
 
-            // Insere nova foto na tabela foto_perfil
             $ins = $conn->prepare("
                 INSERT INTO foto_perfil (usuario_id_usuario, caminho_foto, nome_arquivo_foto, tipo_arquivo_foto)
                 VALUES (:uid, :caminho, :nome, :tipo)
             ");
-            $ins->execute([
-                ':uid'     => $userId,
-                ':caminho' => $caminhoWeb,
-                ':nome'    => $nomeFoto,
-                ':tipo'    => $ext,
-            ]);
+            $ins->execute([':uid' => $userId, ':caminho' => $caminhoWeb, ':nome' => $nomeFoto, ':tipo' => $ext]);
 
-            // Atualiza coluna rápida no usuario
             $conn->prepare("UPDATE usuario SET foto_perfil_usuario = :foto WHERE id_usuario = :id")
                  ->execute([':foto' => $caminhoWeb, ':id' => $userId]);
 
@@ -81,7 +71,7 @@ $stmt = $conn->prepare("
 $stmt->execute([':id' => $userId]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// ── Última inscrição (número de camisa) ────────────────────
+// ── Inscrições ─────────────────────────────────────────────
 $stmtCamisa = $conn->prepare("
     SELECT numero_camisa_inscricao, posicao_inscricao, capitao_inscricao,
            m.nome_modalidade, e.nome_edicao, i.status_inscricao
@@ -96,20 +86,11 @@ $stmtCamisa = $conn->prepare("
 $stmtCamisa->execute([':id' => $userId]);
 $inscricoes = $stmtCamisa->fetchAll(PDO::FETCH_ASSOC);
 
-// ── Rótulos amigáveis ──────────────────────────────────────
-$tipoLabel = [
-    'adm_geral' => 'Administrador Geral',
-    'adm_sala'  => 'ADM de Sala',
-    'professor' => 'Professor',
-    'aluno'     => 'Aluno',
-];
-$generoLabel = [
-    'm' => 'Masculino',
-    'f' => 'Feminino',
-    'n' => 'Não informado',
-];
+// ── Rótulos ────────────────────────────────────────────────
+$tipoLabel   = ['adm_geral' => 'Administrador Geral', 'adm_sala' => 'ADM de Sala', 'professor' => 'Professor', 'aluno' => 'Aluno'];
+$generoLabel = ['m' => 'Masculino', 'f' => 'Feminino', 'n' => 'Não informado'];
+$tipoIcone   = ['adm_geral' => 'crown', 'adm_sala' => 'user-shield', 'professor' => 'chalkboard-teacher', 'aluno' => 'graduation-cap'];
 
-// ── Dashboard de volta por tipo ────────────────────────────
 $dashboardUrl = AuthHome::getRota($userTipo);
 ?>
 
@@ -122,38 +103,45 @@ $dashboardUrl = AuthHome::getRota($userTipo);
 </head>
 <body>
 
+<!-- Cursor personalizado -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
 <!-- TOPBAR -->
 <header class="conta-topbar">
     <a href="<?= htmlspecialchars($dashboardUrl) ?>" class="topbar-back">
-        <i class="fa-solid fa-arrow-left"></i> Voltar ao Dashboard
+        <i class="fa-solid fa-arrow-left"></i> Voltar
     </a>
     <div class="topbar-logo">S<span>O</span>EE</div>
-    <div class="topbar-acoes">
-        <button class="btn-icone-topo" id="toggleTema" title="Alternar tema">
-            <i class="fa-solid fa-moon" id="iconeTema"></i>
-        </button>
-    </div>
+    <button class="btn-icone-topo" id="toggleTema" title="Alternar tema">
+        <i class="fa-solid fa-moon" id="iconeTema"></i>
+    </button>
 </header>
 
-<!-- HERO BANNER -->
+<!-- HERO -->
 <div class="conta-hero">
-    <div class="hero-bg-pattern"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-particles">
+        <span></span><span></span><span></span>
+    </div>
+
     <div class="hero-conteudo">
-        <div class="hero-avatar-wrap" id="heroAvatarWrap">
+        <div class="hero-avatar-wrap">
             <div class="hero-avatar" id="heroAvatar">
                 <?php if (!empty($user['foto_perfil_usuario'])): ?>
-                    <img src="<?= htmlspecialchars($user['foto_perfil_usuario']) ?>" alt="Foto de perfil" id="fotoAtual">
+                    <img src="<?= htmlspecialchars($user['foto_perfil_usuario']) ?>" alt="Foto de perfil">
                 <?php else: ?>
-                    <span id="inicialAvatar"><?= strtoupper(substr($user['nome_usuario'], 0, 2)) ?></span>
+                    <?= strtoupper(substr($user['nome_usuario'], 0, 2)) ?>
                 <?php endif; ?>
             </div>
             <label class="avatar-edit-btn" for="inputFoto" title="Alterar foto">
                 <i class="fa-solid fa-camera"></i>
             </label>
         </div>
+
         <div class="hero-info">
             <div class="hero-tipo-badge">
-                <i class="fa-solid fa-<?= $userTipo === 'adm_geral' ? 'crown' : ($userTipo === 'professor' ? 'chalkboard-teacher' : ($userTipo === 'adm_sala' ? 'user-shield' : 'graduation-cap')) ?>"></i>
+                <i class="fa-solid fa-<?= $tipoIcone[$userTipo] ?? 'user' ?>"></i>
                 <?= htmlspecialchars($tipoLabel[$userTipo] ?? $userTipo) ?>
             </div>
             <h1 class="hero-nome"><?= htmlspecialchars($user['nome_usuario']) ?></h1>
@@ -162,24 +150,20 @@ $dashboardUrl = AuthHome::getRota($userTipo);
             <div class="hero-turma">
                 <i class="fa-solid fa-door-open"></i>
                 <?= htmlspecialchars($user['nome_turma']) ?>
-                <?php if (!empty($user['sigla_curso'])): ?>
-                    · <?= htmlspecialchars($user['sigla_curso']) ?>
-                <?php endif; ?>
-                <?php if (!empty($user['periodo_turma'])): ?>
-                    · <?= ucfirst($user['periodo_turma']) ?>
-                <?php endif; ?>
+                <?php if (!empty($user['sigla_curso'])): ?> · <?= htmlspecialchars($user['sigla_curso']) ?><?php endif; ?>
+                <?php if (!empty($user['periodo_turma'])): ?> · <?= ucfirst($user['periodo_turma']) ?><?php endif; ?>
             </div>
             <?php endif; ?>
         </div>
     </div>
 </div>
 
-<!-- FORM UPLOAD (hidden, triggered pelo botão) -->
+<!-- FORM UPLOAD (oculto) -->
 <form method="POST" enctype="multipart/form-data" id="formFoto" style="display:none">
     <input type="file" name="foto_perfil" id="inputFoto" accept="image/jpeg,image/png,image/webp,image/gif">
 </form>
 
-<!-- TOAST -->
+<!-- TOAST do PHP -->
 <?php if ($msgFoto): ?>
 <div class="toast-fixo <?= $tipoMsg ?>" id="toastFoto">
     <i class="fa-solid fa-<?= $tipoMsg === 'sucesso' ? 'check-circle' : 'times-circle' ?>"></i>
@@ -187,16 +171,15 @@ $dashboardUrl = AuthHome::getRota($userTipo);
 </div>
 <?php endif; ?>
 
-<!-- CONTEÚDO PRINCIPAL -->
+<!-- MAIN -->
 <main class="conta-main">
 
-    <!-- COLUNA ESQUERDA: Informações -->
-    <section class="conta-secao">
+    <!-- Informações Pessoais -->
+    <section class="conta-secao reveal reveal-delay-1">
         <div class="secao-header">
             <i class="fa-solid fa-user-circle"></i>
             <h2>Informações Pessoais</h2>
         </div>
-
         <div class="info-grid">
             <div class="info-item">
                 <span class="info-label"><i class="fa-solid fa-user"></i> Nome completo</span>
@@ -241,22 +224,18 @@ $dashboardUrl = AuthHome::getRota($userTipo);
         </div>
     </section>
 
-    <!-- COLUNA DIREITA: Inscrições / Camisa -->
+    <!-- Inscrições -->
     <?php if (!empty($inscricoes)): ?>
-    <section class="conta-secao">
+    <section class="conta-secao reveal reveal-delay-2">
         <div class="secao-header">
             <i class="fa-solid fa-shirt"></i>
             <h2>Minhas Inscrições</h2>
         </div>
         <div class="inscricoes-lista">
             <?php foreach ($inscricoes as $ins): ?>
-            <div class="inscricao-card <?= $ins['status_inscricao'] ?>">
+            <div class="inscricao-card">
                 <div class="inscricao-camisa">
-                    <?php if ($ins['numero_camisa_inscricao']): ?>
-                        <span class="camisa-num">#<?= $ins['numero_camisa_inscricao'] ?></span>
-                    <?php else: ?>
-                        <span class="camisa-num">—</span>
-                    <?php endif; ?>
+                    <span class="camisa-num"><?= $ins['numero_camisa_inscricao'] ? '#' . $ins['numero_camisa_inscricao'] : '—' ?></span>
                     <span class="camisa-label">Camisa</span>
                 </div>
                 <div class="inscricao-info">
@@ -269,17 +248,15 @@ $dashboardUrl = AuthHome::getRota($userTipo);
                     <span class="capitao"><i class="fa-solid fa-star"></i> Capitão</span>
                     <?php endif; ?>
                 </div>
-                <span class="inscricao-status <?= $ins['status_inscricao'] ?>">
-                    <?= ucfirst($ins['status_inscricao']) ?>
-                </span>
+                <span class="inscricao-status <?= $ins['status_inscricao'] ?>"><?= ucfirst($ins['status_inscricao']) ?></span>
             </div>
             <?php endforeach; ?>
         </div>
     </section>
     <?php endif; ?>
 
-    <!-- FOTO: alterar -->
-    <section class="conta-secao foto-secao">
+    <!-- Foto de Perfil -->
+    <section class="conta-secao foto-secao reveal reveal-delay-3">
         <div class="secao-header">
             <i class="fa-solid fa-image"></i>
             <h2>Foto de Perfil</h2>
@@ -288,20 +265,21 @@ $dashboardUrl = AuthHome::getRota($userTipo);
             <div class="foto-preview-wrap">
                 <div class="foto-preview" id="fotoPreview">
                     <?php if (!empty($user['foto_perfil_usuario'])): ?>
-                        <img src="<?= htmlspecialchars($user['foto_perfil_usuario']) ?>" alt="Preview" id="imgPreview">
+                        <img src="<?= htmlspecialchars($user['foto_perfil_usuario']) ?>" alt="Preview">
                     <?php else: ?>
-                        <i class="fa-solid fa-user fa-2x" id="iconPreview"></i>
+                        <i class="fa-solid fa-user fa-2x"></i>
                     <?php endif; ?>
                 </div>
             </div>
             <div class="foto-instrucoes">
                 <p>Formatos aceitos: <strong>JPG, PNG, WEBP, GIF</strong></p>
-                <p>Tamanho máximo: <strong>5MB</strong></p>
+                <p>Tamanho máximo: <strong>5 MB</strong></p>
                 <p>Recomendado: imagem quadrada</p>
                 <label for="inputFoto" class="btn-upload">
                     <i class="fa-solid fa-upload"></i> Escolher foto
                 </label>
-                <button class="btn-salvar-foto" id="btnSalvarFoto" style="display:none" onclick="document.getElementById('formFoto').submit()">
+                <button class="btn-salvar-foto" id="btnSalvarFoto" style="display:none"
+                        onclick="document.getElementById('formFoto').submit()">
                     <i class="fa-solid fa-save"></i> Salvar foto
                 </button>
                 <p class="foto-nome" id="fotoNome"></p>
@@ -309,14 +287,15 @@ $dashboardUrl = AuthHome::getRota($userTipo);
         </div>
     </section>
 
-    <!-- LOGOUT -->
-    <section class="conta-secao logout-secao">
+    <!-- Sessão / Logout -->
+    <section class="conta-secao logout-secao reveal reveal-delay-4">
         <div class="secao-header">
             <i class="fa-solid fa-right-from-bracket"></i>
             <h2>Sessão</h2>
         </div>
         <div class="logout-conteudo">
             <div class="logout-info">
+                <h3>Encerrar acesso</h3>
                 <p>Ao sair, você precisará fazer login novamente para acessar o sistema.</p>
                 <p class="logout-sub">Cookies de "Lembrar de mim" também serão removidos.</p>
             </div>
