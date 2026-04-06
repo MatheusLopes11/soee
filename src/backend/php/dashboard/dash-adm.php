@@ -239,15 +239,10 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
 
   <!-- TOPBAR -->
   <header class="topbar">
-    <button class="botao-icone" onclick="document.getElementById('sidebar').classList.toggle('open')" title="Menu">
-      <i class="fas fa-bars"></i>
-    </button>
+    
     <div class="topbar-title" id="topbar-titulo">Dashboard</div>
-    <div class="topbar-search">
-      <i class="fas fa-search"></i>
-      <input type="text" placeholder="Buscar aluno, turma, partida…" />
-    </div>
-    <button class="botao-icone notif-dot" title="Notificações"><i class="fas fa-bell"></i></button>
+
+    
     <button class="botao-icone" onclick="alternarTema()" title="Tema"><i class="fas fa-moon" id="tema-icone"></i></button>
     <a href="/soee/src/backend/php/pages/inicio.php" class="botao-icone" title="Voltar ao site"><i class="fas fa-home"></i></a>
   </header>

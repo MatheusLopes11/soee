@@ -128,12 +128,7 @@ body:has(button:hover) .cursor-ring{width:52px;height:52px;border-color:rgba(255
     background:var(--fundo);
     position:relative;
 }
-.topbar-login{
-    position:absolute;top:0;left:0;right:0;
-    height:60px;
-    display:flex;align-items:center;justify-content:flex-end;
-    padding:0 28px;gap:12px;
-}
+
 .btn-inicio{
     display:flex;align-items:center;gap:8px;
     text-decoration:none;color:var(--texto-2);

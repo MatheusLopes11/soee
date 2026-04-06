@@ -201,9 +201,6 @@ $statusPartidaLabel = [
 <div class="conteudo">
 
     <header class="topbar">
-        <button class="btn-icone" id="toggleSidebar" aria-label="Menu">
-            <i class="fa-solid fa-bars"></i>
-        </button>
         <div class="topbar-titulo">Dashboard — ADM de Sala</div>
         <?php if ($turmaId): ?>
             <span class="topbar-turma"><?= htmlspecialchars($userData['nome_turma'] ?? '') ?></span>

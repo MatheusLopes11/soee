@@ -82,14 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
     </div>
 
     <div class="lado-direito">
-        <div class="topbar-login">
-            <a href="/soee/src/backend/php/pages/inicio.php" class="btn-inicio">
-                <i class="fa-solid fa-house"></i> Início
-            </a>
-            <button class="btn-icone-header" id="toggleTema" aria-label="Tema">
-            </button>
-        </div>
-
         <div class="login-card">
             <div class="login-logo">S<span>O</span>EE</div>
             <p class="login-subtitulo">Entre com sua conta para acessar o sistema</p>

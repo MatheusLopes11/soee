@@ -90,15 +90,7 @@ $userNome = AuthHome::getNome();
 
     <!-- TOPBAR -->
     <header class="topbar">
-      <div class="topbar-title" id="pageTitle">Visão <span>Geral</span></div>
-      <div class="topbar-search">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" placeholder="Buscar times, jogadores…" />
-      </div>
-      <button class="botao-icone notif-btn" title="Notificações">
-        <i class="fa-solid fa-bell"></i>
-        <span class="notif-dot"></span>
-      </button>
+      <div class="topbar-title" id="pageTitle">Visão <span>Geral</span></div>     
     </header>
 
     <!-- CONTENT -->
@@ -109,7 +101,7 @@ $userNome = AuthHome::getNome();
 
         <div class="welcome-banner reveal">
           <div class="welcome-content">
-            <div class="welcome-greeting">Bem-vinda de volta 👋</div>
+            <div class="welcome-greeting">Bem-vinda de volta </div>
             <div class="welcome-name">Olá, <span id="heroName">Mariana</span>!</div>
             <div class="welcome-sub" id="heroSub">Acompanhe o desempenho do seu time e a classificação do campeonato.</div>
             <div class="welcome-stats">
