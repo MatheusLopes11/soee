@@ -69,10 +69,6 @@ Técnico em Desenvolvimento de Sistemas
         <sub>XAMPP</sub>
       </td>
       </td>
-      <td align="center">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/Google_Chrome_icon_%282011%29.png"height="40"/><br>
-        <sub>Navegador</sub>
-      </td>
     </tr>
   </table>
 </p>
