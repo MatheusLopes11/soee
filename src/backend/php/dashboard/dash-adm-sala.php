@@ -7,7 +7,6 @@ AuthHome::exigirTipo(['adm_sala']);
 $userId   = AuthHome::getId();
 $userNome = AuthHome::getNome();
 
-
 $stmtUser = $conn->prepare("
     SELECT u.nome_usuario, u.email_usuario, u.foto_perfil_usuario,
            u.genero_usuario, u.turma_id_turma,
@@ -131,13 +130,11 @@ $statusPartidaLabel = [
     'cancelada' => 'Cancelada', 'wo' => 'W.O.',
 ];
 ?>
-
-<!-- ( HTML ) -->
-<?php include __DIR__ . '/../include/doctype.php';?>
+<?php include __DIR__ . '/../include/doctype.php'; ?>
 <head>
     <title>Dashboard — ADM Sala | SOEE</title>
     <link rel="stylesheet" href="/soee/src/frontend/css/dash-adm-sala.css">
-    <?php include __DIR__ . '/../include/head-data.php';?>
+    <?php include __DIR__ . '/../include/head-data.php'; ?>
 </head>
 <body>
 
@@ -155,19 +152,22 @@ $statusPartidaLabel = [
     </div>
     <?php endif; ?>
 
-<a href="/soee/src/backend/php/pages/user-conta.php" class="sidebar-perfil" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid rgba(255,255,255,.08);margin-top:12px;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">
-    <div class="perfil-avatar">
-        <?php if (!empty($userData['foto_perfil_usuario'])): ?>
-            <img src="<?= htmlspecialchars($userData['foto_perfil_usuario']) ?>" alt="">
-        <?php else: ?>
-            <i class="fa-solid fa-user-shield"></i>
-        <?php endif; ?>
-    </div>
-    <div class="perfil-info">
-        <div class="perfil-nome"><?= htmlspecialchars($userNome) ?></div>
-        <div class="perfil-cargo">ADM de Sala</div>
-    </div>
-</a>
+    <a href="/soee/src/backend/php/pages/user-conta.php" class="sidebar-perfil"
+       style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid rgba(255,255,255,.08);margin-top:12px;transition:background .2s;"
+       onmouseover="this.style.background='rgba(255,255,255,0.05)'"
+       onmouseout="this.style.background='none'">
+        <div class="perfil-avatar">
+            <?php if (!empty($userData['foto_perfil_usuario'])): ?>
+                <img src="<?= htmlspecialchars($userData['foto_perfil_usuario']) ?>" alt="">
+            <?php else: ?>
+                <i class="fa-solid fa-user-shield"></i>
+            <?php endif; ?>
+        </div>
+        <div class="perfil-info">
+            <div class="perfil-nome"><?= htmlspecialchars($userNome) ?></div>
+            <div class="perfil-cargo">ADM de Sala</div>
+        </div>
+    </a>
 
     <nav class="sidebar-nav">
         <div class="nav-secao">Painel</div>
@@ -201,6 +201,9 @@ $statusPartidaLabel = [
 <div class="conteudo">
 
     <header class="topbar">
+        <button class="btn-icone" id="toggleSidebar" aria-label="Menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
         <div class="topbar-titulo">Dashboard — ADM de Sala</div>
         <?php if ($turmaId): ?>
             <span class="topbar-turma"><?= htmlspecialchars($userData['nome_turma'] ?? '') ?></span>
@@ -224,7 +227,7 @@ $statusPartidaLabel = [
                 <?php endif; ?>
                 <div class="bv-texto">
                     <h2>Olá, <?= htmlspecialchars(explode(' ', $userNome)[0]) ?>!</h2>
-                    <p>Gerencie sua sala, inscricões e acompanhe o desempenho nos interclasses.</p>
+                    <p>Gerencie sua sala, inscrições e acompanhe o desempenho nos interclasses.</p>
                 </div>
             </div>
             <div class="bv-acoes">
@@ -284,7 +287,9 @@ $statusPartidaLabel = [
                             </div>
                         </div>
                         <div class="partida-placar <?= !$temPlacar ? 'agendada' : '' ?>">
-                            <?= $temPlacar ? $p['placar_time_a'].' x '.$p['placar_time_b'] : ($statusPartidaLabel[$p['status_partida']] ?? $p['status_partida']) ?>
+                            <?= $temPlacar
+                                ? $p['placar_time_a'].' x '.$p['placar_time_b']
+                                : ($statusPartidaLabel[$p['status_partida']] ?? $p['status_partida']) ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -336,9 +341,9 @@ $statusPartidaLabel = [
                         <div class="empty-state"><i class="fa-solid fa-futbol"></i>Nenhuma aberta</div>
                     <?php else: ?>
                         <?php foreach ($modalidades as $md):
-                            $fim  = new DateTime($md['data_fim_inscricao']);
-                            $hoje = new DateTime();
-                            $diff = (int) $hoje->diff($fim)->days;
+                            $fim    = new DateTime($md['data_fim_inscricao']);
+                            $hoje   = new DateTime();
+                            $diff   = (int) $hoje->diff($fim)->days;
                             $urgente = $diff <= 3;
                         ?>
                         <div class="modal-inscricao-item">
@@ -414,7 +419,9 @@ $statusPartidaLabel = [
                                     &middot; <?= htmlspecialchars($ins['posicao_inscricao']) ?>
                                 <?php endif; ?>
                                 <?php if ($ins['capitao_inscricao']): ?>
-                                    &middot; <span style="color:var(--laranja);font-weight:700"><i class="fa-solid fa-star" style="font-size:.65rem"></i> Capitão</span>
+                                    &middot; <span style="color:var(--laranja);font-weight:700">
+                                        <i class="fa-solid fa-star" style="font-size:.65rem"></i> Capitão
+                                    </span>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -431,12 +438,10 @@ $statusPartidaLabel = [
     </main>
 </div>
 
-                        <!-- ( JavaScript ) -->
-    <script src="/soee/src/frontend/js/dash-adm-sala.js"></script>
+<script src="/soee/src/frontend/js/dash-adm-sala.js"></script>
+<script>
+const _t = localStorage.getItem('theme');
+if (_t) document.documentElement.setAttribute('data-theme', _t);
+</script>
 
-    <script>
-    const _t = localStorage.getItem('theme');
-    if (_t) document.documentElement.setAttribute('data-theme', _t);
-    </script>
-
-<?php include __DIR__ . '/../include/end.php';?>
+<?php include __DIR__ . '/../include/end.php'; ?>
