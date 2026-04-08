@@ -505,3 +505,210 @@ body:has(button:hover) .cursor-ring { width:56px; height:56px; border-color:rgba
   .welcome-stats { gap:20px; }
   .dash-content { padding:20px; }
 }
+
+/* ── PRÓXIMA PARTIDA (overview) ── */
+.proxima-partida-card {
+  background: linear-gradient(135deg, rgba(30,86,113,0.06), rgba(255,77,18,0.04));
+  border: 1.5px solid rgba(255,77,18,0.18);
+  border-radius: var(--raio-grande);
+  padding: 20px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pp-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--laranja-destaque);
+  display: flex; align-items: center; gap: 6px;
+}
+.pp-times {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; font-size: 1.05rem; font-weight: 700;
+}
+.pp-time { color: var(--texto-principal); }
+.pp-time.pp-mine { color: var(--laranja-destaque); }
+.pp-vs {
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em;
+  color: var(--texto-secundario); background: var(--fundo-pagina);
+  border: 1px solid var(--borda-sutil); border-radius: 6px;
+  padding: 3px 8px;
+}
+.pp-info {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  font-size: 0.78rem; color: var(--texto-secundario);
+}
+.pp-info span { display: flex; align-items: center; gap: 5px; }
+.pp-info i { color: var(--azul-secundario); font-size: 0.72rem; }
+
+/* ── PARTIDAS ── */
+.partidas-lista { display: flex; flex-direction: column; gap: 14px; }
+.partida-card {
+  background: var(--fundo-bloco);
+  border: 1px solid var(--borda-sutil);
+  border-radius: var(--raio-grande);
+  padding: 18px 24px;
+  box-shadow: var(--sombra-leve);
+  transition: var(--transicao);
+}
+.partida-card:hover { transform: translateY(-3px); box-shadow: var(--sombra-hover); }
+.partida-card-mine {
+  border-color: rgba(255,77,18,0.25);
+  background: linear-gradient(135deg, rgba(255,77,18,0.03), var(--fundo-bloco));
+}
+.partida-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 12px; flex-wrap: wrap;
+}
+.partida-data { font-size: 0.78rem; color: var(--texto-secundario); display: flex; align-items: center; gap: 5px; }
+.partida-data i { color: var(--azul-secundario); }
+.partida-status {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 999px;
+}
+.status-agendada  { background: rgba(44,125,163,0.12); color: var(--azul-secundario); }
+.status-realizada { background: rgba(22,163,74,0.12);  color: #16a34a; }
+.status-cancelada { background: rgba(239,68,68,0.12);  color: #dc2626; }
+.status-wo        { background: rgba(234,179,8,0.12);  color: #ca8a04; }
+.partida-fase { font-size: 0.72rem; color: var(--texto-secundario); margin-left: auto; }
+.partida-times {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-bottom: 8px;
+}
+.partida-time { font-weight: 700; font-size: 0.95rem; flex: 1; }
+.partida-time:last-child { text-align: right; }
+.partida-time-mine { color: var(--laranja-destaque); }
+.partida-placar {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem; font-weight: 800; color: var(--azul-principal);
+  background: var(--fundo-pagina); border: 1px solid var(--borda-sutil);
+  border-radius: 8px; padding: 4px 14px; white-space: nowrap;
+}
+.partida-hora {
+  font-size: 0.9rem; font-weight: 700; color: var(--texto-secundario);
+  background: var(--fundo-pagina); border: 1px solid var(--borda-sutil);
+  border-radius: 8px; padding: 4px 14px; white-space: nowrap;
+}
+.partida-local { font-size: 0.75rem; color: var(--texto-secundario); display: flex; align-items: center; gap: 5px; margin-top: 4px; }
+.partida-local i { color: var(--laranja-destaque); }
+
+/* ── PERFIL ── */
+.perfil-card {
+  background: var(--fundo-bloco);
+  border: 1px solid var(--borda-sutil);
+  border-radius: var(--raio-grande);
+  padding: 40px;
+  box-shadow: var(--sombra-leve);
+  max-width: 600px;
+}
+.perfil-avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--laranja-destaque), #c2410c);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 2rem; font-weight: 700;
+  margin-bottom: 16px;
+}
+.perfil-nome {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 800; color: var(--azul-principal);
+  margin-bottom: 4px;
+}
+.perfil-turma { font-size: 0.88rem; color: var(--texto-secundario); margin-bottom: 28px; }
+.perfil-info-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px; margin-bottom: 28px;
+}
+.perfil-info-item {
+  background: var(--fundo-pagina);
+  border: 1px solid var(--borda-sutil);
+  border-radius: var(--raio-medio);
+  padding: 14px 16px;
+}
+.perfil-info-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--texto-secundario);
+  margin-bottom: 6px;
+}
+.perfil-info-label i { color: var(--azul-secundario); }
+.perfil-info-value { font-size: 0.92rem; font-weight: 600; color: var(--texto-principal); }
+.perfil-inscricoes { border-top: 1px solid var(--borda-sutil); padding-top: 20px; }
+.perfil-inscricao-item {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 0; border-bottom: 1px solid var(--borda-sutil);
+  font-size: 0.88rem;
+}
+.perfil-inscricao-item:last-child { border-bottom: none; }
+.perfil-inscricao-item i { color: var(--laranja-destaque); }
+.perfil-posicao {
+  background: rgba(44,125,163,0.1); color: var(--azul-secundario);
+  font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+}
+.perfil-camisa {
+  background: rgba(30,86,113,0.08); color: var(--azul-principal);
+  font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 999px;
+}
+
+/* ── SPORT PICKER MODAL ── */
+.sport-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 5000;
+  align-items: center; justify-content: center;
+}
+.sport-modal-box {
+  background: var(--fundo-bloco);
+  border-radius: var(--raio-grande);
+  padding: 40px;
+  max-width: 420px; width: 90%;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.25);
+}
+.sport-modal-box h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; color: var(--azul-principal);
+  margin-bottom: 8px;
+}
+.sport-modal-box p { color: var(--texto-secundario); font-size: 0.88rem; margin-bottom: 24px; }
+.sport-picker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sport-picker-btn {
+  background: var(--fundo-pagina);
+  border: 1.5px solid var(--borda-sutil);
+  border-radius: var(--raio-medio);
+  padding: 20px 16px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  transition: var(--transicao); font-family: 'DM Sans', sans-serif;
+  color: var(--texto-principal); font-size: 0.9rem; font-weight: 700;
+}
+.sport-picker-btn:hover {
+  border-color: var(--laranja-destaque);
+  background: rgba(255,77,18,0.06);
+  color: var(--laranja-destaque);
+}
+.sport-picker-btn.ativo {
+  background: rgba(255,77,18,0.1);
+  border-color: var(--laranja-destaque);
+  color: var(--laranja-destaque);
+}
+.sport-modal-cancel {
+  margin-top: 20px; width: 100%;
+  background: none; border: 1px solid var(--borda-sutil);
+  border-radius: var(--raio-medio); padding: 10px;
+  cursor: pointer; color: var(--texto-secundario);
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+  transition: var(--transicao);
+}
+.sport-modal-cancel:hover { border-color: var(--azul-secundario); color: var(--azul-principal); }
+
+/* ── ALERTA DE SUCESSO (index.php) ── */
+.alerta-sucesso {
+  display: flex; align-items: center; gap: 10px;
+  background: #f0fdf4; border: 1px solid #86efac;
+  border-radius: var(--rm, 10px); padding: 12px 14px;
+  font-size: 0.85rem; color: #15803d; margin-bottom: 22px;
+}
+.alerta-sucesso i { flex-shrink: 0; }
+[data-theme="dark"] .alerta-sucesso {
+  background: rgba(22,163,74,0.1);
+  border-color: rgba(134,239,172,0.2);
+  color: #86efac;
+}

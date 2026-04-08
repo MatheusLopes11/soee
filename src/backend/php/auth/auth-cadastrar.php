@@ -2,61 +2,116 @@
 ob_start();
 include __DIR__ . '/../include/conexao.php';
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    header("Location: /soee/src/backend/php/form/form-cadastrar.php");
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: /soee/src/backend/php/form/form-cadastrar.php');
     exit();
 }
 
-if (
-    empty($_POST['nome'])   ||
-    empty($_POST['email'])  ||
-    empty($_POST['senha'])  ||
-    empty($_POST['genero'])
-) {
-    die("Preencha todos os campos obrigatórios.");
+/* ── Coleta e sanitiza ── */
+$nome      = trim($_POST['nome']   ?? '');
+$email     = trim($_POST['email']  ?? '');
+$senha     = $_POST['senha']       ?? '';
+$confirma  = $_POST['confirma_senha'] ?? '';
+$generoRaw = $_POST['genero']      ?? '';
+$ano       = (int) ($_POST['ano_serie'] ?? 0);
+$curso     = trim($_POST['curso']  ?? '');
+
+/* ── Validações básicas ── */
+if (!$nome || !$email || !$senha || !$confirma || !$generoRaw || !$ano || !$curso) {
+    header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=campos');
+    exit();
 }
 
-$nome   = trim($_POST['nome']);
-$email  = trim($_POST['email']);
-$senha  = $_POST['senha'];
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=email');
+    exit();
+}
 
-// gênero
-$generoRaw = $_POST['genero'];
-$genero = ($generoRaw === 'm' || $generoRaw === 'f') ? $generoRaw : 'n';
+if ($senha !== $confirma) {
+    header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=senha');
+    exit();
+}
 
-// senha segura
+if (strlen($senha) < 8) {
+    header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=senha_curta');
+    exit();
+}
+
+/* ── Gênero ── */
+$genero = in_array($generoRaw, ['m', 'f']) ? $generoRaw : 'n';
+
+/* ── Hash seguro da senha ── */
 $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
+/* ── Cursoss válidos (devem bater com a sigla_curso do banco) ── */
+$cursosValidos = ['MTEC', 'EMIF', 'MTECPI'];
+if (!in_array($curso, $cursosValidos)) {
+    header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=curso');
+    exit();
+}
+
+if ($ano < 1 || $ano > 3) {
+    header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=ano');
+    exit();
+}
+
 try {
-    // verifica email
+    /* ── Verifica e-mail duplicado ── */
     $stmt = $conn->prepare("SELECT id_usuario FROM usuario WHERE email_usuario = :email LIMIT 1");
     $stmt->execute([':email' => $email]);
-
     if ($stmt->fetch()) {
-        die("E-mail já cadastrado.");
+        header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=email_existe');
+        exit();
     }
 
-    // insert
-    $stmt = $conn->prepare("
-        INSERT INTO usuario
-        (nome_usuario, email_usuario, senha_usuario, genero_usuario)
-        VALUES
-        (:nome, :email, :senha, :genero)
+    /*
+     * Busca o id_turma que corresponde ao ano_serie + sigla do curso.
+     * A tabela turma tem curso_id_curso → curso.sigla_curso.
+     * Pegamos o registro do ano letivo mais recente caso haja repetição.
+     */
+    $stmtTurma = $conn->prepare("
+        SELECT t.id_turma
+        FROM turma t
+        INNER JOIN curso c ON c.id_curso = t.curso_id_curso
+        WHERE c.sigla_curso    = :sigla
+          AND t.ano_serie_turma = :ano
+        ORDER BY t.ano_letivo_turma DESC
+        LIMIT 1
     ");
+    $stmtTurma->execute([':sigla' => $curso, ':ano' => $ano]);
+    $turma = $stmtTurma->fetch(PDO::FETCH_ASSOC);
 
-    $stmt->execute([
+    if (!$turma) {
+        header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=turma_nao_encontrada');
+        exit();
+    }
+
+    $turmaId = $turma['id_turma'];
+
+    /* ── Insere o novo usuário ── */
+    $insert = $conn->prepare("
+        INSERT INTO usuario
+            (turma_id_turma, nome_usuario, email_usuario, senha_usuario,
+             genero_usuario, tipo_usuario, ativo_usuario)
+        VALUES
+            (:turma, :nome, :email, :senha,
+             :genero, 'aluno', 1)
+    ");
+    $insert->execute([
+        ':turma'  => $turmaId,
         ':nome'   => $nome,
         ':email'  => $email,
         ':senha'  => $senhaHash,
         ':genero' => $genero,
     ]);
 
-    header("Location: /soee/index.php?cadastro=sucesso");
+    /* ── Redireciona para o login com mensagem de sucesso ── */
+    header('Location: /soee/index.php?cadastro=sucesso');
     exit();
 
 } catch (PDOException $e) {
-    echo "Erro no cadastro: " . $e->getMessage();
+    // Em produção, logue o erro sem exibir ao usuário
+    error_log('Erro no cadastro: ' . $e->getMessage());
+    header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=servidor');
+    exit();
 }

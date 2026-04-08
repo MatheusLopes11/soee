@@ -7,31 +7,26 @@
   </head>
 <body>
 
-  <!-- Cursor personalizado -->
   <div class="cursor-dot" id="cursorDot"></div>
   <div class="cursor-ring" id="cursorRing"></div>
 
-  <!-- Loader -->
   <div id="loader">
     <div class="loader-inner">
       <div class="loader-logo-text">SOEE</div>
       <div class="loader-logo-sub">Preparando cadastro</div>
-      <div class="loader-bar">
-        <div class="loader-bar-fill"></div>
-      </div>
+      <div class="loader-bar"><div class="loader-bar-fill"></div></div>
     </div>
   </div>
 
   <div class="cad-scene">
 
-    <!-- Fundo animado (mesmo DNA do hero) -->
     <div class="cad-bg"></div>
     <div class="cad-grid"></div>
     <div class="cad-particles">
       <span></span><span></span><span></span><span></span><span></span>
     </div>
 
-    <!-- Painel esquerdo — identidade visual -->
+    <!-- Painel esquerdo -->
     <aside class="cad-lateral" aria-hidden="true">
       <div class="cad-lateral-inner">
 
@@ -91,7 +86,6 @@
     <main class="cad-main">
       <div class="cad-card" role="main">
 
-        <!-- Cabeçalho do card -->
         <div class="cad-card-header">
           <div class="cad-step-track" aria-label="Progresso do formulário">
             <div class="cad-step active" data-step="1">
@@ -100,18 +94,22 @@
             </div>
             <div class="cad-step-line"></div>
             <div class="cad-step" data-step="2">
+              <div class="cad-step-circle"><i class="fa-solid fa-school"></i></div>
+              <span>Turma</span>
+            </div>
+            <div class="cad-step-line"></div>
+            <div class="cad-step" data-step="3">
               <div class="cad-step-circle"><i class="fa-solid fa-lock"></i></div>
               <span>Segurança</span>
             </div>
             <div class="cad-step-line"></div>
-            <div class="cad-step" data-step="3">
+            <div class="cad-step" data-step="4">
               <div class="cad-step-circle"><i class="fa-solid fa-check"></i></div>
               <span>Confirmar</span>
             </div>
           </div>
         </div>
 
-        <!-- Formulário multi-step -->
         <form action="/soee/src/backend/php/auth/auth-cadastrar.php" method="POST" id="formCadastro" novalidate>
 
           <!-- ── STEP 1: Dados pessoais ── -->
@@ -130,14 +128,9 @@
                 Nome completo
               </label>
               <div class="input-wrapper">
-                <input
-                  type="text"
-                  id="nome"
-                  name="nome"
+                <input type="text" id="nome" name="nome"
                   placeholder="Ex.: João da Silva"
-                  autocomplete="name"
-                  required
-                >
+                  autocomplete="name" required>
                 <div class="input-status">
                   <i class="fa-solid fa-circle-check status-ok"></i>
                   <i class="fa-solid fa-circle-xmark status-erro"></i>
@@ -152,14 +145,9 @@
                 E-mail
               </label>
               <div class="input-wrapper">
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
+                <input type="email" id="email" name="email"
                   placeholder="Ex.: joao@email.com"
-                  autocomplete="email"
-                  required
-                >
+                  autocomplete="email" required>
                 <div class="input-status">
                   <i class="fa-solid fa-circle-check status-ok"></i>
                   <i class="fa-solid fa-circle-xmark status-erro"></i>
@@ -184,93 +172,60 @@
               </div>
             </div>
 
-            <div id="campoExtra" class="form-grupo campo-extra" style="display:none">
-              <label for="genero_outro">
-                <i class="fa-solid fa-pen"></i>
-                Como você se identifica?
-              </label>
-              <div class="input-wrapper">
-                <input
-                  type="text"
-                  id="genero_outro"
-                  name="genero_outro"
-                  placeholder="Escreva como preferir"
-                  maxlength="80"
-                >
-              </div>
-            </div>
-
             <button type="button" class="botao-proximo" id="btnP1">
               Continuar
               <i class="fa-solid fa-arrow-right"></i>
             </button>
           </div>
 
-          <!-- ── STEP 2: Segurança ── -->
+          <!-- ── STEP 2: Turma ── -->
           <div class="cad-passo hidden" id="passo2">
             <div class="cad-passo-titulo">
               <div class="cad-passo-num">02</div>
               <div>
-                <h1>Segurança</h1>
-                <p>Crie uma senha forte para proteger sua conta</p>
+                <h1>Sua turma</h1>
+                <p>Selecione seu ano e curso</p>
               </div>
             </div>
 
-            <div class="form-grupo" id="grupo-senha">
-              <label for="senha">
-                <i class="fa-solid fa-lock"></i>
-                Senha
+            <div class="form-grupo" id="grupo-ano">
+              <label for="ano_serie">
+                <i class="fa-solid fa-graduation-cap"></i>
+                Ano
               </label>
-              <div class="input-wrapper">
-                <input
-                  type="password"
-                  id="senha"
-                  name="senha"
-                  placeholder="Mínimo 8 caracteres"
-                  autocomplete="new-password"
-                  required
-                >
-                <button type="button" class="toggle-senha" aria-label="Ver senha" tabindex="-1">
-                  <i class="fa-solid fa-eye" id="icone-senha"></i>
-                </button>
+              <div class="input-wrapper select-wrapper">
+                <select name="ano_serie" id="ano_serie" required>
+                  <option value="" disabled selected>Selecione o ano…</option>
+                  <option value="1">1º Ano</option>
+                  <option value="2">2º Ano</option>
+                  <option value="3">3º Ano</option>
+                </select>
+                <i class="fa-solid fa-chevron-down select-arrow"></i>
               </div>
               <span class="campo-msg"></span>
-
-              <!-- Medidor de força -->
-              <div class="forca-barra" aria-label="Força da senha">
-                <div class="forca-fill" id="forcaFill"></div>
-              </div>
-              <div class="forca-label" id="forcaLabel">
-                <span id="forcaTxt">—</span>
-                <span id="forcaDica" class="forca-dica"></span>
-              </div>
-              <ul class="senha-requisitos" id="requisitos">
-                <li id="req-len"><i class="fa-solid fa-circle"></i> Mínimo 8 caracteres</li>
-                <li id="req-upper"><i class="fa-solid fa-circle"></i> Uma letra maiúscula</li>
-                <li id="req-num"><i class="fa-solid fa-circle"></i> Um número</li>
-                <li id="req-special"><i class="fa-solid fa-circle"></i> Um caractere especial</li>
-              </ul>
             </div>
 
-            <div class="form-grupo" id="grupo-confirma">
-              <label for="confirma_senha">
-                <i class="fa-solid fa-lock-open"></i>
-                Confirmar senha
+            <div class="form-grupo" id="grupo-curso">
+              <label for="curso">
+                <i class="fa-solid fa-book-open"></i>
+                Curso
               </label>
-              <div class="input-wrapper">
-                <input
-                  type="password"
-                  id="confirma_senha"
-                  name="confirma_senha"
-                  placeholder="Repita a senha"
-                  autocomplete="new-password"
-                  required
-                >
-                <button type="button" class="toggle-senha" aria-label="Ver confirmação" tabindex="-1">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
+              <div class="input-wrapper select-wrapper">
+                <select name="curso" id="curso" required>
+                  <option value="" disabled selected>Selecione o curso…</option>
+                  <option value="MTEC">MTEC — Administração</option>
+                  <option value="EMIF">EMIF — Itinerário Formativo</option>
+                  <option value="MTECPI">MTECPI — Administração Integral</option>
+                </select>
+                <i class="fa-solid fa-chevron-down select-arrow"></i>
               </div>
               <span class="campo-msg"></span>
+            </div>
+
+            <!-- Preview da turma gerada -->
+            <div class="cad-turma-preview hidden" id="turmaPreview">
+              <i class="fa-solid fa-users"></i>
+              <span id="turmaPreviewTxt">—</span>
             </div>
 
             <div class="cad-passo-nav">
@@ -285,10 +240,84 @@
             </div>
           </div>
 
-          <!-- ── STEP 3: Confirmação ── -->
+          <!-- ── STEP 3: Segurança ── -->
           <div class="cad-passo hidden" id="passo3">
             <div class="cad-passo-titulo">
               <div class="cad-passo-num">03</div>
+              <div>
+                <h1>Segurança</h1>
+                <p>Crie uma senha forte para proteger sua conta</p>
+              </div>
+            </div>
+
+            <div class="form-grupo" id="grupo-senha">
+              <label for="senha">
+                <i class="fa-solid fa-lock"></i>
+                Senha
+              </label>
+              <div class="input-wrapper">
+                <input type="password" id="senha" name="senha"
+                  placeholder="Mínimo 8 caracteres"
+                  autocomplete="new-password" required>
+                <button type="button" class="toggle-senha" aria-label="Ver senha" tabindex="-1">
+                  <i class="fa-solid fa-eye" id="icone-senha"></i>
+                </button>
+              </div>
+              <span class="campo-msg"></span>
+
+              <div class="forca-barra" aria-label="Força da senha">
+                <div class="forca-fill" id="forcaFill"></div>
+              </div>
+              <div class="forca-label" id="forcaLabel">
+                <span id="forcaTxt">—</span>
+                <span id="forcaDica" class="forca-dica"></span>
+              </div>
+              <ul class="senha-requisitos" id="requisitos">
+                <li id="req-len"><i class="fa-solid fa-circle"></i> Mínimo 8 caracteres</li>
+                <li id="req-upper"><i class="fa-solid fa-circle"></i> Uma letra maiúscula</li>
+                <li id="req-num"><i class="fa-solid fa-circle"></i> Um número</li>
+                <li id="req-special"><i class="fa-solid fa-circle"></i> Um caractere especial</li>
+              </ul>
+
+              <!-- Aviso sobre recuperação de senha -->
+              <div class="cad-senha-aviso">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Esqueceu sua senha? Procure o <strong>professor responsável</strong> ou o <strong>administrador da sua sala</strong> para redefinição.</span>
+              </div>
+            </div>
+
+            <div class="form-grupo" id="grupo-confirma">
+              <label for="confirma_senha">
+                <i class="fa-solid fa-lock-open"></i>
+                Confirmar senha
+              </label>
+              <div class="input-wrapper">
+                <input type="password" id="confirma_senha" name="confirma_senha"
+                  placeholder="Repita a senha"
+                  autocomplete="new-password" required>
+                <button type="button" class="toggle-senha" aria-label="Ver confirmação" tabindex="-1">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+              <span class="campo-msg"></span>
+            </div>
+
+            <div class="cad-passo-nav">
+              <button type="button" class="botao-voltar" id="btnVoltarP3">
+                <i class="fa-solid fa-arrow-left"></i>
+                Voltar
+              </button>
+              <button type="button" class="botao-proximo" id="btnP3">
+                Continuar
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- ── STEP 4: Confirmação ── -->
+          <div class="cad-passo hidden" id="passo4">
+            <div class="cad-passo-titulo">
+              <div class="cad-passo-num">04</div>
               <div>
                 <h1>Confirmar dados</h1>
                 <p>Revise antes de criar sua conta</p>
@@ -309,6 +338,10 @@
                 <strong id="r-genero">—</strong>
               </div>
               <div class="resumo-linha">
+                <span><i class="fa-solid fa-graduation-cap"></i> Turma</span>
+                <strong id="r-turma">—</strong>
+              </div>
+              <div class="resumo-linha">
                 <span><i class="fa-solid fa-lock"></i> Senha</span>
                 <strong>••••••••</strong>
               </div>
@@ -321,7 +354,7 @@
             </label>
 
             <div class="cad-passo-nav">
-              <button type="button" class="botao-voltar" id="btnVoltarP3">
+              <button type="button" class="botao-voltar" id="btnVoltarP4">
                 <i class="fa-solid fa-arrow-left"></i>
                 Voltar
               </button>
@@ -336,7 +369,6 @@
 
         </form>
 
-        <!-- Rodapé do card -->
         <div class="cad-card-footer">
           <span>Já tem conta?</span>
           <a href="/soee/index.php">
@@ -348,9 +380,9 @@
       </div>
     </main>
 
-  </div><!-- /.cad-scene -->
+  </div>
 
   <script src="/soee/src/frontend/js/inicio.js"></script>
   <script src="/soee/src/frontend/js/cadastrar.js"></script>
-  
+
 <?php include __DIR__ . '/../include/end.php';?>

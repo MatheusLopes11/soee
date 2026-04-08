@@ -337,7 +337,6 @@ form#formCadastro {
   background: var(--fundo-pagina);
   transition: var(--transicao);
   outline: none;
-  -webkit-appearance: none;
 }
 [data-theme="dark"] .input-wrapper input,
 [data-theme="dark"] .input-wrapper select,
@@ -662,3 +661,67 @@ form#formCadastro {
 [data-theme="dark"] .cad-step-circle { background: rgba(255,255,255,0.04); }
 [data-theme="dark"] .cad-step.active .cad-step-circle { background: var(--azul-secundario); border-color: var(--azul-secundario); }
 [data-theme="dark"] .input-wrapper input::placeholder { color: rgba(141,168,188,0.4); }
+
+.cad-senha-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: rgba(44, 125, 163, 0.07);
+  border: 1px solid rgba(44, 125, 163, 0.18);
+  border-radius: 10px;
+  font-size: 0.78rem;
+  color: var(--texto-secundario);
+  line-height: 1.5;
+}
+.cad-senha-aviso i {
+  color: var(--azul-secundario);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.cad-senha-aviso strong {
+  color: var(--texto-principal);
+  font-weight: 700;
+}
+
+.cad-turma-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: rgba(30, 86, 113, 0.08);
+  border: 1.5px solid rgba(30, 86, 113, 0.2);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--azul-principal);
+  margin-bottom: 20px;
+  animation: fadeUp 0.3s ease;
+}
+.cad-turma-preview.hidden { display: none; }
+.cad-turma-preview i {
+  color: var(--azul-secundario);
+  font-size: 1rem;
+}
+
+.alerta-sucesso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: var(--rm);
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  color: #15803d;
+  margin-bottom: 22px;
+}
+.alerta-sucesso i { font-size: 0.9rem; flex-shrink: 0; }
+
+[data-theme="dark"] .alerta-sucesso {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: rgba(134, 239, 172, 0.2);
+  color: #86efac;
+}

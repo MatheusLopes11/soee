@@ -1,5 +1,6 @@
 <?php
 ob_start();
+session_start(); // ESSENCIAL — deve vir antes de qualquer uso de $_SESSION
 
 include __DIR__ . '/src/backend/php/include/conexao.php';
 include __DIR__ . '/src/backend/php/auth/auth-home.php';
@@ -10,7 +11,12 @@ if (AuthHome::estaLogado()) {
     AuthHome::redirecionarPorTipo();
 }
 
-$erro = '';
+$erro    = '';
+$sucesso = '';
+
+if (isset($_GET['cadastro']) && $_GET['cadastro'] === 'sucesso') {
+    $sucesso = 'Conta criada com sucesso! Faça login para entrar.';
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
     $login   = trim($_POST['username'] ?? '');
@@ -28,11 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
 }
 ?>
 
-<!-- ( HTML ) -->
 <?PHP include __DIR__ . '/src/backend/php/include/doctype.php';?>
 <head>
     <title>SOEE — Entrar</title>
-        <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
+    <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
     <?php include __DIR__ . '/src/backend/php/include/head-data.php';?>
 </head>
 <body>
@@ -66,18 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
                 e transparência.
             </p>
             <div class="esq-stats">
-                <div class="esq-stat">
-                    <strong>9</strong>
-                    <span>Turmas</span>
-                </div>
-                <div class="esq-stat">
-                    <strong>300+</strong>
-                    <span>Alunos</span>
-                </div>
-                <div class="esq-stat">
-                    <strong>100%</strong>
-                    <span>Digital</span>
-                </div>
+                <div class="esq-stat"><strong>9</strong><span>Turmas</span></div>
+                <div class="esq-stat"><strong>300+</strong><span>Alunos</span></div>
+                <div class="esq-stat"><strong>100%</strong><span>Digital</span></div>
             </div>
         </div>
     </div>
@@ -86,6 +82,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
         <div class="login-card">
             <div class="login-logo">S<span>O</span>EE</div>
             <p class="login-subtitulo">Entre com sua conta para acessar o sistema</p>
+
+            <?php if ($sucesso): ?>
+            <div class="alerta-sucesso">
+                <i class="fa-solid fa-circle-check"></i>
+                <?= htmlspecialchars($sucesso) ?>
+            </div>
+            <?php endif; ?>
 
             <?php if ($erro): ?>
             <div class="alerta-erro">
@@ -134,7 +137,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
                     <label class="checkbox-label">
                         <input type="checkbox" name="remember" value="1"> Lembrar de mim
                     </label>
-                    <a href="#" class="link-esqueci">Esqueci a senha</a>
+                    <a href="/soee/src/backend/php/form/form-cadastrar.php" class="link-esqueci">
+                        Criar conta
+                    </a>
                 </div>
 
                 <button type="submit" class="btn-entrar" id="btnEntrar">
@@ -154,14 +159,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
 
 </div>
 
-    <footer class="rodape-login">
-        &copy; <?= date('Y') ?> <a href="#">SOEE</a> — ETEC Juscelino Kubitschek de Oliveira
-    </footer>
+<footer class="rodape-login">
+    &copy; <?= date('Y') ?> <a href="#">SOEE</a> — ETEC Juscelino Kubitschek de Oliveira
+</footer>
 
-    <script src="/soee/src/frontend/js/index.js"></script>
-    <script>
-    const _t = localStorage.getItem('theme');
-    if (_t) document.documentElement.setAttribute('data-theme', _t);
-    </script>
+<script src="/soee/src/frontend/js/index.js"></script>
+<script>
+const _t = localStorage.getItem('theme');
+if (_t) document.documentElement.setAttribute('data-theme', _t);
+</script>
 
 <?php include __DIR__ . '/src/backend/php/include/end.php';?>

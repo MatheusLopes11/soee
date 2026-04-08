@@ -1,260 +1,423 @@
-/* ──────────── DATA ──────────── */
-const SPORTS = {
-  futebol: {
-    name:'Futebol', icon:'fa-solid fa-futbol', emoji:'⚽',
-    scoreStat:'Gols Marcados',
-    teams:[
-      {name:'Estrelas FC',   emoji:'⭐', pts:28, pj:12, v:7, e:7, d:0, form:['V','E','V','V','E'], myTeam:true},
-      {name:'Trovões SC',    emoji:'⚡', pts:32, pj:12, v:9, e:5, d:2, form:['V','V','V','E','V']},
-      {name:'Águias EC',     emoji:'🦅', pts:26, pj:12, v:7, e:5, d:3, form:['V','D','V','E','V']},
-      {name:'Leões FC',      emoji:'🦁', pts:23, pj:12, v:6, e:5, d:4, form:['E','V','D','V','E']},
-      {name:'Falcões SC',    emoji:'🦆', pts:20, pj:12, v:5, e:5, d:5, form:['D','V','E','D','V']},
-      {name:'Dragões EC',    emoji:'🐉', pts:17, pj:12, v:4, e:5, d:6, form:['D','D','V','E','D']},
-      {name:'Onças FC',      emoji:'🐆', pts:14, pj:12, v:3, e:5, d:7, form:['D','E','D','V','D']},
-      {name:'Lobos SC',      emoji:'🐺', pts:10, pj:12, v:2, e:4, d:8, form:['D','D','D','E','D']},
-    ],
-    players:[
-      {name:'Mariana Costa',   pos:'Atacante',   num:10, captain:true, color:'#1e5671'},
-      {name:'João Silva',      pos:'Goleiro',     num:1,  captain:false,color:'#7c3aed'},
-      {name:'Ana Oliveira',    pos:'Defensora',   num:3,  captain:false,color:'#16a34a'},
-      {name:'Pedro Mendes',    pos:'Meia',        num:8,  captain:false,color:'#ca8a04'},
-      {name:'Carla Souza',     pos:'Lateral Dir.', num:2, captain:false,color:'#dc2626'},
-      {name:'Lucas Ferreira',  pos:'Zagueiro',    num:4,  captain:false,color:'#0891b2'},
-      {name:'Beatriz Lima',    pos:'Atacante',    num:11, captain:false,color:'#ff4d12'},
-      {name:'Rafael Santos',   pos:'Lateral Esq.', num:6, captain:false,color:'#1e5671'},
-      {name:'Camila Rocha',    pos:'Meia',        num:7,  captain:false,color:'#7c3aed'},
-      {name:'Thiago Nunes',    pos:'Volante',     num:5,  captain:false,color:'#16a34a'},
-    ]
-  },
-  basquete: {
-    name:'Basquete', icon:'fa-solid fa-basketball', emoji:'🏀',
-    scoreStat:'Pontos Marcados',
-    teams:[
-      {name:'Rockets SP',    emoji:'🚀', pts:30, pj:12, v:9, e:0, d:3, form:['V','V','D','V','V'], myTeam:true},
-      {name:'Bulls RJ',      emoji:'🐂', pts:28, pj:12, v:8, e:0, d:4, form:['V','D','V','V','D']},
-      {name:'Hawks MG',      emoji:'🦅', pts:24, pj:12, v:7, e:0, d:5, form:['V','V','D','D','V']},
-      {name:'Bears SC',      emoji:'🐻', pts:20, pj:12, v:6, e:0, d:6, form:['D','V','V','D','V']},
-      {name:'Wolves BA',     emoji:'🐺', pts:16, pj:12, v:5, e:0, d:7, form:['D','D','V','V','D']},
-      {name:'Sharks PE',     emoji:'🦈', pts:12, pj:12, v:4, e:0, d:8, form:['D','D','D','V','D']},
-    ],
-    players:[
-      {name:'Mariana Costa',   pos:'Armadora',    num:3,  captain:true, color:'#dc2626'},
-      {name:'Alex Torres',     pos:'Ala',         num:23, captain:false,color:'#1e5671'},
-      {name:'Juliana Freitas', pos:'Pivô',        num:5,  captain:false,color:'#7c3aed'},
-      {name:'Diego Alves',     pos:'Ala-Pivô',    num:10, captain:false,color:'#16a34a'},
-      {name:'Renata Gomes',    pos:'Armadora',    num:7,  captain:false,color:'#ca8a04'},
-      {name:'Paulo Vieira',    pos:'Pivô',        num:12, captain:false,color:'#0891b2'},
-      {name:'Luana Barros',    pos:'Ala',         num:8,  captain:false,color:'#ff4d12'},
-      {name:'Marcos Lima',     pos:'Armador',     num:1,  captain:false,color:'#1e5671'},
-    ]
-  },
-  volei: {
-    name:'Vôlei', icon:'fa-solid fa-volleyball', emoji:'🏐',
-    scoreStat:'Sets Vencidos',
-    teams:[
-      {name:'Tempestade VC', emoji:'⚡', pts:24, pj:10, v:8, e:0, d:2, form:['V','V','V','D','V']},
-      {name:'Sol Nascente',  emoji:'☀️', pts:21, pj:10, v:7, e:0, d:3, form:['V','D','V','V','V'], myTeam:true},
-      {name:'Mar Azul',      emoji:'🌊', pts:18, pj:10, v:6, e:0, d:4, form:['V','V','D','D','V']},
-      {name:'Montanha',      emoji:'⛰️', pts:15, pj:10, v:5, e:0, d:5, form:['D','V','E','V','D']},
-      {name:'Terra Firme',   emoji:'🌿', pts:12, pj:10, v:4, e:0, d:6, form:['D','D','V','V','D']},
-      {name:'Vento Norte',   emoji:'🌪️', pts:9,  pj:10, v:3, e:0, d:7, form:['D','D','D','V','D']},
-    ],
-    players:[
-      {name:'Mariana Costa',   pos:'Levantadora',   num:1,  captain:true, color:'#f59e0b'},
-      {name:'Tatiane Melo',    pos:'Oposta',         num:4,  captain:false,color:'#1e5671'},
-      {name:'Fernanda Cruz',   pos:'Ponteira',       num:7,  captain:false,color:'#7c3aed'},
-      {name:'Roberta Neto',    pos:'Central',        num:10, captain:false,color:'#16a34a'},
-      {name:'Giovana Pinto',   pos:'Libero',         num:6,  captain:false,color:'#ff4d12'},
-      {name:'Aline Ramos',     pos:'Ponteira',       num:9,  captain:false,color:'#0891b2'},
-      {name:'Cláudia Dias',    pos:'Central',        num:11, captain:false,color:'#ca8a04'},
-      {name:'Marina Souza',    pos:'Oposta',         num:3,  captain:false,color:'#dc2626'},
-    ]
-  }
+/* ═══════════════════════════════════════════════════════════
+   dash-user.js — SOEE · Dashboard do Aluno (dados reais do banco)
+   Depende de PHP_DATA injetado pelo dash-user.php
+═══════════════════════════════════════════════════════════ */
+'use strict';
+
+/* ── Constantes vindas do PHP ── */
+const {
+  userId, userNome, userGenero, turmaId, nomeTurma, siglaCurso,
+  modalidades, inscricoes, classificacao, proximaPartida
+} = PHP_DATA;
+
+// URL da API PHP
+const API = '/soee/src/backend/php/dashboard/api-dashboard.php';
+
+/* Estado atual */
+let modalidadeAtual = null;   // objeto da modalidade selecionada
+let emIdAtual       = null;   // id_edicao_modalidade atual
+let paginaAtual     = 'overview';
+
+/* Ícones por tipo de modalidade */
+const ICONES_MODAL = {
+  quadra: 'fa-solid fa-volleyball',
+  mesa:   'fa-solid fa-table-tennis-paddle-ball',
+  campo:  'fa-solid fa-futbol',
+  outro:  'fa-solid fa-medal',
 };
 
-const SPORT_PICKER = [
-  {key:'futebol', label:'Futebol', emoji:'⚽', color:'#16a34a'},
-  {key:'basquete',label:'Basquete',emoji:'🏀', color:'#dc2626'},
-  {key:'volei',   label:'Vôlei',   emoji:'🏐', color:'#0891b2'},
-];
+/* Cores para avatares dos jogadores */
+const CORES = ['#1e5671','#2c7da3','#ff4d12','#16a34a','#7c3aed','#ca8a04','#dc2626','#0891b2'];
 
-let currentSport = 'futebol';
-let currentPage  = 'overview';
-
-/* ──────────── LOADER ──────────── */
+/* ══════════════════════════════════════════
+   LOADER
+══════════════════════════════════════════ */
 function esconderLoader() {
   const l = document.getElementById('loader');
   if (l) l.classList.add('hide');
 }
-window.addEventListener('load', ()=> setTimeout(esconderLoader,1500));
-document.addEventListener('DOMContentLoaded', ()=> setTimeout(esconderLoader,1600));
+window.addEventListener('load', () => setTimeout(esconderLoader, 1200));
 setTimeout(esconderLoader, 3000);
 
-/* ──────────── CURSOR ──────────── */
+/* ══════════════════════════════════════════
+   CURSOR
+══════════════════════════════════════════ */
 const dot  = document.getElementById('cursorDot');
 const ring = document.getElementById('cursorRing');
-let mouseX=0, mouseY=0, ringX=0, ringY=0;
+let mx = 0, my = 0, rx = 0, ry = 0;
 document.addEventListener('mousemove', e => {
-  mouseX = e.clientX; mouseY = e.clientY;
-  dot.style.left = mouseX+'px'; dot.style.top = mouseY+'px';
+  mx = e.clientX; my = e.clientY;
+  if (dot) { dot.style.left = mx + 'px'; dot.style.top = my + 'px'; }
 });
-function animateRing(){
-  ringX += (mouseX - ringX)*0.12;
-  ringY += (mouseY - ringY)*0.12;
-  ring.style.left = ringX+'px'; ring.style.top = ringY+'px';
-  requestAnimationFrame(animateRing);
-}
-animateRing();
+(function animRing() {
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  if (ring) { ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; }
+  requestAnimationFrame(animRing);
+})();
 
-/* ──────────── THEME ──────────── */
-const toggleTheme = document.getElementById('toggle-theme');
-function setTheme(t){
-  document.documentElement.setAttribute('data-theme',t);
-  localStorage.setItem('theme',t);
-  toggleTheme.querySelector('i').className = t==='dark'?'fa-solid fa-sun':'fa-solid fa-moon';
+/* ══════════════════════════════════════════
+   TEMA
+══════════════════════════════════════════ */
+const btnTema = document.getElementById('toggle-theme');
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('theme', t);
+  if (btnTema) btnTema.querySelector('i').className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
 }
-setTheme(localStorage.getItem('theme')||'light');
-toggleTheme.addEventListener('click',()=>{
-  const cur = document.documentElement.getAttribute('data-theme');
-  setTheme(cur==='dark'?'light':'dark');
+setTheme(localStorage.getItem('theme') || 'light');
+btnTema?.addEventListener('click', () => {
+  setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
 });
 
-/* ──────────── REVEAL ──────────── */
-function setupReveal(){
-  const reveals = document.querySelectorAll('.reveal:not(.visible)');
-  const obs = new IntersectionObserver(entries=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }});
-  },{threshold:0.08});
-  reveals.forEach(el=>obs.observe(el));
+/* ══════════════════════════════════════════
+   REVEAL (Intersection Observer)
+══════════════════════════════════════════ */
+function setupReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el => obs.observe(el));
 }
 
-/* ──────────── NAVIGATE ──────────── */
-function navigate(page, el){
-  currentPage = page;
-  document.querySelectorAll('.page-view').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  if(el) el.classList.add('active');
-  else {
-    document.querySelectorAll('.nav-item').forEach(n=>{ if(n.dataset.page===page) n.classList.add('active'); });
+/* ══════════════════════════════════════════
+   NAVEGAÇÃO
+══════════════════════════════════════════ */
+function navigate(page, el) {
+  paginaAtual = page;
+
+  document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+  const pageEl = document.getElementById('page-' + page);
+  if (pageEl) pageEl.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else document.querySelectorAll(`[data-page="${page}"]`).forEach(n => n.classList.add('active'));
+
+  const titulos = {
+    overview:      'Visão <span>Geral</span>',
+    times:         'Times',
+    classificacao: 'Classificação',
+    partidas:      'Partidas',
+    meutime:       'Meu <span>Time</span>',
+    perfil:        'Perfil',
+  };
+  const pt = document.getElementById('pageTitle');
+  if (pt) pt.innerHTML = titulos[page] || page;
+
+  // Carrega dados sob demanda
+  if (emIdAtual) {
+    if (page === 'classificacao') carregarClassificacao();
+    if (page === 'times')         carregarTimes();
+    if (page === 'partidas')      carregarPartidas();
+    if (page === 'meutime')       carregarMeuTime();
   }
-  const titles = {overview:'Visão <span>Geral</span>',times:'Times',classificacao:'Classificação',meutime:'Meu Time',perfil:'Perfil'};
-  document.getElementById('pageTitle').innerHTML = titles[page]||page;
-  setTimeout(setupReveal, 50);
-}
-
-/* ──────────── RENDER ──────────── */
-function renderDashboard(){
-  const sp = SPORTS[currentSport];
-
-  // labels
-  document.getElementById('sportName').textContent = sp.name;
-  document.getElementById('sportIcon').innerHTML = `<i class="${sp.icon}"></i>`;
-  ['sportTagOverview','sportTagTimes','sportTagClass'].forEach(id=>{
-    document.getElementById(id).textContent = sp.name;
-  });
-  document.getElementById('sc3Label').textContent = sp.scoreStat;
-
-  // hero
-  const myTeam = sp.teams.find(t=>t.myTeam) || sp.teams[0];
-  document.getElementById('heroName').textContent = 'Mariana';
-  document.getElementById('heroSub').textContent  = `${sp.name} • ${myTeam.name}`;
-  const sorted = [...sp.teams].sort((a,b)=>b.pts-a.pts);
-  const pos = sorted.indexOf(myTeam)+1;
-  document.getElementById('heroRank').textContent  = pos+'°';
-  document.getElementById('heroGames').textContent = myTeam.pj;
-  document.getElementById('heroPoints').textContent= myTeam.pts;
-  document.getElementById('sc1').textContent = myTeam.v;
-  document.getElementById('sc2').textContent = myTeam.e;
-  document.getElementById('sc3').textContent = 24;
-
-  // teams grid (overview — show 4)
-  renderTeamsGrid(document.getElementById('teamsGridOverview'), sorted.slice(0,4));
-  renderTeamsGrid(document.getElementById('teamsGridFull'), sorted);
-
-  // ranking
-  renderRanking(sorted);
-
-  // my team
-  renderMyTeam(myTeam, pos, sp);
 
   setTimeout(setupReveal, 80);
 }
 
-function renderTeamsGrid(container, teams){
-  container.innerHTML = teams.map(t=>`
-    <div class="team-card ${t.myTeam?'my-team':''} reveal" onclick="navigate('meutime',null)">
-      ${t.myTeam?'<div class="my-team-badge">Meu Time</div>':''}
-      <div class="team-logo">${t.emoji}</div>
-      <div class="team-name">${t.name}</div>
-      <div class="team-meta">${t.pj} jogos disputados</div>
-      <div class="team-points-badge">${t.pts} pts</div>
-    </div>`).join('');
+/* ══════════════════════════════════════════
+   FETCH HELPER
+══════════════════════════════════════════ */
+async function apiFetch(acao, extra = {}) {
+  const params = new URLSearchParams({ acao, em_id: emIdAtual, ...extra });
+  const res = await fetch(`${API}?${params}`);
+  if (!res.ok) throw new Error('Erro HTTP ' + res.status);
+  return res.json();
 }
 
-function renderRanking(sorted){
-  const medals = ['gold','silver','bronze'];
-  const myTeam = SPORTS[currentSport].teams.find(t=>t.myTeam);
-  document.getElementById('rankingBody').innerHTML = sorted.map((t,i)=>{
-    const cls   = medals[i] || (t.myTeam?'my':'normal');
-    const rowCls= t.myTeam?'highlight-row':'';
-    const form  = t.form.map(f=>`<span class="form-dot form-${f.toLowerCase()}">${f}</span>`).join('');
-    return `<tr class="${rowCls}">
-      <td><span class="rank-pos ${cls}">${i+1}</span></td>
-      <td><span class="team-row-logo">${t.emoji}</span>${t.name}${t.myTeam?'&nbsp;<span style="font-size:0.7rem;color:var(--laranja-destaque);font-weight:700">(Você)</span>':''}</td>
-      <td>${t.pj}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td>
-      <td><span class="rank-pts">${t.pts}</span></td>
-      <td><div class="rank-form">${form}</div></td>
-    </tr>`;
+/* ══════════════════════════════════════════
+   SELECIONAR MODALIDADE
+══════════════════════════════════════════ */
+function selecionarModalidade(mod) {
+  modalidadeAtual = mod;
+  emIdAtual = mod.id_edicao_modalidade;
+
+  // Atualiza badge da sidebar
+  const icone = ICONES_MODAL[mod.tipo_modalidade] || 'fa-solid fa-medal';
+  const si = document.getElementById('sportIcon');
+  const sn = document.getElementById('sportName');
+  if (si) si.innerHTML = `<i class="${icone}"></i>`;
+  if (sn) sn.textContent = mod.nome_modalidade;
+
+  // Atualiza tags
+  ['sportTagOverview','sportTagTimes','sportTagClass','sportTagPartidas','sportTagMeuTime'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = mod.nome_modalidade;
+  });
+
+  // Atualiza hero subtitle
+  const sub = document.getElementById('heroSub');
+  if (sub) sub.textContent = `${nomeTurma} — ${mod.nome_modalidade}`;
+
+  // Dados da classificação já disponíveis do PHP (para a turma do usuário)
+  const clTurma = classificacao[emIdAtual];
+  if (clTurma) {
+    setText('sc1', clTurma.vitorias);
+    setText('sc2', clTurma.empates);
+    setText('sc3', clTurma.jogos);
+    setText('sc4', clTurma.pontos);
+    setText('heroPoints', clTurma.pontos);
+    setText('heroGames',  clTurma.jogos);
+  } else {
+    ['sc1','sc2','sc3','sc4','heroPoints','heroGames'].forEach(id => setText(id, '—'));
+    setText('heroRank', '—');
+  }
+
+  // Carrega dados da página atual
+  carregarTimes();
+  if (paginaAtual === 'classificacao') carregarClassificacao();
+  if (paginaAtual === 'partidas')      carregarPartidas();
+  if (paginaAtual === 'meutime')       carregarMeuTime();
+}
+
+/* ══════════════════════════════════════════
+   CARREGAR CLASSIFICAÇÃO
+══════════════════════════════════════════ */
+async function carregarClassificacao() {
+  const tbody = document.getElementById('rankingBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--texto-secundario)">Carregando…</td></tr>';
+  try {
+    const { dados } = await apiFetch('classificacao');
+    if (!dados || !dados.length) {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--texto-secundario)">Nenhum dado de classificação ainda.</td></tr>';
+      return;
+    }
+    // Posição do usuário
+    const posUsuario = dados.findIndex(r => String(r.turma_id_turma) === String(turmaId)) + 1;
+    if (posUsuario > 0) setText('heroRank', posUsuario + 'º');
+
+    const medals = ['gold','silver','bronze'];
+    tbody.innerHTML = dados.map((r, i) => {
+      const isMe = String(r.turma_id_turma) === String(turmaId);
+      const cls  = medals[i] || (isMe ? 'my' : 'normal');
+      const apr  = r.jogos > 0 ? Math.round((r.vitorias * 3) / (r.jogos * 3) * 100) : 0;
+      return `<tr class="${isMe ? 'highlight-row' : ''}">
+        <td><span class="rank-pos ${cls}">${i + 1}</span></td>
+        <td>
+          <span class="team-row-logo">${r.nome_turma.charAt(0)}</span>
+          ${escHtml(r.nome_turma)}
+          ${isMe ? '<span style="font-size:0.7rem;color:var(--laranja-destaque);font-weight:700"> (Você)</span>' : ''}
+        </td>
+        <td>${r.jogos}</td>
+        <td>${r.vitorias}</td>
+        <td>${r.empates}</td>
+        <td>${r.derrotas}</td>
+        <td>${r.pontos_pro}</td>
+        <td>${r.pontos_contra}</td>
+        <td>${r.saldo > 0 ? '+' : ''}${r.saldo}</td>
+        <td><span class="rank-pts">${r.pontos}</span></td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--texto-secundario)">Erro ao carregar.</td></tr>';
+  }
+}
+
+/* ══════════════════════════════════════════
+   CARREGAR TIMES + OVERVIEW GRID
+══════════════════════════════════════════ */
+async function carregarTimes() {
+  try {
+    const [{ dados: times }, { dados: classif }] = await Promise.all([
+      apiFetch('times'),
+      apiFetch('classificacao'),
+    ]);
+    if (!times) return;
+
+    // Mapeia pontos por turma
+    const ptsMap = {};
+    (classif || []).forEach(r => { ptsMap[r.turma_id_turma] = r; });
+
+    const sorted = [...times].sort((a, b) => {
+      const pa = ptsMap[a.id_turma]?.pontos ?? 0;
+      const pb = ptsMap[b.id_turma]?.pontos ?? 0;
+      return pb - pa;
+    });
+
+    renderTeamsGrid(document.getElementById('teamsGridOverview'), sorted.slice(0, 4), ptsMap);
+    renderTeamsGrid(document.getElementById('teamsGridFull'), sorted, ptsMap);
+    setText('teamsBadge', sorted.length);
+  } catch(e) {
+    console.error('Erro times:', e);
+  }
+}
+
+function renderTeamsGrid(container, times, ptsMap) {
+  if (!container) return;
+  if (!times || !times.length) {
+    container.innerHTML = '<p style="color:var(--texto-secundario);padding:16px">Nenhum time cadastrado.</p>';
+    return;
+  }
+  container.innerHTML = times.map(t => {
+    const isMe = String(t.id_turma) === String(turmaId);
+    const cl   = ptsMap[t.id_turma];
+    const pts  = cl ? cl.pontos : '—';
+    const inicial = t.nome_turma.charAt(0).toUpperCase();
+    return `<div class="team-card ${isMe ? 'my-team' : ''} reveal" onclick="navigate('meutime',null)">
+      ${isMe ? '<div class="my-team-badge">Meu Time</div>' : ''}
+      <div class="team-logo">${inicial}</div>
+      <div class="team-name">${escHtml(t.nome_turma)}</div>
+      <div class="team-meta">${t.total_inscritos} inscrito(s)</div>
+      <div class="team-points-badge">${pts} pts</div>
+    </div>`;
   }).join('');
+  setupReveal();
 }
 
-function renderMyTeam(myTeam, pos, sp){
-  document.getElementById('myTeamBigLogo').textContent = myTeam.emoji;
-  document.getElementById('myTeamName').textContent    = myTeam.name;
-  document.getElementById('myTeamSport').textContent   = `${sp.name} • Campeonato Regional`;
-  document.getElementById('mtPos').textContent         = pos+'°';
-  document.getElementById('mtPts').textContent         = myTeam.pts;
-  document.getElementById('mtPlayers').textContent     = sp.players.length;
-
-  document.getElementById('playersGrid').innerHTML = sp.players.map(p=>`
-    <div class="player-card reveal">
-      <div class="player-avatar" style="background:${p.color}">${p.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
-      <div class="player-name">${p.name}</div>
-      <div class="player-pos">${p.pos}</div>
-      <div class="player-num">#${p.num}</div>
-      ${p.captain?'<div class="captain-badge"><i class="fa-solid fa-star"></i> Capitã</div>':''}
-    </div>`).join('');
+/* ══════════════════════════════════════════
+   CARREGAR PARTIDAS
+══════════════════════════════════════════ */
+async function carregarPartidas() {
+  const lista = document.getElementById('partidasLista');
+  if (!lista) return;
+  lista.innerHTML = '<p style="color:var(--texto-secundario);text-align:center;padding:32px">Carregando…</p>';
+  try {
+    const { dados } = await apiFetch('partidas');
+    if (!dados || !dados.length) {
+      lista.innerHTML = '<p style="color:var(--texto-secundario);text-align:center;padding:32px">Nenhuma partida cadastrada.</p>';
+      return;
+    }
+    lista.innerHTML = dados.map(p => {
+      const envolveMeu = String(p.turma_id_time_a) === String(turmaId) || String(p.turma_id_time_b) === String(turmaId);
+      const statusCls = { agendada:'status-agendada', realizada:'status-realizada', cancelada:'status-cancelada', wo:'status-wo' };
+      const placar = p.status_partida === 'realizada'
+        ? `<div class="partida-placar">${p.placar_time_a ?? 0} × ${p.placar_time_b ?? 0}</div>`
+        : `<div class="partida-hora">${p.hora_partida ? p.hora_partida.slice(0,5) : '—'}</div>`;
+      return `<div class="partida-card ${envolveMeu ? 'partida-card-mine' : ''} reveal">
+        <div class="partida-header">
+          <span class="partida-data"><i class="fa-solid fa-calendar"></i> ${formatarData(p.data_partida)}</span>
+          <span class="partida-status ${statusCls[p.status_partida] || ''}">${traduzirStatus(p.status_partida)}</span>
+          <span class="partida-fase">${traduzirFase(p.fase_partida)}${p.grupo_partida ? ' · Grupo ' + p.grupo_partida : ''}</span>
+        </div>
+        <div class="partida-times">
+          <span class="partida-time ${String(p.turma_id_time_a) === String(turmaId) ? 'partida-time-mine' : ''}">${escHtml(p.nome_time_a)}</span>
+          ${placar}
+          <span class="partida-time ${String(p.turma_id_time_b) === String(turmaId) ? 'partida-time-mine' : ''}">${escHtml(p.nome_time_b)}</span>
+        </div>
+        ${p.local_partida ? `<div class="partida-local"><i class="fa-solid fa-location-dot"></i> ${escHtml(p.local_partida)}</div>` : ''}
+      </div>`;
+    }).join('');
+    setupReveal();
+  } catch(e) {
+    lista.innerHTML = '<p style="color:var(--texto-secundario);text-align:center;padding:32px">Erro ao carregar partidas.</p>';
+  }
 }
 
-/* ──────────── SPORT PICKER ──────────── */
-function openSportPicker(){
+/* ══════════════════════════════════════════
+   CARREGAR MEU TIME (jogadores da turma)
+══════════════════════════════════════════ */
+async function carregarMeuTime() {
+  if (!turmaId) return;
+  try {
+    const [{ dados: jogadores }, { dados: classif }] = await Promise.all([
+      apiFetch('jogadores', { turma_id: turmaId }),
+      apiFetch('classificacao'),
+    ]);
+
+    // Posição da minha turma
+    if (classif) {
+      const idx = classif.findIndex(r => String(r.turma_id_turma) === String(turmaId));
+      const cl  = classif[idx];
+      setText('mtPos',     idx >= 0 ? (idx + 1) + 'º' : '—');
+      setText('mtPts',     cl ? cl.pontos : '—');
+    }
+    setText('mtPlayers', jogadores ? jogadores.length : '—');
+    setText('myTeamSport', modalidadeAtual ? modalidadeAtual.nome_modalidade + ' • ' + nomeTurma : nomeTurma);
+
+    const grid = document.getElementById('playersGrid');
+    if (!grid) return;
+    if (!jogadores || !jogadores.length) {
+      grid.innerHTML = '<p style="color:var(--texto-secundario)">Nenhum jogador inscrito nesta modalidade.</p>';
+      return;
+    }
+    grid.innerHTML = jogadores.map((j, i) => {
+      const iniciais = j.nome_usuario.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+      const cor      = CORES[i % CORES.length];
+      return `<div class="player-card reveal">
+        <div class="player-avatar" style="background:${cor}">${iniciais}</div>
+        <div class="player-name">${escHtml(j.nome_usuario)}</div>
+        <div class="player-pos">${escHtml(j.posicao_inscricao || '—')}</div>
+        ${j.numero_camisa_inscricao ? `<div class="player-num">#${j.numero_camisa_inscricao}</div>` : ''}
+        ${j.capitao_inscricao == 1 ? '<div class="captain-badge"><i class="fa-solid fa-star"></i> Capitão</div>' : ''}
+      </div>`;
+    }).join('');
+    setupReveal();
+  } catch(e) {
+    console.error('Erro meutime:', e);
+  }
+}
+
+/* ══════════════════════════════════════════
+   SPORT PICKER MODAL
+══════════════════════════════════════════ */
+function openSportPicker() {
   const modal = document.getElementById('sportModal');
-  modal.style.display='flex';
-  document.getElementById('sportPickerGrid').innerHTML = SPORT_PICKER.map(s=>`
-    <button onclick="selectSport('${s.key}')" style="
-      background:${s.key===currentSport?'rgba(255,77,18,0.1)':'var(--fundo-pagina)'};
-      border:1.5px solid ${s.key===currentSport?'var(--laranja-destaque)':'var(--borda-sutil)'};
-      border-radius:var(--raio-medio); padding:20px 16px; cursor:pointer;
-      display:flex; flex-direction:column; align-items:center; gap:8px;
-      transition:all 0.3s; font-family:'DM Sans',sans-serif; color:var(--texto-principal);
-    ">
-      <span style="font-size:2rem">${s.emoji}</span>
-      <span style="font-weight:700;font-size:0.9rem">${s.label}</span>
+  if (!modal) return;
+  modal.style.display = 'flex';
+  const grid = document.getElementById('sportPickerGrid');
+  if (!grid) return;
+  grid.innerHTML = modalidades.map(m => `
+    <button onclick="selectSport(${m.id_modalidade})" class="sport-picker-btn ${m.id_edicao_modalidade == emIdAtual ? 'ativo' : ''}">
+      <i class="${ICONES_MODAL[m.tipo_modalidade] || 'fa-solid fa-medal'}" style="font-size:1.6rem;display:block;margin-bottom:8px"></i>
+      <span>${escHtml(m.nome_modalidade)}</span>
     </button>`).join('');
 }
-function closeSportPicker(){
-  document.getElementById('sportModal').style.display='none';
+function closeSportPicker() {
+  const modal = document.getElementById('sportModal');
+  if (modal) modal.style.display = 'none';
 }
-function selectSport(key){
-  currentSport = key;
+function selectSport(modId) {
+  const mod = modalidades.find(m => m.id_modalidade == modId);
+  if (!mod) return;
   closeSportPicker();
-  renderDashboard();
+  selecionarModalidade(mod);
   navigate('overview', document.querySelector('[data-page="overview"]'));
 }
 
-/* ──────────── INIT ──────────── */
-document.addEventListener('DOMContentLoaded', ()=>{
-  renderDashboard();
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val ?? '—';
+}
+function escHtml(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function formatarData(str) {
+  if (!str) return '—';
+  const [y,m,d] = str.split('-');
+  return `${d}/${m}/${y}`;
+}
+function traduzirStatus(s) {
+  return { agendada:'Agendada', realizada:'Realizada', cancelada:'Cancelada', wo:'W.O.' }[s] || s;
+}
+function traduzirFase(f) {
+  return { grupos:'Fase de Grupos', oitavas:'Oitavas', quartas:'Quartas', semi:'Semifinal', final:'Final', terceiro_lugar:'3º Lugar' }[f] || f;
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Se o usuário tiver inscrições, seleciona a primeira modalidade
+  if (inscricoes && inscricoes.length > 0) {
+    // Acha a modalidade correspondente à primeira inscrição
+    const primeiraInsc = inscricoes[0];
+    const mod = modalidades.find(m => m.id_edicao_modalidade == primeiraInsc.edicao_modalidade_id);
+    if (mod) {
+      selecionarModalidade(mod);
+    } else if (modalidades.length > 0) {
+      selecionarModalidade(modalidades[0]);
+    }
+  } else if (modalidades.length > 0) {
+    // Sem inscrição — mostra a primeira modalidade disponível
+    selecionarModalidade(modalidades[0]);
+  } else {
+    // Sem nenhuma modalidade ativa
+    ['sportName'].forEach(id => setText(id, 'Sem campeonato'));
+  }
+
   setupReveal();
 });
