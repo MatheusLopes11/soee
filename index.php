@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
 }
 ?>
 
+<!-- ( HTML ) -->
 <?PHP include __DIR__ . '/src/backend/php/include/doctype.php';?>
 <head>
     <title>SOEE — Entrar</title>
