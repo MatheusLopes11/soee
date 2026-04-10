@@ -2,9 +2,9 @@
 
 class AuthHome {
 
-    /* ==========================================
+    /* ══════════════════════════════════════════
        GETTERS DE SESSÃO
-    ========================================== */
+    ══════════════════════════════════════════ */
     public static function getId(): ?int {
         return isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
     }
@@ -17,23 +17,34 @@ class AuthHome {
         return $_SESSION['user_tipo'] ?? null;
     }
 
-    /* ==========================================
+    /* ══════════════════════════════════════════
        VERIFICA SE ESTÁ LOGADO
-    ========================================== */
+    ══════════════════════════════════════════ */
     public static function estaLogado(): bool {
         return !empty($_SESSION['user_id']);
     }
 
-    /* ==========================================
+    /* ══════════════════════════════════════════
+       EXIGE LOGIN (qualquer tipo)
+       Usado em páginas como user-conta.php
+    ══════════════════════════════════════════ */
+    public static function exigirLogin(): void {
+        if (!self::estaLogado()) {
+            header('Location: /soee/index.php');
+            exit();
+        }
+    }
+
+    /* ══════════════════════════════════════════
        EXIGE TIPO(S) PERMITIDO(S)
        Redireciona para login se não estiver logado.
        Redireciona para o dashboard correto se o
-       tipo não bater com os permitidos.
+       tipo não estiver na lista permitida.
 
        Uso:
          AuthHome::exigirTipo(['aluno']);
          AuthHome::exigirTipo(['adm_geral', 'adm_sala']);
-    ========================================== */
+    ══════════════════════════════════════════ */
     public static function exigirTipo(array $tiposPermitidos): void {
         if (!self::estaLogado()) {
             header('Location: /soee/index.php');
@@ -45,10 +56,11 @@ class AuthHome {
         }
     }
 
-    /* ==========================================
-       REDIRECIONA POR TIPO DE USUÁRIO
-    ========================================== */
-    public static function redirecionarPorTipo(): void {
+    /* ══════════════════════════════════════════
+       RETORNA A ROTA DO DASHBOARD PELO TIPO
+       Usado em user-conta.php para o botão "Voltar"
+    ══════════════════════════════════════════ */
+    public static function getRota(?string $tipo = null): string {
         $rotas = [
             'adm_geral' => '/soee/src/backend/php/dashboard/dash-adm.php',
             'adm_sala'  => '/soee/src/backend/php/dashboard/dash-adm-sala.php',
@@ -56,14 +68,21 @@ class AuthHome {
             'aluno'     => '/soee/src/backend/php/dashboard/dash-user.php',
         ];
 
-        $destino = $rotas[self::getTipo()] ?? '/soee/src/backend/php/pages/inicio.php';
-        header('Location: ' . $destino);
+        $t = $tipo ?? self::getTipo();
+        return $rotas[$t] ?? '/soee/src/backend/php/pages/inicio.php';
+    }
+
+    /* ══════════════════════════════════════════
+       REDIRECIONA PARA O DASHBOARD DO TIPO ATUAL
+    ══════════════════════════════════════════ */
+    public static function redirecionarPorTipo(): void {
+        header('Location: ' . self::getRota());
         exit();
     }
 
-    /* ==========================================
+    /* ══════════════════════════════════════════
        LOGIN AUTOMÁTICO POR COOKIE (remember me)
-    ========================================== */
+    ══════════════════════════════════════════ */
     public static function tentarLoginPorCookie($conn): void {
         if (self::estaLogado()) return;
         if (empty($_COOKIE['remember_token'])) return;
@@ -85,13 +104,14 @@ class AuthHome {
         self::apagarCookieLembrar();
     }
 
-    /* ==========================================
+    /* ══════════════════════════════════════════
        PROCESSAR LOGIN (POST)
 
        Compatibilidade dupla de senha:
-       - Contas do seed têm senha em texto puro
-       - Contas novas têm bcrypt (password_hash)
-    ========================================== */
+         - Contas do seed têm senha em texto puro
+         - Contas novas têm bcrypt (password_hash)
+       Detectamos pelo prefixo $2y$ do bcrypt.
+    ══════════════════════════════════════════ */
     public static function processarLogin($conn, string $login, string $senha, bool $lembrar): array {
 
         if (empty($login) || empty($senha)) {
@@ -111,6 +131,7 @@ class AuthHome {
             return ['sucesso' => false, 'erro' => 'Usuário não cadastrado ou senha incorreta.'];
         }
 
+        // Compatibilidade: bcrypt (novas contas) vs texto puro (contas do seed)
         $senhaCorreta = str_starts_with($user['senha_usuario'], '$2y$')
             ? password_verify($senha, $user['senha_usuario'])
             : ($senha === $user['senha_usuario']);
@@ -134,20 +155,12 @@ class AuthHome {
             setcookie('remember_token', $token, time() + (86400 * 30), '/', '', false, true);
         }
 
-        $rotas = [
-            'adm_geral' => '/soee/src/backend/php/dashboard/dash-adm.php',
-            'adm_sala'  => '/soee/src/backend/php/dashboard/dash-adm-sala.php',
-            'professor' => '/soee/src/backend/php/dashboard/dash-prof.php',
-            'aluno'     => '/soee/src/backend/php/dashboard/dash-user.php',
-        ];
-
-        $redirect = $rotas[$user['tipo_usuario']] ?? '/soee/src/backend/php/pages/inicio.php';
-        return ['sucesso' => true, 'redirect' => $redirect];
+        return ['sucesso' => true, 'redirect' => self::getRota($user['tipo_usuario'])];
     }
 
-    /* ==========================================
+    /* ══════════════════════════════════════════
        LOGOUT
-    ========================================== */
+    ══════════════════════════════════════════ */
     public static function logout($conn): void {
         if (!empty($_SESSION['user_id'])) {
             $stmt = $conn->prepare("UPDATE usuario SET remember_token = NULL WHERE id_usuario = :id");
@@ -167,9 +180,9 @@ class AuthHome {
         exit();
     }
 
-    /* ==========================================
+    /* ══════════════════════════════════════════
        HELPER — apaga cookie remember_token
-    ========================================== */
+    ══════════════════════════════════════════ */
     private static function apagarCookieLembrar(): void {
         setcookie('remember_token', '', time() - 3600, '/', '', false, true);
         unset($_COOKIE['remember_token']);

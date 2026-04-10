@@ -1,7 +1,10 @@
 <?php
+ob_start();
+session_start();
 require_once __DIR__ . '/../include/conexao.php';
 require_once __DIR__ . '/../auth/auth-home.php';
 
+// exigirLogin() aceita qualquer tipo de usuário logado
 AuthHome::exigirLogin();
 
 $userId   = AuthHome::getId();
@@ -91,15 +94,15 @@ $tipoLabel   = ['adm_geral' => 'Administrador Geral', 'adm_sala' => 'ADM de Sala
 $generoLabel = ['m' => 'Masculino', 'f' => 'Feminino', 'n' => 'Não informado'];
 $tipoIcone   = ['adm_geral' => 'crown', 'adm_sala' => 'user-shield', 'professor' => 'chalkboard-teacher', 'aluno' => 'graduation-cap'];
 
+// getRota() retorna o dashboard correto para o tipo do usuário
 $dashboardUrl = AuthHome::getRota($userTipo);
 ?>
 
-<!-- ( HTML ) -->
 <?php include __DIR__ . '/../include/doctype.php';?>
 <head>
     <title>Minha Conta — SOEE</title>
-        <link rel="stylesheet" href="/soee/src/frontend/css/user-conta.css">
-    <?php include __DIR__ . '/../include/head-data.php';?> 
+    <link rel="stylesheet" href="/soee/src/frontend/css/user-conta.css">
+    <?php include __DIR__ . '/../include/head-data.php';?>
 </head>
 <body>
 
@@ -308,10 +311,10 @@ $dashboardUrl = AuthHome::getRota($userTipo);
 
 </main>
 
-    <script src="/soee/src/frontend/js/user-conta.js"></script>
-    <script>
-        const _t = localStorage.getItem('theme');
-        if (_t) document.documentElement.setAttribute('data-theme', _t);
-    </script>
+<script src="/soee/src/frontend/js/user-conta.js"></script>
+<script>
+    const _t = localStorage.getItem('theme');
+    if (_t) document.documentElement.setAttribute('data-theme', _t);
+</script>
 
 <?php include __DIR__ . '/../include/end.php';?>

@@ -7,16 +7,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-/* ── Coleta e sanitiza ── */
-$nome      = trim($_POST['nome']   ?? '');
-$email     = trim($_POST['email']  ?? '');
-$senha     = $_POST['senha']       ?? '';
-$confirma  = $_POST['confirma_senha'] ?? '';
-$generoRaw = $_POST['genero']      ?? '';
-$ano       = (int) ($_POST['ano_serie'] ?? 0);
-$curso     = trim($_POST['curso']  ?? '');
+/* ── Coleta ── */
+$nome      = trim($_POST['nome']          ?? '');
+$email     = trim($_POST['email']         ?? '');
+$senha     = $_POST['senha']              ?? '';
+$confirma  = $_POST['confirma_senha']     ?? '';
+$generoRaw = $_POST['genero']             ?? '';
+$ano       = (int) ($_POST['ano_serie']   ?? 0);
+$curso     = trim($_POST['curso']         ?? '');
 
-/* ── Validações básicas ── */
+/* ── Validações ── */
 if (!$nome || !$email || !$senha || !$confirma || !$generoRaw || !$ano || !$curso) {
     header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=campos');
     exit();
@@ -37,13 +37,6 @@ if (strlen($senha) < 8) {
     exit();
 }
 
-/* ── Gênero ── */
-$genero = in_array($generoRaw, ['m', 'f']) ? $generoRaw : 'n';
-
-/* ── Hash seguro da senha ── */
-$senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-
-/* ── Cursoss válidos (devem bater com a sigla_curso do banco) ── */
 $cursosValidos = ['MTEC', 'EMIF', 'MTECPI'];
 if (!in_array($curso, $cursosValidos)) {
     header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=curso');
@@ -55,6 +48,12 @@ if ($ano < 1 || $ano > 3) {
     exit();
 }
 
+/* ── Gênero ── */
+$genero = in_array($generoRaw, ['m', 'f']) ? $generoRaw : 'n';
+
+/* ── Hash seguro da senha ── */
+$senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
 try {
     /* ── Verifica e-mail duplicado ── */
     $stmt = $conn->prepare("SELECT id_usuario FROM usuario WHERE email_usuario = :email LIMIT 1");
@@ -64,16 +63,12 @@ try {
         exit();
     }
 
-    /*
-     * Busca o id_turma que corresponde ao ano_serie + sigla do curso.
-     * A tabela turma tem curso_id_curso → curso.sigla_curso.
-     * Pegamos o registro do ano letivo mais recente caso haja repetição.
-     */
+    /* ── Busca a turma pelo ano + sigla do curso ── */
     $stmtTurma = $conn->prepare("
         SELECT t.id_turma
         FROM turma t
         INNER JOIN curso c ON c.id_curso = t.curso_id_curso
-        WHERE c.sigla_curso    = :sigla
+        WHERE c.sigla_curso     = :sigla
           AND t.ano_serie_turma = :ano
         ORDER BY t.ano_letivo_turma DESC
         LIMIT 1
@@ -86,9 +81,7 @@ try {
         exit();
     }
 
-    $turmaId = $turma['id_turma'];
-
-    /* ── Insere o novo usuário ── */
+    /* ── Insere o novo usuário como aluno ── */
     $insert = $conn->prepare("
         INSERT INTO usuario
             (turma_id_turma, nome_usuario, email_usuario, senha_usuario,
@@ -98,19 +91,17 @@ try {
              :genero, 'aluno', 1)
     ");
     $insert->execute([
-        ':turma'  => $turmaId,
+        ':turma'  => $turma['id_turma'],
         ':nome'   => $nome,
         ':email'  => $email,
         ':senha'  => $senhaHash,
         ':genero' => $genero,
     ]);
 
-    /* ── Redireciona para o login com mensagem de sucesso ── */
     header('Location: /soee/index.php?cadastro=sucesso');
     exit();
 
 } catch (PDOException $e) {
-    // Em produção, logue o erro sem exibir ao usuário
     error_log('Erro no cadastro: ' . $e->getMessage());
     header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=servidor');
     exit();

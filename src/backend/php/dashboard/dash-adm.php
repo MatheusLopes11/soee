@@ -1,4 +1,12 @@
 <?php
+/* ═══════════════════════════════════════════════════════════
+   dash-adm.php — SOEE · Dashboard Administrativo Geral
+   Correções:
+     - session_start() adicionado
+     - tag </a> solta removida da sidebar
+     - AuthHome::exigirTipo usado corretamente
+═══════════════════════════════════════════════════════════ */
+ob_start();
 session_start();
 require_once __DIR__ . '/../include/conexao.php';
 require_once __DIR__ . '/../auth/auth-home.php';
@@ -13,7 +21,6 @@ $kpi_alunos      = $conn->query("SELECT COUNT(*) FROM usuario WHERE tipo_usuario
 $kpi_partidas    = $conn->query("SELECT COUNT(*) FROM partida WHERE status_partida = 'agendada'")->fetchColumn();
 $kpi_realizadas  = $conn->query("SELECT COUNT(*) FROM partida WHERE status_partida = 'realizada'")->fetchColumn();
 $kpi_modalidades = $conn->query("SELECT COUNT(*) FROM modalidade WHERE ativo_modalidade = 1")->fetchColumn();
-
 
 // ── USUÁRIOS ───────────────────────────────────────────────
 $usuarios = $conn->query("
@@ -98,9 +105,9 @@ $sumulas = $conn->query("
     JOIN usuario u ON u.id_usuario = s.usuario_id_enviou
     ORDER BY s.data_envio_sumula DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
-$sumulas_pendentes = array_filter($sumulas, function($s){ return $s['status_sumula'] === 'pendente'; });
+$sumulas_pendentes = array_filter($sumulas, fn($s) => $s['status_sumula'] === 'pendente');
 
-// ── AGENDA (próximas partidas) ─────────────────────────────
+// ── AGENDA ─────────────────────────────────────────────────
 $agenda = $conn->query("
     SELECT p.id_partida, m.nome_modalidade,
            ta.nome_turma AS time_a, tb.nome_turma AS time_b,
@@ -136,101 +143,100 @@ $edicoes_modal_select = $conn->query("
     JOIN modalidade m ON m.id_modalidade = em.modalidade_id_modalidade
     ORDER BY e.ano_edicao DESC, m.nome_modalidade
 ")->fetchAll(PDO::FETCH_ASSOC);
+$cursos = $conn->query("SELECT id_curso, nome_curso FROM curso ORDER BY nome_curso")->fetchAll(PDO::FETCH_ASSOC);
 
-// ── helpers ────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────
 function badgeStatus($s) {
     $map = [
-        'agendada'    => 'ativo',   'realizada'    => 'verde',
-        'ativo'       => 'ativo',   'em_andamento' => 'ativo',
-        'inativo'     => 'inativo', 'encerrado'    => 'encerrado',
-        'pendente'    => 'pendente','validada'     => 'ativo',
-        'rejeitada'   => 'inativo', 'inscricoes'   => 'pendente',
-        'planejamento'=> 'pendente','cancelada'    => 'inativo',
-        'wo'          => 'inativo',
+        'agendada'=>'ativo','realizada'=>'verde','ativo'=>'ativo',
+        'em_andamento'=>'ativo','inativo'=>'inativo','encerrado'=>'encerrado',
+        'pendente'=>'pendente','validada'=>'ativo','rejeitada'=>'inativo',
+        'inscricoes'=>'pendente','planejamento'=>'pendente',
+        'cancelada'=>'inativo','wo'=>'inativo',
     ];
-    $cls = $map[$s] ?? 'pendente';
     $labels = [
         'agendada'=>'Agendada','realizada'=>'Realizada','ativo'=>'Ativo',
         'inativo'=>'Inativo','em_andamento'=>'Em Andamento','encerrado'=>'Encerrado',
         'pendente'=>'Pendente','validada'=>'Validada','rejeitada'=>'Rejeitada',
-        'inscricoes'=>'Inscrições','planejamento'=>'Planejamento','cancelada'=>'Cancelada','wo'=>'W.O.',
+        'inscricoes'=>'Inscrições','planejamento'=>'Planejamento',
+        'cancelada'=>'Cancelada','wo'=>'W.O.',
     ];
+    $cls   = $map[$s]    ?? 'pendente';
     $label = $labels[$s] ?? ucfirst($s);
     return "<span class=\"badge-status $cls\">$label</span>";
 }
 function fmtData($d) { return $d ? date('d/m/Y', strtotime($d)) : '—'; }
-function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
+function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
 ?>
 
-<!-- ( HTML ) -->
 <?php include __DIR__ . '/../include/doctype.php';?>
 <head>
     <title>SOEE | Dashboard Administrativo</title>
-      <link rel="stylesheet" href="/soee/src/frontend/css/dash-adm.css">
-    <?php include __DIR__ . '/../include/head-data.php';?>  
+    <link rel="stylesheet" href="/soee/src/frontend/css/dash-adm.css">
+    <?php include __DIR__ . '/../include/head-data.php';?>
 </head>
 <body>
 
 <!-- ══════════════════════════════════════
-     SIDEBAR
+     SIDEBAR  — SEM TAGS SOLTAS
 ══════════════════════════════════════ -->
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <div class="sidebar-logo-text">SOEE<span class="sidebar-logo-dot"></span></div>
-    <div class="sidebar-logo-sub">Sistema Esportivo Escolar</div>
-  </div>
+    <div class="sidebar-logo">
+        <div class="sidebar-logo-text">SOEE<span class="sidebar-logo-dot"></span></div>
+        <div class="sidebar-logo-sub">Sistema Esportivo Escolar</div>
+    </div>
 
-<nav class="sidebar-nav">
-    <div class="nav-group-label">Visão Geral</div>
-    <a class="nav-item active" href="javascript:void(0)" data-painel="overview" onclick="trocarPainel(this)">
-      <i class="fas fa-chart-line"></i> Dashboard
-    </a>
-    <a class="nav-item" href="javascript:void(0)" data-painel="agenda" onclick="trocarPainel(this)">
-      <i class="fas fa-calendar-alt"></i> Agenda de Partidas
-      <?php if(count($agenda)): ?><span class="nav-badge"><?= count($agenda) ?></span><?php endif; ?>
-    </a>
+    <nav class="sidebar-nav">
+        <div class="nav-group-label">Visão Geral</div>
+        <a class="nav-item active" href="javascript:void(0)" data-painel="overview" onclick="trocarPainel(this)">
+            <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+        <a class="nav-item" href="javascript:void(0)" data-painel="agenda" onclick="trocarPainel(this)">
+            <i class="fas fa-calendar-alt"></i> Agenda de Partidas
+            <?php if (count($agenda)): ?><span class="nav-badge"><?= count($agenda) ?></span><?php endif; ?>
+        </a>
 
-    <div class="nav-group-label">Cadastros</div>
-    <a class="nav-item" href="javascript:void(0)" data-painel="usuarios" onclick="trocarPainel(this)">
-      <i class="fas fa-users"></i> Usuários / Alunos
-    </a>
-    <a class="nav-item" href="javascript:void(0)" data-painel="turmas" onclick="trocarPainel(this)">
-      <i class="fas fa-door-open"></i> Turmas
-    </a>
-    <a class="nav-item" href="javascript:void(0)" data-painel="modalidades" onclick="trocarPainel(this)">
-      <i class="fas fa-futbol"></i> Modalidades
-    </a>
+        <div class="nav-group-label">Cadastros</div>
+        <a class="nav-item" href="javascript:void(0)" data-painel="usuarios" onclick="trocarPainel(this)">
+            <i class="fas fa-users"></i> Usuários / Alunos
+        </a>
+        <a class="nav-item" href="javascript:void(0)" data-painel="turmas" onclick="trocarPainel(this)">
+            <i class="fas fa-door-open"></i> Turmas
+        </a>
+        <a class="nav-item" href="javascript:void(0)" data-painel="modalidades" onclick="trocarPainel(this)">
+            <i class="fas fa-futbol"></i> Modalidades
+        </a>
 
-    <div class="nav-group-label">Competições</div>
-    <a class="nav-item" href="javascript:void(0)" data-painel="edicoes" onclick="trocarPainel(this)">
-      <i class="fas fa-trophy"></i> Edições / Eventos
-    </a>
-    <a class="nav-item" href="javascript:void(0)" data-painel="partidas" onclick="trocarPainel(this)">
-      <i class="fas fa-calendar-days"></i> Partidas
-    </a>
-    <a class="nav-item" href="javascript:void(0)" data-painel="resultados" onclick="trocarPainel(this)">
-      <i class="fas fa-flag-checkered"></i> Resultados
-    </a>
+        <div class="nav-group-label">Competições</div>
+        <a class="nav-item" href="javascript:void(0)" data-painel="edicoes" onclick="trocarPainel(this)">
+            <i class="fas fa-trophy"></i> Edições / Eventos
+        </a>
+        <a class="nav-item" href="javascript:void(0)" data-painel="partidas" onclick="trocarPainel(this)">
+            <i class="fas fa-calendar-days"></i> Partidas
+        </a>
+        <a class="nav-item" href="javascript:void(0)" data-painel="resultados" onclick="trocarPainel(this)">
+            <i class="fas fa-flag-checkered"></i> Resultados
+        </a>
 
-    <div class="nav-group-label">Documentos</div>
-    <a class="nav-item" href="javascript:void(0)" data-painel="sumulas" onclick="trocarPainel(this)">
-      <i class="fas fa-file-alt"></i> Súmulas
-      <?php if(count($sumulas_pendentes)): ?><span class="nav-badge"><?= count($sumulas_pendentes) ?></span><?php endif; ?>
-    </a>
-</nav>
-      <?php if(count($sumulas_pendentes)): ?><span class="nav-badge"><?= count($sumulas_pendentes) ?></span><?php endif; ?>
-    </a>
-  </nav>
+        <div class="nav-group-label">Documentos</div>
+        <a class="nav-item" href="javascript:void(0)" data-painel="sumulas" onclick="trocarPainel(this)">
+            <i class="fas fa-file-alt"></i> Súmulas
+            <?php if (count($sumulas_pendentes)): ?><span class="nav-badge"><?= count($sumulas_pendentes) ?></span><?php endif; ?>
+        </a>
+    </nav>
 
-<div class="sidebar-footer">
-    <a href="/soee/src/backend/php/pages/user-conta.php" class="user-card" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:var(--raio-medio);transition:background .2s;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='none'">
-      <div class="user-avatar"><?= strtoupper(substr($usuario_logado, 0, 2)) ?></div>
-      <div class="user-info">
-        <strong><?= htmlspecialchars($usuario_logado) ?></strong>
-        <span>Adm. Geral</span>
-      </div>
-    </a>
-</div>
+    <div class="sidebar-footer">
+        <a href="/soee/src/backend/php/pages/user-conta.php" class="user-card"
+           style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:var(--raio-medio);transition:background .2s;cursor:pointer;"
+           onmouseover="this.style.background='rgba(255,255,255,0.07)'"
+           onmouseout="this.style.background='none'">
+            <div class="user-avatar"><?= strtoupper(substr($usuario_logado, 0, 2)) ?></div>
+            <div class="user-info">
+                <strong><?= htmlspecialchars($usuario_logado) ?></strong>
+                <span>Adm. Geral</span>
+            </div>
+        </a>
+    </div>
 </aside>
 
 <!-- ══════════════════════════════════════
@@ -238,441 +244,440 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
 ══════════════════════════════════════ -->
 <div class="main">
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    
-    <div class="topbar-title" id="topbar-titulo">Dashboard</div>
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-title" id="topbar-titulo">Dashboard</div>
+        <button class="botao-icone" onclick="alternarTema()" title="Tema">
+            <i class="fas fa-moon" id="tema-icone"></i>
+        </button>
+        <a href="/soee/src/backend/php/pages/inicio.php" class="botao-icone" title="Voltar ao site">
+            <i class="fas fa-home"></i>
+        </a>
+        <a href="/soee/src/backend/php/auth/logout.php" class="botao-icone" title="Sair" style="color:#e53e3e">
+            <i class="fas fa-right-from-bracket"></i>
+        </a>
+    </header>
 
-    
-    <button class="botao-icone" onclick="alternarTema()" title="Tema"><i class="fas fa-moon" id="tema-icone"></i></button>
-    <a href="/soee/src/backend/php/pages/inicio.php" class="botao-icone" title="Voltar ao site"><i class="fas fa-home"></i></a>
-  </header>
+    <!-- CONTEÚDO -->
+    <div class="content">
 
-  <!-- CONTEÚDO -->
-  <div class="content">
-
-    <!-- ══════ OVERVIEW ══════ -->
-    <div class="painel active" id="painel-overview">
-      <div class="kpi-grid">
-        <div class="kpi-card azul">
-          <div class="kpi-icon"><i class="fas fa-users"></i></div>
-          <div class="kpi-num"><?= (int)$kpi_alunos ?></div>
-          <div class="kpi-label">Alunos Cadastrados</div>
-        </div>
-        <div class="kpi-card laranja">
-          <div class="kpi-icon"><i class="fas fa-futbol"></i></div>
-          <div class="kpi-num"><?= (int)$kpi_partidas ?></div>
-          <div class="kpi-label">Partidas Agendadas</div>
-        </div>
-        <div class="kpi-card verde">
-          <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
-          <div class="kpi-num"><?= (int)$kpi_realizadas ?></div>
-          <div class="kpi-label">Partidas Realizadas</div>
-        </div>
-        <div class="kpi-card roxo">
-          <div class="kpi-icon"><i class="fas fa-layer-group"></i></div>
-          <div class="kpi-num"><?= (int)$kpi_modalidades ?></div>
-          <div class="kpi-label">Modalidades Ativas</div>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-        <!-- Próximas Partidas -->
-        <div class="secao-card">
-          <div class="secao-card-header">
-            <h3>Próximas Partidas</h3>
-            <button class="btn btn-primario btn-sm" onclick="trocarPainelById('agenda')"><i class="fas fa-arrow-right"></i> Ver todas</button>
-          </div>
-          <?php if(empty($agenda)): ?>
-            <p style="padding:16px;opacity:.6;">Nenhuma partida agendada.</p>
-          <?php else: ?>
-          <div class="agenda-lista">
-            <?php foreach(array_slice($agenda,0,4) as $p): 
-              $dt = new DateTime($p['data_partida']);
-            ?>
-            <div class="agenda-item">
-              <div class="agenda-data">
-                <strong><?= $dt->format('d') ?></strong>
-                <span><?= $dt->format('M') ?></span>
-              </div>
-              <div class="agenda-info">
-                <strong><?= htmlspecialchars($p['time_a'].' vs '.$p['time_b'].' — '.$p['nome_modalidade']) ?></strong>
-                <?php if($p['local_partida']): ?>
-                <span><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($p['local_partida']) ?></span>
-                <?php endif; ?>
-              </div>
-              <span class="agenda-hora"><?= fmtHora($p['hora_partida']) ?></span>
-            </div>
-            <?php endforeach; ?>
-          </div>
-          <?php endif; ?>
-        </div>
-
-        <!-- Súmulas Pendentes Overview -->
-        <div class="secao-card">
-          <div class="secao-card-header">
-            <h3>Súmulas Pendentes</h3>
-            <span class="secao-tag-mini"><?= count($sumulas_pendentes) ?> pendentes</span>
-          </div>
-          <?php if(empty($sumulas_pendentes)): ?>
-            <p style="padding:16px;opacity:.6;">Nenhuma súmula pendente.</p>
-          <?php else: ?>
-          <div class="tabela-wrap">
-            <table>
-              <thead>
-                <tr><th>Partida</th><th>Enviado por</th><th>Status</th><th>Ações</th></tr>
-              </thead>
-              <tbody>
-                <?php foreach(array_slice(array_values($sumulas_pendentes),0,3) as $s): ?>
-                <tr>
-                  <td><?= htmlspecialchars($s['nome_modalidade'].' — '.$s['time_a'].' vs '.$s['time_b']) ?></td>
-                  <td><?= htmlspecialchars($s['enviado_por']) ?></td>
-                  <td><?= badgeStatus($s['status_sumula']) ?></td>
-                  <td class="td-acoes">
-                    <button class="btn btn-ok btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'validada')"><i class="fas fa-check"></i></button>
-                    <button class="btn btn-perigo btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'rejeitada')"><i class="fas fa-times"></i></button>
-                  </td>
-                </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
-          </div>
-          <?php endif; ?>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════ USUÁRIOS ══════ -->
-    <div class="painel" id="painel-usuarios">
-      <div class="secao-card">
-        <div class="secao-card-header">
-          <h3>Usuários &amp; Alunos</h3>
-          <span class="secao-tag-mini"><?= count($usuarios) ?> registros</span>
-          <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-usuario')">
-            <i class="fas fa-plus"></i> Novo Usuário
-          </button>
-        </div>
-        <div class="tabela-wrap">
-          <table id="tabela-usuarios">
-            <thead>
-              <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Turma</th><th>Tipo</th><th>Gênero</th><th>Status</th><th>Ações</th></tr>
-            </thead>
-            <tbody>
-              <?php foreach($usuarios as $u): ?>
-              <tr data-id="<?= $u['id_usuario'] ?>">
-                <td><?= $u['id_usuario'] ?></td>
-                <td><?= htmlspecialchars($u['nome_usuario']) ?></td>
-                <td><?= htmlspecialchars($u['email_usuario']) ?></td>
-                <td><?= htmlspecialchars($u['nome_turma'] ?? '—') ?></td>
-                <td><?= htmlspecialchars($u['tipo_usuario']) ?></td>
-                <td><?= strtoupper($u['genero_usuario']) ?></td>
-                <td><?= $u['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
-                <td class="td-acoes">
-                  <button class="btn btn-secundario btn-sm" onclick="editarUsuario(<?= $u['id_usuario'] ?>)"><i class="fas fa-edit"></i></button>
-                  <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('usuario', <?= $u['id_usuario'] ?>)"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════ TURMAS ══════ -->
-    <div class="painel" id="painel-turmas">
-      <div class="secao-card">
-        <div class="secao-card-header">
-          <h3>Turmas</h3>
-          <span class="secao-tag-mini"><?= count($turmas) ?> registros</span>
-          <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-turma')">
-            <i class="fas fa-plus"></i> Nova Turma
-          </button>
-        </div>
-        <div class="tabela-wrap">
-          <table>
-            <thead>
-              <tr><th>#</th><th>Nome</th><th>Curso</th><th>Série</th><th>Ano Letivo</th><th>Período</th><th>Ações</th></tr>
-            </thead>
-            <tbody>
-              <?php foreach($turmas as $t): ?>
-              <tr>
-                <td><?= $t['id_turma'] ?></td>
-                <td><?= htmlspecialchars($t['nome_turma']) ?></td>
-                <td><?= htmlspecialchars($t['nome_curso']) ?></td>
-                <td><?= $t['ano_serie_turma'] ?>º</td>
-                <td><?= $t['ano_letivo_turma'] ?></td>
-                <td><span class="badge-status ativo"><?= ucfirst($t['periodo_turma']) ?></span></td>
-                <td class="td-acoes">
-                  <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-turma')"><i class="fas fa-edit"></i></button>
-                  <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('turma', <?= $t['id_turma'] ?>)"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════ MODALIDADES ══════ -->
-    <div class="painel" id="painel-modalidades">
-      <div class="secao-card">
-        <div class="secao-card-header">
-          <h3>Modalidades Esportivas</h3>
-          <span class="secao-tag-mini"><?= count($modalidades) ?> registros</span>
-          <a href="/soee/src/backend/php/form/form-esporte.php" class="btn btn-primario btn-sm">
-            <i class="fas fa-plus"></i> Nova Modalidade
-          </a>
-        </div>
-        <div class="tabela-wrap">
-          <table>
-            <thead>
-              <tr><th>#</th><th>Nome</th><th>Tipo</th><th>Formato</th><th>Participação</th><th>Min/Max Jogadores</th><th>Status</th><th>Ações</th></tr>
-            </thead>
-            <tbody>
-              <?php if(empty($modalidades)): ?>
-              <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhuma modalidade cadastrada.</td></tr>
-              <?php else: foreach($modalidades as $m): ?>
-              <tr>
-                <td><?= $m['id_modalidade'] ?></td>
-                <td><?= htmlspecialchars($m['nome_modalidade']) ?></td>
-                <td><?= htmlspecialchars($m['tipo_modalidade']) ?></td>
-                <td><?= htmlspecialchars($m['formato_modalidade']) ?></td>
-                <td><?= htmlspecialchars($m['tipo_participacao']) ?></td>
-                <td><?= $m['qtd_min_jogadores'] ?> / <?= $m['qtd_max_jogadores'] ?></td>
-                <td><?= $m['ativo_modalidade'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
-                <td class="td-acoes">
-                  <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-modalidade')"><i class="fas fa-edit"></i></button>
-                  <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('modalidade', <?= $m['id_modalidade'] ?>)"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <?php endforeach; endif; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════ EDIÇÕES ══════ -->
-    <div class="painel" id="painel-edicoes">
-      <div class="secao-card">
-        <div class="secao-card-header">
-          <h3>Edições / Eventos</h3>
-          <span class="secao-tag-mini"><?= count($edicoes) ?> registros</span>
-          <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-edicao')">
-            <i class="fas fa-plus"></i> Nova Edição
-          </button>
-        </div>
-        <div class="tabela-wrap">
-          <table>
-            <thead>
-              <tr><th>#</th><th>Nome do Evento</th><th>Ano</th><th>Início</th><th>Fim</th><th>Status</th><th>Ações</th></tr>
-            </thead>
-            <tbody>
-              <?php if(empty($edicoes)): ?>
-              <tr><td colspan="7" style="text-align:center;opacity:.6;padding:20px;">Nenhuma edição cadastrada.</td></tr>
-              <?php else: foreach($edicoes as $e): ?>
-              <tr>
-                <td><?= $e['id_edicao'] ?></td>
-                <td><?= htmlspecialchars($e['nome_edicao']) ?></td>
-                <td><?= $e['ano_edicao'] ?></td>
-                <td><?= fmtData($e['data_inicio_edicao']) ?></td>
-                <td><?= fmtData($e['data_fim_edicao']) ?></td>
-                <td><?= badgeStatus($e['status_edicao']) ?></td>
-                <td class="td-acoes">
-                  <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-edicao')"><i class="fas fa-edit"></i></button>
-                  <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('edicao', <?= $e['id_edicao'] ?>)"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <?php endforeach; endif; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════ PARTIDAS ══════ -->
-    <div class="painel" id="painel-partidas">
-      <div class="secao-card">
-        <div class="secao-card-header">
-          <h3>Partidas</h3>
-          <span class="secao-tag-mini"><?= count($partidas) ?> registros</span>
-          <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-partida')">
-            <i class="fas fa-plus"></i> Agendar Partida
-          </button>
-        </div>
-        <div class="tabela-wrap">
-          <table>
-            <thead>
-              <tr><th>#</th><th>Modalidade</th><th>Time A</th><th>Time B</th><th>Data</th><th>Hora</th><th>Local</th><th>Fase</th><th>Status</th><th>Ações</th></tr>
-            </thead>
-            <tbody>
-              <?php if(empty($partidas)): ?>
-              <tr><td colspan="10" style="text-align:center;opacity:.6;padding:20px;">Nenhuma partida cadastrada.</td></tr>
-              <?php else: foreach($partidas as $p): ?>
-              <tr>
-                <td><?= $p['id_partida'] ?></td>
-                <td><?= htmlspecialchars($p['nome_modalidade']) ?></td>
-                <td><?= htmlspecialchars($p['time_a']) ?></td>
-                <td><?= htmlspecialchars($p['time_b']) ?></td>
-                <td><?= fmtData($p['data_partida']) ?></td>
-                <td><?= fmtHora($p['hora_partida']) ?></td>
-                <td><?= htmlspecialchars($p['local_partida'] ?? '—') ?></td>
-                <td><span class="badge-status pendente"><?= ucfirst($p['fase_partida']) ?></span></td>
-                <td><?= badgeStatus($p['status_partida']) ?></td>
-                <td class="td-acoes">
-                  <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-partida')"><i class="fas fa-edit"></i></button>
-                  <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('partida', <?= $p['id_partida'] ?>)"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <?php endforeach; endif; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════ RESULTADOS ══════ -->
-    <div class="painel" id="painel-resultados">
-      <div class="secao-card">
-        <div class="secao-card-header">
-          <h3>Resultados</h3>
-          <span class="secao-tag-mini"><?= count($resultados) ?> registros</span>
-          <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-resultado')">
-            <i class="fas fa-plus"></i> Registrar Resultado
-          </button>
-        </div>
-        <div class="tabela-wrap">
-          <table>
-            <thead>
-              <tr><th>#</th><th>Partida</th><th>Placar A</th><th>Placar B</th><th>Vencedor</th><th>Ações</th></tr>
-            </thead>
-            <tbody>
-              <?php if(empty($resultados)): ?>
-              <tr><td colspan="6" style="text-align:center;opacity:.6;padding:20px;">Nenhum resultado registrado.</td></tr>
-              <?php else: foreach($resultados as $r): ?>
-              <tr>
-                <td><?= $r['id_resultado'] ?></td>
-                <td><?= htmlspecialchars($r['nome_modalidade'].' — '.$r['time_a'].' vs '.$r['time_b']) ?></td>
-                <td style="font-weight:800;<?= $r['placar_time_a'] > $r['placar_time_b'] ? 'color:var(--verde-ok)' : '' ?>"><?= $r['placar_time_a'] ?></td>
-                <td style="font-weight:800;<?= $r['placar_time_b'] > $r['placar_time_a'] ? 'color:var(--verde-ok)' : '' ?>"><?= $r['placar_time_b'] ?></td>
-                <td><strong><?= htmlspecialchars($r['vencedor'] ?? '—') ?></strong></td>
-                <td class="td-acoes">
-                  <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-resultado')"><i class="fas fa-edit"></i></button>
-                  <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('resultado', <?= $r['id_resultado'] ?>)"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <?php endforeach; endif; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════ SÚMULAS ══════ -->
-    <div class="painel" id="painel-sumulas">
-      <div class="secao-card">
-        <div class="secao-card-header">
-          <h3>Súmulas</h3>
-          <span class="secao-tag-mini"><?= count($sumulas) ?> registros</span>
-          <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-sumula')">
-            <i class="fas fa-upload"></i> Enviar Súmula
-          </button>
-        </div>
-        <div class="tabela-wrap">
-          <table>
-            <thead>
-              <tr><th>#</th><th>Partida</th><th>Enviado por</th><th>Arquivo</th><th>Tipo</th><th>Data Envio</th><th>Status</th><th>Ações</th></tr>
-            </thead>
-            <tbody>
-              <?php if(empty($sumulas)): ?>
-              <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhuma súmula enviada.</td></tr>
-              <?php else: foreach($sumulas as $s): ?>
-              <tr>
-                <td><?= $s['id_sumula'] ?></td>
-                <td><?= htmlspecialchars($s['nome_modalidade'].' — '.$s['time_a'].' vs '.$s['time_b']) ?></td>
-                <td><?= htmlspecialchars($s['enviado_por']) ?></td>
-                <td><a href="#" style="color:var(--azul-secundario)">
-                  <i class="fas fa-file-<?= strtolower($s['tipo_arquivo_sumula']) === 'pdf' ? 'pdf' : 'image' ?>"></i>
-                  <?= htmlspecialchars($s['nome_arquivo_sumula']) ?>
-                </a></td>
-                <td><?= strtoupper($s['tipo_arquivo_sumula']) ?></td>
-                <td><?= date('d/m/Y H:i', strtotime($s['data_envio_sumula'])) ?></td>
-                <td><?= badgeStatus($s['status_sumula']) ?></td>
-                <td class="td-acoes">
-                  <?php if($s['status_sumula'] === 'pendente'): ?>
-                  <button class="btn btn-ok btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'validada')"><i class="fas fa-check"></i> Validar</button>
-                  <button class="btn btn-perigo btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'rejeitada')"><i class="fas fa-times"></i></button>
-                  <?php else: ?>
-                  <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('sumula', <?= $s['id_sumula'] ?>)"><i class="fas fa-trash"></i></button>
-                  <?php endif; ?>
-                </td>
-              </tr>
-              <?php endforeach; endif; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════ AGENDA ══════ -->
-    <div class="painel" id="painel-agenda">
-      <div class="secao-card">
-        <div class="secao-card-header">
-          <h3>Agenda Completa de Partidas</h3>
-          <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-partida')">
-            <i class="fas fa-plus"></i> Agendar
-          </button>
-        </div>
-        <?php if(empty($agenda)): ?>
-          <p style="padding:24px;opacity:.6;">Nenhuma partida agendada no momento.</p>
-        <?php else:
-          // Agrupar partidas por data
-          $por_dia = [];
-          foreach($agenda as $p) {
-            $por_dia[$p['data_partida']][] = $p;
-          }
-          ksort($por_dia);
-          $dias_pt = ['Sunday'=>'Dom','Monday'=>'Seg','Tuesday'=>'Ter','Wednesday'=>'Qua','Thursday'=>'Qui','Friday'=>'Sex','Saturday'=>'Sáb'];
-          $meses_pt = ['January'=>'Janeiro','February'=>'Fevereiro','March'=>'Março','April'=>'Abril','May'=>'Maio','June'=>'Junho','July'=>'Julho','August'=>'Agosto','September'=>'Setembro','October'=>'Outubro','November'=>'Novembro','December'=>'Dezembro'];
-        ?>
-        <div class="agenda-tabela-wrap">
-          <div class="agenda-colunas">
-            <?php foreach($por_dia as $data => $partidas):
-              $dt = new DateTime($data);
-              $dia_semana = $dias_pt[$dt->format('l')];
-              $mes = $meses_pt[$dt->format('F')];
-            ?>
-            <div class="agenda-coluna">
-              <div class="agenda-coluna-header">
-                <span class="agenda-col-diaSemana"><?= $dia_semana ?></span>
-                <span class="agenda-col-dia"><?= $dt->format('d') ?></span>
-                <span class="agenda-col-mes"><?= $mes ?></span>
-              </div>
-              <div class="agenda-coluna-body">
-                <?php foreach($partidas as $p): ?>
-                <div class="agenda-slot">
-                  <span class="agenda-slot-hora"><?= fmtHora($p['hora_partida']) ?></span>
-                  <div class="agenda-slot-info">
-                    <strong><?= htmlspecialchars($p['time_a'].' vs '.$p['time_b']) ?></strong>
-                    <span class="agenda-slot-mod"><?= htmlspecialchars($p['nome_modalidade']) ?></span>
-                    <?php if($p['local_partida']): ?>
-                    <span class="agenda-slot-local"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($p['local_partida']) ?></span>
-                    <?php endif; ?>
-                  </div>
+        <!-- ══════ OVERVIEW ══════ -->
+        <div class="painel active" id="painel-overview">
+            <div class="kpi-grid">
+                <div class="kpi-card azul">
+                    <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                    <div class="kpi-num"><?= (int)$kpi_alunos ?></div>
+                    <div class="kpi-label">Alunos Cadastrados</div>
                 </div>
-                <?php endforeach; ?>
-              </div>
+                <div class="kpi-card laranja">
+                    <div class="kpi-icon"><i class="fas fa-futbol"></i></div>
+                    <div class="kpi-num"><?= (int)$kpi_partidas ?></div>
+                    <div class="kpi-label">Partidas Agendadas</div>
+                </div>
+                <div class="kpi-card verde">
+                    <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="kpi-num"><?= (int)$kpi_realizadas ?></div>
+                    <div class="kpi-label">Partidas Realizadas</div>
+                </div>
+                <div class="kpi-card roxo">
+                    <div class="kpi-icon"><i class="fas fa-layer-group"></i></div>
+                    <div class="kpi-num"><?= (int)$kpi_modalidades ?></div>
+                    <div class="kpi-label">Modalidades Ativas</div>
+                </div>
             </div>
-            <?php endforeach; ?>
-          </div>
-        </div>
-        <?php endif; ?>
-      </div>
-    </div>
 
-  </div><!-- /content -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                <!-- Próximas Partidas -->
+                <div class="secao-card">
+                    <div class="secao-card-header">
+                        <h3>Próximas Partidas</h3>
+                        <button class="btn btn-primario btn-sm" onclick="trocarPainelById('agenda')">
+                            <i class="fas fa-arrow-right"></i> Ver todas
+                        </button>
+                    </div>
+                    <?php if (empty($agenda)): ?>
+                        <p style="padding:16px;opacity:.6;">Nenhuma partida agendada.</p>
+                    <?php else: ?>
+                    <div class="agenda-lista">
+                        <?php foreach (array_slice($agenda, 0, 4) as $p):
+                            $dt = new DateTime($p['data_partida']); ?>
+                        <div class="agenda-item">
+                            <div class="agenda-data">
+                                <strong><?= $dt->format('d') ?></strong>
+                                <span><?= $dt->format('M') ?></span>
+                            </div>
+                            <div class="agenda-info">
+                                <strong><?= htmlspecialchars($p['time_a'] . ' vs ' . $p['time_b'] . ' — ' . $p['nome_modalidade']) ?></strong>
+                                <?php if ($p['local_partida']): ?>
+                                <span><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($p['local_partida']) ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <span class="agenda-hora"><?= fmtHora($p['hora_partida']) ?></span>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Súmulas Pendentes -->
+                <div class="secao-card">
+                    <div class="secao-card-header">
+                        <h3>Súmulas Pendentes</h3>
+                        <span class="secao-tag-mini"><?= count($sumulas_pendentes) ?> pendentes</span>
+                    </div>
+                    <?php if (empty($sumulas_pendentes)): ?>
+                        <p style="padding:16px;opacity:.6;">Nenhuma súmula pendente.</p>
+                    <?php else: ?>
+                    <div class="tabela-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>Partida</th><th>Enviado por</th><th>Status</th><th>Ações</th></tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach (array_slice(array_values($sumulas_pendentes), 0, 3) as $s): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($s['nome_modalidade'] . ' — ' . $s['time_a'] . ' vs ' . $s['time_b']) ?></td>
+                                    <td><?= htmlspecialchars($s['enviado_por']) ?></td>
+                                    <td><?= badgeStatus($s['status_sumula']) ?></td>
+                                    <td class="td-acoes">
+                                        <button class="btn btn-ok btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'validada')"><i class="fas fa-check"></i></button>
+                                        <button class="btn btn-perigo btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'rejeitada')"><i class="fas fa-times"></i></button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ USUÁRIOS ══════ -->
+        <div class="painel" id="painel-usuarios">
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Usuários &amp; Alunos</h3>
+                    <span class="secao-tag-mini"><?= count($usuarios) ?> registros</span>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-usuario')">
+                        <i class="fas fa-plus"></i> Novo Usuário
+                    </button>
+                </div>
+                <div class="tabela-wrap">
+                    <table id="tabela-usuarios">
+                        <thead>
+                            <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Turma</th><th>Tipo</th><th>Gênero</th><th>Status</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($usuarios as $u): ?>
+                            <tr data-id="<?= $u['id_usuario'] ?>">
+                                <td><?= $u['id_usuario'] ?></td>
+                                <td><?= htmlspecialchars($u['nome_usuario']) ?></td>
+                                <td><?= htmlspecialchars($u['email_usuario']) ?></td>
+                                <td><?= htmlspecialchars($u['nome_turma'] ?? '—') ?></td>
+                                <td><?= htmlspecialchars($u['tipo_usuario']) ?></td>
+                                <td><?= strtoupper($u['genero_usuario']) ?></td>
+                                <td><?= $u['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
+                                <td class="td-acoes">
+                                    <button class="btn btn-secundario btn-sm" onclick="editarUsuario(<?= $u['id_usuario'] ?>)"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('usuario', <?= $u['id_usuario'] ?>)"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ TURMAS ══════ -->
+        <div class="painel" id="painel-turmas">
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Turmas</h3>
+                    <span class="secao-tag-mini"><?= count($turmas) ?> registros</span>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-turma')">
+                        <i class="fas fa-plus"></i> Nova Turma
+                    </button>
+                </div>
+                <div class="tabela-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>#</th><th>Nome</th><th>Curso</th><th>Série</th><th>Ano Letivo</th><th>Período</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($turmas as $t): ?>
+                            <tr>
+                                <td><?= $t['id_turma'] ?></td>
+                                <td><?= htmlspecialchars($t['nome_turma']) ?></td>
+                                <td><?= htmlspecialchars($t['nome_curso']) ?></td>
+                                <td><?= $t['ano_serie_turma'] ?>º</td>
+                                <td><?= $t['ano_letivo_turma'] ?></td>
+                                <td><span class="badge-status ativo"><?= ucfirst($t['periodo_turma']) ?></span></td>
+                                <td class="td-acoes">
+                                    <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-turma')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('turma', <?= $t['id_turma'] ?>)"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ MODALIDADES ══════ -->
+        <div class="painel" id="painel-modalidades">
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Modalidades Esportivas</h3>
+                    <span class="secao-tag-mini"><?= count($modalidades) ?> registros</span>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-modalidade')">
+                        <i class="fas fa-plus"></i> Nova Modalidade
+                    </button>
+                </div>
+                <div class="tabela-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>#</th><th>Nome</th><th>Tipo</th><th>Formato</th><th>Participação</th><th>Min/Max</th><th>Status</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($modalidades)): ?>
+                            <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhuma modalidade cadastrada.</td></tr>
+                            <?php else: foreach ($modalidades as $m): ?>
+                            <tr>
+                                <td><?= $m['id_modalidade'] ?></td>
+                                <td><?= htmlspecialchars($m['nome_modalidade']) ?></td>
+                                <td><?= htmlspecialchars($m['tipo_modalidade']) ?></td>
+                                <td><?= htmlspecialchars($m['formato_modalidade']) ?></td>
+                                <td><?= htmlspecialchars($m['tipo_participacao']) ?></td>
+                                <td><?= $m['qtd_min_jogadores'] ?> / <?= $m['qtd_max_jogadores'] ?></td>
+                                <td><?= $m['ativo_modalidade'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
+                                <td class="td-acoes">
+                                    <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-modalidade')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('modalidade', <?= $m['id_modalidade'] ?>)"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ EDIÇÕES ══════ -->
+        <div class="painel" id="painel-edicoes">
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Edições / Eventos</h3>
+                    <span class="secao-tag-mini"><?= count($edicoes) ?> registros</span>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-edicao')">
+                        <i class="fas fa-plus"></i> Nova Edição
+                    </button>
+                </div>
+                <div class="tabela-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>#</th><th>Nome</th><th>Ano</th><th>Início</th><th>Fim</th><th>Status</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($edicoes)): ?>
+                            <tr><td colspan="7" style="text-align:center;opacity:.6;padding:20px;">Nenhuma edição cadastrada.</td></tr>
+                            <?php else: foreach ($edicoes as $e): ?>
+                            <tr>
+                                <td><?= $e['id_edicao'] ?></td>
+                                <td><?= htmlspecialchars($e['nome_edicao']) ?></td>
+                                <td><?= $e['ano_edicao'] ?></td>
+                                <td><?= fmtData($e['data_inicio_edicao']) ?></td>
+                                <td><?= fmtData($e['data_fim_edicao']) ?></td>
+                                <td><?= badgeStatus($e['status_edicao']) ?></td>
+                                <td class="td-acoes">
+                                    <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-edicao')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('edicao', <?= $e['id_edicao'] ?>)"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ PARTIDAS ══════ -->
+        <div class="painel" id="painel-partidas">
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Partidas</h3>
+                    <span class="secao-tag-mini"><?= count($partidas) ?> registros</span>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-partida')">
+                        <i class="fas fa-plus"></i> Agendar Partida
+                    </button>
+                </div>
+                <div class="tabela-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>#</th><th>Modalidade</th><th>Time A</th><th>Time B</th><th>Data</th><th>Hora</th><th>Local</th><th>Fase</th><th>Status</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($partidas)): ?>
+                            <tr><td colspan="10" style="text-align:center;opacity:.6;padding:20px;">Nenhuma partida cadastrada.</td></tr>
+                            <?php else: foreach ($partidas as $p): ?>
+                            <tr>
+                                <td><?= $p['id_partida'] ?></td>
+                                <td><?= htmlspecialchars($p['nome_modalidade']) ?></td>
+                                <td><?= htmlspecialchars($p['time_a']) ?></td>
+                                <td><?= htmlspecialchars($p['time_b']) ?></td>
+                                <td><?= fmtData($p['data_partida']) ?></td>
+                                <td><?= fmtHora($p['hora_partida']) ?></td>
+                                <td><?= htmlspecialchars($p['local_partida'] ?? '—') ?></td>
+                                <td><span class="badge-status pendente"><?= ucfirst($p['fase_partida']) ?></span></td>
+                                <td><?= badgeStatus($p['status_partida']) ?></td>
+                                <td class="td-acoes">
+                                    <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-partida')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('partida', <?= $p['id_partida'] ?>)"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ RESULTADOS ══════ -->
+        <div class="painel" id="painel-resultados">
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Resultados</h3>
+                    <span class="secao-tag-mini"><?= count($resultados) ?> registros</span>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-resultado')">
+                        <i class="fas fa-plus"></i> Registrar Resultado
+                    </button>
+                </div>
+                <div class="tabela-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>#</th><th>Partida</th><th>Placar A</th><th>Placar B</th><th>Vencedor</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($resultados)): ?>
+                            <tr><td colspan="6" style="text-align:center;opacity:.6;padding:20px;">Nenhum resultado registrado.</td></tr>
+                            <?php else: foreach ($resultados as $r): ?>
+                            <tr>
+                                <td><?= $r['id_resultado'] ?></td>
+                                <td><?= htmlspecialchars($r['nome_modalidade'] . ' — ' . $r['time_a'] . ' vs ' . $r['time_b']) ?></td>
+                                <td style="font-weight:800;<?= $r['placar_time_a'] > $r['placar_time_b'] ? 'color:var(--verde-ok)' : '' ?>"><?= $r['placar_time_a'] ?></td>
+                                <td style="font-weight:800;<?= $r['placar_time_b'] > $r['placar_time_a'] ? 'color:var(--verde-ok)' : '' ?>"><?= $r['placar_time_b'] ?></td>
+                                <td><strong><?= htmlspecialchars($r['vencedor'] ?? '—') ?></strong></td>
+                                <td class="td-acoes">
+                                    <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-resultado')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('resultado', <?= $r['id_resultado'] ?>)"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ SÚMULAS ══════ -->
+        <div class="painel" id="painel-sumulas">
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Súmulas</h3>
+                    <span class="secao-tag-mini"><?= count($sumulas) ?> registros</span>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-sumula')">
+                        <i class="fas fa-upload"></i> Enviar Súmula
+                    </button>
+                </div>
+                <div class="tabela-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>#</th><th>Partida</th><th>Enviado por</th><th>Arquivo</th><th>Tipo</th><th>Data Envio</th><th>Status</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($sumulas)): ?>
+                            <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhuma súmula enviada.</td></tr>
+                            <?php else: foreach ($sumulas as $s): ?>
+                            <tr>
+                                <td><?= $s['id_sumula'] ?></td>
+                                <td><?= htmlspecialchars($s['nome_modalidade'] . ' — ' . $s['time_a'] . ' vs ' . $s['time_b']) ?></td>
+                                <td><?= htmlspecialchars($s['enviado_por']) ?></td>
+                                <td><a href="#" style="color:var(--azul-secundario)">
+                                    <i class="fas fa-file-<?= strtolower($s['tipo_arquivo_sumula']) === 'pdf' ? 'pdf' : 'image' ?>"></i>
+                                    <?= htmlspecialchars($s['nome_arquivo_sumula']) ?>
+                                </a></td>
+                                <td><?= strtoupper($s['tipo_arquivo_sumula']) ?></td>
+                                <td><?= date('d/m/Y H:i', strtotime($s['data_envio_sumula'])) ?></td>
+                                <td><?= badgeStatus($s['status_sumula']) ?></td>
+                                <td class="td-acoes">
+                                    <?php if ($s['status_sumula'] === 'pendente'): ?>
+                                    <button class="btn btn-ok btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'validada')"><i class="fas fa-check"></i> Validar</button>
+                                    <button class="btn btn-perigo btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'rejeitada')"><i class="fas fa-times"></i></button>
+                                    <?php else: ?>
+                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('sumula', <?= $s['id_sumula'] ?>)"><i class="fas fa-trash"></i></button>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ AGENDA ══════ -->
+        <div class="painel" id="painel-agenda">
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Agenda Completa de Partidas</h3>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-partida')">
+                        <i class="fas fa-plus"></i> Agendar
+                    </button>
+                </div>
+                <?php if (empty($agenda)): ?>
+                    <p style="padding:24px;opacity:.6;">Nenhuma partida agendada.</p>
+                <?php else:
+                    $por_dia = [];
+                    foreach ($agenda as $p) $por_dia[$p['data_partida']][] = $p;
+                    ksort($por_dia);
+                    $dias_pt  = ['Sunday'=>'Dom','Monday'=>'Seg','Tuesday'=>'Ter','Wednesday'=>'Qua','Thursday'=>'Qui','Friday'=>'Sex','Saturday'=>'Sáb'];
+                    $meses_pt = ['January'=>'Janeiro','February'=>'Fevereiro','March'=>'Março','April'=>'Abril','May'=>'Maio','June'=>'Junho','July'=>'Julho','August'=>'Agosto','September'=>'Setembro','October'=>'Outubro','November'=>'Novembro','December'=>'Dezembro'];
+                ?>
+                <div class="agenda-tabela-wrap">
+                    <div class="agenda-colunas">
+                        <?php foreach ($por_dia as $data => $partidas_dia):
+                            $dt = new DateTime($data); ?>
+                        <div class="agenda-coluna">
+                            <div class="agenda-coluna-header">
+                                <span class="agenda-col-diaSemana"><?= $dias_pt[$dt->format('l')] ?></span>
+                                <span class="agenda-col-dia"><?= $dt->format('d') ?></span>
+                                <span class="agenda-col-mes"><?= $meses_pt[$dt->format('F')] ?></span>
+                            </div>
+                            <div class="agenda-coluna-body">
+                                <?php foreach ($partidas_dia as $p): ?>
+                                <div class="agenda-slot">
+                                    <span class="agenda-slot-hora"><?= fmtHora($p['hora_partida']) ?></span>
+                                    <div class="agenda-slot-info">
+                                        <strong><?= htmlspecialchars($p['time_a'] . ' vs ' . $p['time_b']) ?></strong>
+                                        <span class="agenda-slot-mod"><?= htmlspecialchars($p['nome_modalidade']) ?></span>
+                                        <?php if ($p['local_partida']): ?>
+                                        <span class="agenda-slot-local"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($p['local_partida']) ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+    </div><!-- /content -->
 </div><!-- /main -->
 
 <!-- ══════════════════════════════════════
@@ -706,7 +711,7 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
             <label class="form-label">Turma</label>
             <select class="form-select" name="turma_id_turma" id="u-turma">
               <option value="">Selecionar turma…</option>
-              <?php foreach($turmas_select as $t): ?>
+              <?php foreach ($turmas_select as $t): ?>
               <option value="<?= $t['id_turma'] ?>"><?= htmlspecialchars($t['nome_turma']) ?></option>
               <?php endforeach; ?>
             </select>
@@ -762,9 +767,7 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
           <div class="form-grupo span2">
             <label class="form-label">Curso</label>
             <select class="form-select" name="curso_id_curso">
-              <?php
-              $cursos = $conn->query("SELECT id_curso, nome_curso FROM curso ORDER BY nome_curso")->fetchAll(PDO::FETCH_ASSOC);
-              foreach($cursos as $c): ?>
+              <?php foreach ($cursos as $c): ?>
               <option value="<?= $c['id_curso'] ?>"><?= htmlspecialchars($c['nome_curso']) ?></option>
               <?php endforeach; ?>
             </select>
@@ -812,10 +815,8 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
           <div class="form-grupo">
             <label class="form-label">Tipo</label>
             <select class="form-select" name="tipo_modalidade">
-              <option value="quadra">Quadra</option>
-              <option value="mesa">Mesa</option>
-              <option value="campo">Campo</option>
-              <option value="outro">Outro</option>
+              <option value="quadra">Quadra</option><option value="mesa">Mesa</option>
+              <option value="campo">Campo</option><option value="outro">Outro</option>
             </select>
           </div>
           <div class="form-grupo">
@@ -830,10 +831,8 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
           <div class="form-grupo">
             <label class="form-label">Tipo de Participação</label>
             <select class="form-select" name="tipo_participacao">
-              <option value="solo">Solo</option>
-              <option value="dupla">Dupla</option>
-              <option value="trio">Trio</option>
-              <option value="time">Time</option>
+              <option value="solo">Solo</option><option value="dupla">Dupla</option>
+              <option value="trio">Trio</option><option value="time">Time</option>
             </select>
           </div>
           <div class="form-grupo">
@@ -921,7 +920,7 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
             <label class="form-label">Edição / Modalidade</label>
             <select class="form-select" name="edicao_modalidade_id" required>
               <option value="">Selecionar…</option>
-              <?php foreach($edicoes_modal_select as $em): ?>
+              <?php foreach ($edicoes_modal_select as $em): ?>
               <option value="<?= $em['id_edicao_modalidade'] ?>"><?= htmlspecialchars($em['label']) ?></option>
               <?php endforeach; ?>
             </select>
@@ -929,7 +928,7 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
           <div class="form-grupo">
             <label class="form-label">Time A</label>
             <select class="form-select" name="turma_id_time_a" required>
-              <?php foreach($turmas_select as $t): ?>
+              <?php foreach ($turmas_select as $t): ?>
               <option value="<?= $t['id_turma'] ?>"><?= htmlspecialchars($t['nome_turma']) ?></option>
               <?php endforeach; ?>
             </select>
@@ -937,7 +936,7 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
           <div class="form-grupo">
             <label class="form-label">Time B</label>
             <select class="form-select" name="turma_id_time_b" required>
-              <?php foreach($turmas_select as $t): ?>
+              <?php foreach ($turmas_select as $t): ?>
               <option value="<?= $t['id_turma'] ?>"><?= htmlspecialchars($t['nome_turma']) ?></option>
               <?php endforeach; ?>
             </select>
@@ -957,12 +956,9 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
           <div class="form-grupo">
             <label class="form-label">Fase</label>
             <select class="form-select" name="fase_partida" required>
-              <option value="grupos">Grupos</option>
-              <option value="oitavas">Oitavas</option>
-              <option value="quartas">Quartas</option>
-              <option value="semi">Semifinal</option>
-              <option value="final">Final</option>
-              <option value="terceiro_lugar">3º Lugar</option>
+              <option value="grupos">Grupos</option><option value="oitavas">Oitavas</option>
+              <option value="quartas">Quartas</option><option value="semi">Semifinal</option>
+              <option value="final">Final</option><option value="terceiro_lugar">3º Lugar</option>
             </select>
           </div>
           <div class="form-grupo span2">
@@ -993,7 +989,7 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
             <label class="form-label">Partida</label>
             <select class="form-select" name="partida_id_partida" required>
               <option value="">Selecionar…</option>
-              <?php foreach($partidas_select as $ps): ?>
+              <?php foreach ($partidas_select as $ps): ?>
               <option value="<?= $ps['id_partida'] ?>"><?= htmlspecialchars($ps['label']) ?></option>
               <?php endforeach; ?>
             </select>
@@ -1010,7 +1006,7 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
             <label class="form-label">Vencedor (automático ou W.O.)</label>
             <select class="form-select" name="turma_id_vencedor">
               <option value="">Calcular automaticamente</option>
-              <?php foreach($turmas_select as $t): ?>
+              <?php foreach ($turmas_select as $t): ?>
               <option value="<?= $t['id_turma'] ?>"><?= htmlspecialchars($t['nome_turma']) ?> — W.O.</option>
               <?php endforeach; ?>
             </select>
@@ -1043,7 +1039,7 @@ function fmtHora($h) { return $h ? substr($h,0,5) : '—'; }
             <label class="form-label">Partida</label>
             <select class="form-select" name="partida_id_partida" required>
               <option value="">Selecionar…</option>
-              <?php foreach($partidas_select as $ps): ?>
+              <?php foreach ($partidas_select as $ps): ?>
               <option value="<?= $ps['id_partida'] ?>"><?= htmlspecialchars($ps['label']) ?></option>
               <?php endforeach; ?>
             </select>

@@ -379,7 +379,6 @@
 
       </div>
     </main>
-
   </div>
 
   <script src="/soee/src/frontend/js/inicio.js"></script>
