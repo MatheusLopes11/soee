@@ -359,9 +359,6 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                 <div class="secao-card-header">
                     <h3>Usuários &amp; Alunos</h3>
                     <span class="secao-tag-mini"><?= count($usuarios) ?> registros</span>
-                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-usuario')">
-                        <i class="fas fa-plus"></i> Novo Usuário
-                    </button>
                 </div>
                 <div class="tabela-wrap">
                     <table id="tabela-usuarios">
@@ -380,7 +377,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><?= $u['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
                                 <td class="td-acoes">
                                     <button class="btn btn-secundario btn-sm" onclick="editarUsuario(<?= $u['id_usuario'] ?>)"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('usuario', <?= $u['id_usuario'] ?>)"><i class="fas fa-trash"></i></button>
+                                    
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -396,9 +393,6 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                 <div class="secao-card-header">
                     <h3>Turmas</h3>
                     <span class="secao-tag-mini"><?= count($turmas) ?> registros</span>
-                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-turma')">
-                        <i class="fas fa-plus"></i> Nova Turma
-                    </button>
                 </div>
                 <div class="tabela-wrap">
                     <table>
@@ -416,7 +410,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><span class="badge-status ativo"><?= ucfirst($t['periodo_turma']) ?></span></td>
                                 <td class="td-acoes">
                                     <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-turma')"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('turma', <?= $t['id_turma'] ?>)"><i class="fas fa-trash"></i></button>
+                                   
                                 </td>
                             </tr>
                             <?php endforeach; ?>
