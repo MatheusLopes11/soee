@@ -9,19 +9,37 @@ $userId   = AuthHome::getId();
 $userNome = AuthHome::getNome();
 
 $stmtUser = $conn->prepare("
-    SELECT u.nome_usuario, u.email_usuario, u.foto_perfil_usuario,
-           u.genero_usuario, u.turma_id_turma,
-           t.nome_turma, t.ano_serie_turma, t.periodo_turma,
-           c.nome_curso, c.sigla_curso
+    SELECT 
+        u.id_usuario,
+        u.nome_usuario,
+        u.email_usuario,
+        u.foto_perfil_usuario,
+        u.genero_usuario,
+
+        u.turma_id_turma AS turma_id,
+        t.nome_turma,
+        t.ano_serie_turma,
+        t.periodo_turma,
+
+        c.nome_curso,
+        c.sigla_curso
+
     FROM usuario u
     LEFT JOIN turma t ON t.id_turma = u.turma_id_turma
     LEFT JOIN curso c ON c.id_curso = t.curso_id_curso
     WHERE u.id_usuario = :id
+    LIMIT 1
 ");
+
 $stmtUser->execute([':id' => $userId]);
+
 $userData = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
-$turmaId = (int) ($userData['turma_id_turma'] ?? 0);
+if (!$userData) {
+    die("Usuário não encontrado.");
+}
+
+$turmaId = (int) ($userData['turma_id'] ?? 0);
 
 $stmtAlunos = $conn->prepare("
     SELECT u.id_usuario, u.nome_usuario, u.email_usuario, u.foto_perfil_usuario

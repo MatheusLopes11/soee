@@ -680,7 +680,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
       <button class="modal-close" onclick="fecharModal('modal-usuario')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <form action="/soee/src/backend/php/actions/salvar-usuario.php" method="POST" id="form-usuario">
+      <form action="/soee/src/backend/actions/salvar-usuario.php" method="POST" id="form-usuario">
         <input type="hidden" name="id_usuario" id="u-id" value="">
         <div class="form-grid">
           <div class="form-grupo span2">
@@ -746,7 +746,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
       <button class="modal-close" onclick="fecharModal('modal-turma')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <form action="/soee/src/backend/php/actions/salvar-turma.php" method="POST" id="form-turma">
+      <form action="/soee/src/backend/actions/salvar-turma.php" method="POST" id="form-turma">
         <div class="form-grid">
           <div class="form-grupo span2">
             <label class="form-label">Nome da Turma</label>
@@ -794,7 +794,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
       <button class="modal-close" onclick="fecharModal('modal-modalidade')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <form action="/soee/src/backend/php/actions/salvar-modalidade.php" method="POST" id="form-modalidade">
+      <form action="/soee/src/backend/actions/salvar-modalidade.php" method="POST" id="form-modalidade">
         <div class="form-grid">
           <div class="form-grupo span2">
             <label class="form-label">Nome da Modalidade</label>
@@ -853,7 +853,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
       <button class="modal-close" onclick="fecharModal('modal-edicao')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <form action="/soee/src/backend/php/actions/salvar-edicao.php" method="POST" id="form-edicao">
+      <form action="/soee/src/backend/actions/salvar-edicao.php" method="POST" id="form-edicao">
         <div class="form-grid">
           <div class="form-grupo span2">
             <label class="form-label">Nome do Evento</label>
@@ -902,16 +902,28 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
       <button class="modal-close" onclick="fecharModal('modal-partida')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <form action="/soee/src/backend/php/actions/salvar-partida.php" method="POST" id="form-partida">
+      <form action="/soee/src/backend/actions/salvar-partida.php" method="POST" id="form-partida">
         <div class="form-grid">
           <div class="form-grupo span2">
             <label class="form-label">Edição / Modalidade</label>
-            <select class="form-select" name="edicao_modalidade_id" required>
-              <option value="">Selecionar…</option>
-              <?php foreach ($edicoes_modal_select as $em): ?>
-              <option value="<?= $em['id_edicao_modalidade'] ?>"><?= htmlspecialchars($em['label']) ?></option>
-              <?php endforeach; ?>
-            </select>
+
+
+
+           <select name="edicao_modalidade_id">
+<?php
+while($row = mysqli_fetch_assoc($result)){
+?>
+    <option value="<?= $row['id_edicao_modalidade'] ?>">
+        <?= $row['nome_edicao'] ?> - <?= $row['nome_modalidade'] ?>
+    </option>
+<?php
+}
+?>
+</select> 
+
+
+
+
           </div>
           <div class="form-grupo">
             <label class="form-label">Time A</label>
@@ -971,10 +983,10 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
       <button class="modal-close" onclick="fecharModal('modal-resultado')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <form action="/soee/src/backend/php/actions/salvar-resultado.php" method="POST" id="form-resultado">
+      <form action="/soee/src/backend/actions/salvar-resultado.php" method="POST" id="form-resultado">
         <div class="form-grid">
           <div class="form-grupo span2">
-            <label class="form-label">Partida</label>
+            <label class="form-label">action</label>
             <select class="form-select" name="partida_id_partida" required>
               <option value="">Selecionar…</option>
               <?php foreach ($partidas_select as $ps): ?>
@@ -1021,7 +1033,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
       <button class="modal-close" onclick="fecharModal('modal-sumula')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <form action="/soee/src/backend/php/actions/salvar-sumula.php" method="POST" enctype="multipart/form-data" id="form-sumula">
+      <form action="/soee/src/backend/actions/salvar-sumula.php" method="POST" enctype="multipart/form-data" id="form-sumula">
         <div class="form-grid">
           <div class="form-grupo span2">
             <label class="form-label">Partida</label>
