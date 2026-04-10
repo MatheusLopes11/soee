@@ -1,9 +1,9 @@
 <?php include __DIR__ . '/../include/doctype.php';?>
-<head>
-  <title>Feedback — SOEE</title>
+  <head>
+    <title>Feedback — SOEE</title>
     <link rel="stylesheet" href="/soee/src/frontend/css/form-feedback.css">
-  <?php include __DIR__ . '/../include/head-data.php';?>
-</head>
+    <?php include __DIR__ . '/../include/head-data.php';?>
+  </head>
 <body>
 
 <!-- CURSOR -->
@@ -21,24 +21,30 @@
 
 <!-- HEADER -->
 <header class="cabecalho">
+
   <div class="cabecalho-container">
     <div class="cabecalho-logos">
       <a href="index.php" class="logo-texto">S<span>O</span>EE</a>
     </div>
+
     <nav class="menu-principal">
       <ul class="menu-lista">
         <li><a href="/soee/src/backend/php/pages/inicio.php">Início</a></li>
         <li><a href="/soee/src/backend/php/pages/modalidades.php">Modalidades</a></li>
+        <li><a href="/soee/src/backend/php/pages/sobre-etec.php">Sobre a ETEC</a></li>
         <li><a href="/soee/src/backend/php/pages/quem-somos.php">Quem Somos</a></li>
         <li><a href="/soee/src/backend/php/pages/contato-redes.php">Contato & Redes</a></li>
       </ul>
     </nav>
+
     <div class="cabecalho-acoes">
       <button class="botao-icone" id="toggleTema" title="Alternar tema" aria-label="Alternar tema">
         <i class="fa-solid fa-moon"></i>
       </button>
+
     </div>
   </div>
+
 </header>
 
 <!-- HERO -->
@@ -59,55 +65,21 @@
     <!-- FORMULÁRIO -->
     <div class="form-card">
 
-      <?php
-      // Exibe mensagens vindas do auth-feedback.php via redirect
-      if (!empty($_GET['status'])):
-        $status = htmlspecialchars($_GET['status']);
-        if ($status === 'sucesso'): ?>
-          <div class="alerta-php sucesso">
-            <i class="fa-solid fa-circle-check"></i>
-            Feedback enviado com sucesso! Obrigado pela sua contribuição.
-          </div>
-        <?php elseif ($status === 'erro'): ?>
-          <div class="alerta-php erro">
-            <i class="fa-solid fa-circle-xmark"></i>
-            <?= !empty($_GET['msg']) ? htmlspecialchars(urldecode($_GET['msg'])) : 'Ocorreu um erro ao enviar. Tente novamente.' ?>
-          </div>
-        <?php endif;
-      endif; ?>
-
       <h2 class="form-titulo">Deixe seu Feedback</h2>
       <p class="form-subtitulo">Preencha o formulário abaixo. Campos com <span style="color:var(--laranja-destaque)">*</span> são obrigatórios.</p>
 
-      <form id="feedbackForm" action="/soee/src/backend/php/auth/auth-feedback.php" method="POST" novalidate>
-
-        <!-- AVALIAÇÃO GERAL -->
-        <div class="rating-section">
-          <span class="rating-label">Avaliação Geral <span style="color:var(--laranja-destaque)">*</span></span>
-          <div class="stars-group" id="starsGroup">
-            <input type="radio" name="nota_feedback" id="star5" value="5" required>
-            <label for="star5" title="Excelente">★</label>
-            <input type="radio" name="nota_feedback" id="star4" value="4">
-            <label for="star4" title="Bom">★</label>
-            <input type="radio" name="nota_feedback" id="star3" value="3">
-            <label for="star3" title="Regular">★</label>
-            <input type="radio" name="nota_feedback" id="star2" value="2">
-            <label for="star2" title="Ruim">★</label>
-            <input type="radio" name="nota_feedback" id="star1" value="1">
-            <label for="star1" title="Péssimo">★</label>
-          </div>
-          <span class="msg-erro" id="erroNota">Por favor, selecione uma avaliação.</span>
-        </div>
+      <form action="/soee/src/backend/php/auth/auth-feedback.php" method="POST" id="feedbackForm">
 
         <!-- NOME E TURMA -->
         <div class="form-row">
           <div class="form-grupo">
+
             <label class="form-label" for="nome_feedback">Nome <span>*</span></label>
-            <input type="text" id="nome_feedback" name="nome_feedback" class="form-input"
-              placeholder="Seu nome completo"
+            <input type="text" id="nome_feedback" name="nome_feedback" class="form-input" placeholder="Seu nome completo"
               value="<?= htmlspecialchars($_GET['nome'] ?? '') ?>" />
             <span class="msg-erro" id="erroNome">Informe seu nome.</span>
           </div>
+
           <div class="form-grupo">
             <label class="form-label" for="turma_feedback">Turma <span>*</span></label>
             <select id="turma_feedback" name="turma_feedback" class="form-select">
@@ -172,10 +144,10 @@
           <label class="form-label" for="tipo_feedback">Tipo de Feedback <span>*</span></label>
           <select id="tipo_feedback" name="tipo_feedback" class="form-select">
             <option value="">Selecione o tipo</option>
-            <option value="elogio">😊 Elogio</option>
-            <option value="sugestao">💡 Sugestão</option>
-            <option value="critica">🔧 Crítica Construtiva</option>
-            <option value="problema">⚠️ Relatar Problema</option>
+            <option value="elogio">Elogio</option>
+            <option value="sugestao">Sugestão</option>
+            <option value="critica">Crítica Construtiva</option>
+            <option value="problema">Relatar Problema</option>
           </select>
           <span class="msg-erro" id="erroTipo">Selecione o tipo de feedback.</span>
         </div>
@@ -188,19 +160,9 @@
           <span class="msg-erro" id="erroMensagem">Escreva sua mensagem (mínimo 20 caracteres).</span>
         </div>
 
-        <!-- IDENTIFICAÇÃO ANÔNIMA -->
-        <div class="form-grupo" style="display:flex; align-items:center; gap:10px; margin-bottom:0;">
-          <input type="checkbox" id="anonimo" name="anonimo" value="1"
-            style="width:18px;height:18px;accent-color:var(--laranja-destaque);cursor:pointer;">
-          <label for="anonimo" style="font-size:0.9rem; color:var(--texto-secundario); cursor:pointer; user-select:none;">
-            Enviar de forma <strong style="color:var(--texto-principal)">anônima</strong>
-          </label>
+        <div class="submit">
+          <input type="submit" id="btnSubmit" value="Enviar Feedback">
         </div>
-
-        <button type="submit" class="botao-submit" id="btnSubmit">
-          <div class="btn-spinner"></div>
-          <span class="btn-texto"><i class="fa-solid fa-paper-plane"></i> &nbsp;Enviar Feedback</span>
-        </button>
 
       </form>
     </div><!-- /form-card -->
@@ -251,27 +213,14 @@
           O <strong style="color:var(--azul-principal)">Sistema de Organização Esportiva Escolar</strong> foi desenvolvido por alunos da ETEC Juscelino Kubitschek de Oliveira para automatizar inscrições, cronogramas e resultados dos interclasses.
         </p>
         <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--borda-sutil); font-size:0.8rem; color:var(--texto-secundario);">
-          <i class="fa-solid fa-code" style="color:var(--laranja-destaque);"></i>&nbsp;
-          HTML · CSS · JavaScript · PHP · MySQL
+          <i class="fa-solid fa-code" style="color:var(--laranja-destaque);"></i>
+          HTML · CSS · JavaScript · PHP · SQL
         </div>
       </div>
 
     </aside>
   </div>
 </main>
-
-<!-- RODAPÉ -->
-<footer class="rodape">
-  <div class="rodape-direitos">
-    &copy; <?= date('Y') ?> <a href="#">SOEE</a> — ETEC Juscelino Kubitschek de Oliveira · Diadema/SP
-  </div>
-</footer>
-
-<!-- TOAST -->
-<div class="toast" id="toast">
-  <i></i>
-  <span id="toastMsg"></span>
-</div>
 
 <script src="/soee/src/frontend/js/form-feedback.js"></script>
 

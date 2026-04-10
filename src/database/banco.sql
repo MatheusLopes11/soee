@@ -153,6 +153,20 @@ create table foto_perfil (
     atual_foto tinyint(1) default 1,
     foreign key (usuario_id_usuario) references usuario(id_usuario) on delete cascade on update cascade
 );
+
+create table feedback (
+    id_feedback int auto_increment primary key,
+    usuario_id_usuario int not null,
+    nome_feedback varchar(120) not null,
+    email_feedback varchar(120) not null,
+    turma_feedback varchar(20) not null,
+    tipo_feedback enum('elogio','sugestao','critica','problema') not null,
+    categorias_feedback varchar(120) not null,
+    mensagem_feedback text not null,
+    data_feedback datetime default current_timestamp,
+    status_feedback enum('pendente','lido','respondido') default 'pendente', 
+    foreign key(usuario_id_usuario) references usuario(id_usuario) on delete cascade on update cascade
+);
 --------------------------------------
 ---- Area de Alimentação de Dados ----
 --------------------------------------

@@ -260,7 +260,7 @@
 <REGIONS>
 </REGIONS>
 <TABLES>
-<TABLE ID="1221" Tablename="curso" PrevTableName="Table_07" XPos="980" YPos="1100" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="12" >
+<TABLE ID="1221" Tablename="curso" PrevTableName="Table_07" XPos="760" YPos="1480" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="12" >
 <COLUMNS>
 <COLUMN ID="1223" ColName="id_curso" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -290,7 +290,7 @@
 </INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1248" Tablename="usuario" PrevTableName="Table_09" XPos="0" YPos="880" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="14" >
+<TABLE ID="1248" Tablename="usuario" PrevTableName="Table_09" XPos="980" YPos="720" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="14" >
 <COLUMNS>
 <COLUMN ID="1251" ColName="id_usuario" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -388,6 +388,12 @@
 <OPTIONSELECT Value="0" />
 </OPTIONSELECTED>
 </COLUMN>
+<COLUMN ID="1715" ColName="feedback_id_feedback" PrevColName="" Pos="1" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="0" IsForeignKey="1" DefaultValue="" Comments="">
+<OPTIONSELECTED>
+<OPTIONSELECT Value="0" />
+<OPTIONSELECT Value="0" />
+</OPTIONSELECTED>
+</COLUMN>
 <COLUMN ID="1254" ColName="nome_usuario" PrevColName="" Pos="2" idDatatype="20" DatatypeParams="(100)" Width="-1" Prec="-1" PrimaryKey="0" NotNull="1" AutoInc="0" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
 <OPTIONSELECT Value="0" />
@@ -426,6 +432,7 @@
 <RELATION_END ID="1404" />
 <RELATION_END ID="1398" />
 <RELATION_END ID="1697" />
+<RELATION_END ID="1714" />
 </RELATIONS_END>
 <INDICES>
 <INDEX ID="1252" IndexName="PRIMARY" IndexKind="0" FKRefDef_Obj_id="-1">
@@ -446,6 +453,7 @@
 <INDEXCOLUMN idColumn="1636" LengthParam="0" />
 <INDEXCOLUMN idColumn="1648" LengthParam="0" />
 <INDEXCOLUMN idColumn="1698" LengthParam="0" />
+<INDEXCOLUMN idColumn="1715" LengthParam="0" />
 </INDEXCOLUMNS>
 </INDEX>
 <INDEX ID="1540" IndexName="usuario_FKIndex2" IndexKind="1" FKRefDef_Obj_id="1404">
@@ -475,9 +483,14 @@
 <INDEXCOLUMN idColumn="1698" LengthParam="0" />
 </INDEXCOLUMNS>
 </INDEX>
+<INDEX ID="1716" IndexName="usuario_FKIndex4" IndexKind="1" FKRefDef_Obj_id="1714">
+<INDEXCOLUMNS>
+<INDEXCOLUMN idColumn="1715" LengthParam="0" />
+</INDEXCOLUMNS>
+</INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1263" Tablename="modalidade" PrevTableName="Table_11" XPos="1340" YPos="180" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="3" >
+<TABLE ID="1263" Tablename="modalidade" PrevTableName="Table_11" XPos="40" YPos="960" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="3" >
 <COLUMNS>
 <COLUMN ID="1265" ColName="id_modalidade" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -536,7 +549,7 @@
 </INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1276" Tablename="edicao" PrevTableName="Table_12" XPos="1360" YPos="20" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="15" >
+<TABLE ID="1276" Tablename="edicao" PrevTableName="Table_12" XPos="60" YPos="1280" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="15" >
 <COLUMNS>
 <COLUMN ID="1278" ColName="id_edicao" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -581,7 +594,7 @@
 </INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1295" Tablename="inscricao" PrevTableName="Table_14" XPos="440" YPos="1240" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="17" >
+<TABLE ID="1295" Tablename="inscricao" PrevTableName="Table_14" XPos="1500" YPos="1680" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="17" >
 <COLUMNS>
 <COLUMN ID="1298" ColName="id_inscricao" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -685,6 +698,12 @@
 <OPTIONSELECT Value="0" />
 </OPTIONSELECTED>
 </COLUMN>
+<COLUMN ID="1717" ColName="usuario_feedback_id_feedback" PrevColName="" Pos="1" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="0" IsForeignKey="1" DefaultValue="" Comments="">
+<OPTIONSELECTED>
+<OPTIONSELECT Value="0" />
+<OPTIONSELECT Value="0" />
+</OPTIONSELECTED>
+</COLUMN>
 <COLUMN ID="1301" ColName="edicao_modalidade_id" PrevColName="" Pos="2" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="0" NotNull="0" AutoInc="0" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
 <OPTIONSELECT Value="0" />
@@ -740,6 +759,7 @@
 <INDEXCOLUMN idColumn="1640" LengthParam="0" />
 <INDEXCOLUMN idColumn="1650" LengthParam="0" />
 <INDEXCOLUMN idColumn="1700" LengthParam="0" />
+<INDEXCOLUMN idColumn="1717" LengthParam="0" />
 </INDEXCOLUMNS>
 </INDEX>
 <INDEX ID="1433" IndexName="inscricao_FKIndex1" IndexKind="1" FKRefDef_Obj_id="1429">
@@ -760,11 +780,12 @@
 <INDEXCOLUMN idColumn="1643" LengthParam="0" />
 <INDEXCOLUMN idColumn="1650" LengthParam="0" />
 <INDEXCOLUMN idColumn="1700" LengthParam="0" />
+<INDEXCOLUMN idColumn="1717" LengthParam="0" />
 </INDEXCOLUMNS>
 </INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1307" Tablename="partida" PrevTableName="Table_15" XPos="0" YPos="20" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="18" >
+<TABLE ID="1307" Tablename="partida" PrevTableName="Table_15" XPos="100" YPos="1540" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="18" >
 <COLUMNS>
 <COLUMN ID="1309" ColName="id_partida" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -889,7 +910,7 @@
 </INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1346" Tablename="resultado" PrevTableName="Table_13" XPos="520" YPos="160" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="10" >
+<TABLE ID="1346" Tablename="resultado" PrevTableName="Table_13" XPos="580" YPos="1580" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="10" >
 <COLUMNS>
 <COLUMN ID="1350" ColName="id_resultado" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -932,7 +953,7 @@
 </INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1357" Tablename="sumula" PrevTableName="Table_14" XPos="80" YPos="560" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="11" >
+<TABLE ID="1357" Tablename="sumula" PrevTableName="Table_14" XPos="660" YPos="1740" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="11" >
 <COLUMNS>
 <COLUMN ID="1359" ColName="id_sumula" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -988,7 +1009,7 @@
 </INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1368" Tablename="classificacao" PrevTableName="Table_15" XPos="1320" YPos="360" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="12" >
+<TABLE ID="1368" Tablename="classificacao" PrevTableName="Table_15" XPos="700" YPos="400" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="12" >
 <COLUMNS>
 <COLUMN ID="1370" ColName="id_classificacao" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -1093,7 +1114,7 @@
 </INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1382" Tablename="foto_perfil" PrevTableName="Table_16" XPos="520" YPos="1080" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="13" >
+<TABLE ID="1382" Tablename="foto_perfil" PrevTableName="Table_16" XPos="960" YPos="1760" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="13" >
 <COLUMNS>
 <COLUMN ID="1384" ColName="id_foto" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -1138,7 +1159,7 @@
 </INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1410" Tablename="edicao_modalidade" PrevTableName="modalidade_has_edicao" XPos="780" YPos="20" TableType="0" TablePrefix="0" nmTable="1" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="17" >
+<TABLE ID="1410" Tablename="edicao_modalidade" PrevTableName="modalidade_has_edicao" XPos="280" YPos="480" TableType="0" TablePrefix="0" nmTable="1" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="17" >
 <COLUMNS>
 <COLUMN ID="1421" ColName="id_edicao" PrevColName="" Pos="2" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -1212,7 +1233,7 @@
 </INDEX>
 </INDICES>
 </TABLE>
-<TABLE ID="1227" Tablename="turma" PrevTableName="Table_08" XPos="680" YPos="380" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="13" >
+<TABLE ID="1227" Tablename="turma" PrevTableName="Table_08" XPos="540" YPos="780" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="13" >
 <COLUMNS>
 <COLUMN ID="1229" ColName="id_turma" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
 <OPTIONSELECTED>
@@ -1375,22 +1396,85 @@
 </INDEX>
 </INDICES>
 </TABLE>
+<TABLE ID="1701" Tablename="feedback" PrevTableName="Table_13" XPos="1200" YPos="1700" TableType="0" TablePrefix="0" nmTable="0" Temporary="0" UseStandardInserts="0" StandardInserts="\n" TableOptions="DelayKeyTblUpdates=0\nPackKeys=0\nRowChecksum=0\nRowFormat=0\nUseRaid=0\nRaidType=0\n" Comments="" Collapsed="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="28" >
+<COLUMNS>
+<COLUMN ID="1703" ColName="id_feedback" PrevColName="" Pos="0" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="1" NotNull="1" AutoInc="1" IsForeignKey="0" DefaultValue="" Comments="">
+<OPTIONSELECTED>
+<OPTIONSELECT Value="0" />
+<OPTIONSELECT Value="0" />
+</OPTIONSELECTED>
+</COLUMN>
+<COLUMN ID="1705" ColName="usuario_id_usuario" PrevColName="" Pos="1" idDatatype="4" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="0" NotNull="1" AutoInc="0" IsForeignKey="0" DefaultValue="" Comments="">
+<OPTIONSELECTED>
+<OPTIONSELECT Value="0" />
+<OPTIONSELECT Value="0" />
+</OPTIONSELECTED>
+</COLUMN>
+<COLUMN ID="1706" ColName="nome_feedback" PrevColName="" Pos="2" idDatatype="20" DatatypeParams="(120)" Width="-1" Prec="-1" PrimaryKey="0" NotNull="0" AutoInc="0" IsForeignKey="0" DefaultValue="" Comments="">
+<OPTIONSELECTED>
+<OPTIONSELECT Value="0" />
+</OPTIONSELECTED>
+</COLUMN>
+<COLUMN ID="1707" ColName="email_feedback" PrevColName="" Pos="3" idDatatype="20" DatatypeParams="(120)" Width="-1" Prec="-1" PrimaryKey="0" NotNull="0" AutoInc="0" IsForeignKey="0" DefaultValue="" Comments="">
+<OPTIONSELECTED>
+<OPTIONSELECT Value="0" />
+</OPTIONSELECTED>
+</COLUMN>
+<COLUMN ID="1708" ColName="turma_feedback" PrevColName="" Pos="4" idDatatype="20" DatatypeParams="(20)" Width="-1" Prec="-1" PrimaryKey="0" NotNull="0" AutoInc="0" IsForeignKey="0" DefaultValue="" Comments="">
+<OPTIONSELECTED>
+<OPTIONSELECT Value="0" />
+</OPTIONSELECTED>
+</COLUMN>
+<COLUMN ID="1709" ColName="tipo_feedback" PrevColName="" Pos="5" idDatatype="31" DatatypeParams="(\aelogio\a,\asugestao\a,\acritica\a,\aproblema\a)" Width="-1" Prec="-1" PrimaryKey="0" NotNull="1" AutoInc="0" IsForeignKey="0" DefaultValue="" Comments="">
+<OPTIONSELECTED>
+</OPTIONSELECTED>
+</COLUMN>
+<COLUMN ID="1710" ColName="categorias_feedback" PrevColName="" Pos="6" idDatatype="20" DatatypeParams="(120)" Width="-1" Prec="-1" PrimaryKey="0" NotNull="0" AutoInc="0" IsForeignKey="0" DefaultValue="" Comments="">
+<OPTIONSELECTED>
+<OPTIONSELECT Value="0" />
+</OPTIONSELECTED>
+</COLUMN>
+<COLUMN ID="1711" ColName="mensagem_feedback" PrevColName="" Pos="7" idDatatype="28" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="0" NotNull="1" AutoInc="0" IsForeignKey="0" DefaultValue="" Comments="">
+<OPTIONSELECTED>
+</OPTIONSELECTED>
+</COLUMN>
+<COLUMN ID="1712" ColName="data_feedback" PrevColName="" Pos="8" idDatatype="15" DatatypeParams="" Width="-1" Prec="-1" PrimaryKey="0" NotNull="0" AutoInc="0" IsForeignKey="0" DefaultValue="current_timestamp" Comments="">
+<OPTIONSELECTED>
+</OPTIONSELECTED>
+</COLUMN>
+<COLUMN ID="1713" ColName="status_feedback" PrevColName="" Pos="9" idDatatype="31" DatatypeParams="(\apendente\a,\alido\a,\arespondido\a)" Width="-1" Prec="-1" PrimaryKey="0" NotNull="0" AutoInc="0" IsForeignKey="0" DefaultValue="\apendente\a" Comments="">
+<OPTIONSELECTED>
+</OPTIONSELECTED>
+</COLUMN>
+</COLUMNS>
+<RELATIONS_START>
+<RELATION_START ID="1714" />
+</RELATIONS_START>
+<INDICES>
+<INDEX ID="1704" IndexName="PRIMARY" IndexKind="0" FKRefDef_Obj_id="-1">
+<INDEXCOLUMNS>
+<INDEXCOLUMN idColumn="1703" LengthParam="0" />
+</INDEXCOLUMNS>
+</INDEX>
+</INDICES>
+</TABLE>
 </TABLES>
 <RELATIONS>
-<RELATION ID="1411" RelationName="Rel_06" Kind="1" SrcTable="1263" DestTable="1410" FKFields="id_modalidade=modalidade_id_modalidade\n" FKFieldsComments="\n" relDirection="4" MidOffset="0" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1414" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="18" />
-<RELATION ID="1412" RelationName="Rel_07" Kind="1" SrcTable="1276" DestTable="1410" FKFields="id_edicao=edicao_id_edicao\n" FKFieldsComments="\n" relDirection="4" MidOffset="2" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1416" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="19" />
-<RELATION ID="1429" RelationName="realiza" Kind="1" SrcTable="1248" DestTable="1295" FKFields="id_usuario=usuario_id_usuario\nfoto_perfil_id_foto=usuario_foto_perfil_id_foto\nturma_partida_edicao_modalidade_edicao_id_edicao=usuario_turma_partida_edicao_modalidade_edicao_id_edicao\nturma_partida_edicao_modalidade_modalidade_id_modalidade=usuario_turma_partida_edicao_modalidade_modalidade_id_modalidade\nturma_partida_edicao_modalidade_id_edicao=usuario_turma_partida_edicao_modalidade_id_edicao\nturma_resultado_id_resultado=usuario_turma_resultado_id_resultado\nturma_partida_id_partida=usuario_turma_partida_id_partida\nturma_curso_id_curso=usuario_turma_curso_id_curso\nturma_id_turma=usuario_turma_id_turma\nturma_partida_resultado_id_resultado=usuario_turma_partida_resultado_id_resultado\nturma_classificacao_id_classificacao=usuario_turma_classificacao_id_classificacao\nturma_classificacao_edicao_modalidade_edicao_id_edicao=usuario_turma_classificacao_edicao_modalidade_edicao_id_edicao\nturma_classificacao_edicao_modalidade_modalidade_id_modalidade=usuario_turma_classificacao_edicao_modalidade_modalidade_id_modalidade\nturma_classificacao_edicao_modalidade_id_edicao=usuario_turma_classificacao_edicao_modalidade_id_edicao\nturma_partida_sumula_id_sumula=usuario_turma_partida_sumula_id_sumula\nsumula_id_sumula=usuario_sumula_id_sumula\n" FKFieldsComments="\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" relDirection="2" MidOffset="0" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1433" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="19" />
-<RELATION ID="1490" RelationName="Rel_16" Kind="1" SrcTable="1410" DestTable="1307" FKFields="id_edicao=edicao_modalidade_id_edicao\nmodalidade_id_modalidade=edicao_modalidade_modalidade_id_modalidade\nedicao_id_edicao=edicao_modalidade_edicao_id_edicao\n" FKFieldsComments="\n\n\n" relDirection="4" MidOffset="3" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1494" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="23" />
-<RELATION ID="1404" RelationName="possui" Kind="1" SrcTable="1382" DestTable="1248" FKFields="id_foto=foto_perfil_id_foto\n" FKFieldsComments="\n" relDirection="4" MidOffset="-33" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1540" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="16" />
-<RELATION ID="1398" RelationName="pertence" Kind="0" SrcTable="1227" DestTable="1248" FKFields="id_turma=turma_id_turma\ncurso_id_curso=turma_curso_id_curso\npartida_id_partida=turma_partida_id_partida\nresultado_id_resultado=turma_resultado_id_resultado\npartida_edicao_modalidade_id_edicao=turma_partida_edicao_modalidade_id_edicao\npartida_edicao_modalidade_modalidade_id_modalidade=turma_partida_edicao_modalidade_modalidade_id_modalidade\npartida_edicao_modalidade_edicao_id_edicao=turma_partida_edicao_modalidade_edicao_id_edicao\npartida_resultado_id_resultado=turma_partida_resultado_id_resultado\nclassificacao_edicao_modalidade_id_edicao=turma_classificacao_edicao_modalidade_id_edicao\nclassificacao_edicao_modalidade_modalidade_id_modalidade=turma_classificacao_edicao_modalidade_modalidade_id_modalidade\nclassificacao_edicao_modalidade_edicao_id_edicao=turma_classificacao_edicao_modalidade_edicao_id_edicao\nclassificacao_id_classificacao=turma_classificacao_id_classificacao\npartida_sumula_id_sumula=turma_partida_sumula_id_sumula\n" FKFieldsComments="\n\n\n\n\n\n\n\n\n\n\n\n\n" relDirection="4" MidOffset="0" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1559" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="15" />
-<RELATION ID="1395" RelationName="cont\233m" Kind="1" SrcTable="1221" DestTable="1227" FKFields="id_curso=curso_id_curso\n" FKFieldsComments="\n" relDirection="1" MidOffset="2" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1397" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="14" />
-<RELATION ID="1437" RelationName="realiza" Kind="1" SrcTable="1307" DestTable="1227" FKFields="id_partida=partida_id_partida\nedicao_modalidade_edicao_id_edicao=partida_edicao_modalidade_edicao_id_edicao\nedicao_modalidade_modalidade_id_modalidade=partida_edicao_modalidade_modalidade_id_modalidade\nedicao_modalidade_id_edicao=partida_edicao_modalidade_id_edicao\nresultado_id_resultado=partida_resultado_id_resultado\nsumula_id_sumula=partida_sumula_id_sumula\n" FKFieldsComments="\n\n\n\n\n\n" relDirection="2" MidOffset="-85" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1439" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="21" />
-<RELATION ID="1477" RelationName="consegue" Kind="1" SrcTable="1346" DestTable="1227" FKFields="id_resultado=resultado_id_resultado\n" FKFieldsComments="\n" relDirection="3" MidOffset="4" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1479" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="23" />
-<RELATION ID="1572" RelationName="cont\233m" Kind="0" SrcTable="1346" DestTable="1307" FKFields="id_resultado=resultado_id_resultado\n" FKFieldsComments="\n" relDirection="4" MidOffset="0" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1574" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="23" />
-<RELATION ID="1582" RelationName="Rel_24" Kind="1" SrcTable="1410" DestTable="1368" FKFields="id_edicao=edicao_modalidade_id_edicao\nmodalidade_id_modalidade=edicao_modalidade_modalidade_id_modalidade\nedicao_id_edicao=edicao_modalidade_edicao_id_edicao\n" FKFieldsComments="\n\n\n" relDirection="2" MidOffset="-50" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1586" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="24" />
-<RELATION ID="1630" RelationName="Rel_27" Kind="1" SrcTable="1368" DestTable="1227" FKFields="id_classificacao=classificacao_id_classificacao\nedicao_modalidade_edicao_id_edicao=classificacao_edicao_modalidade_edicao_id_edicao\nedicao_modalidade_modalidade_id_modalidade=classificacao_edicao_modalidade_modalidade_id_modalidade\nedicao_modalidade_id_edicao=classificacao_edicao_modalidade_id_edicao\n" FKFieldsComments="\n\n\n\n" relDirection="4" MidOffset="0" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1635" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="25" />
-<RELATION ID="1644" RelationName="possui" Kind="0" SrcTable="1357" DestTable="1307" FKFields="id_sumula=sumula_id_sumula\n" FKFieldsComments="\n" relDirection="1" MidOffset="6" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1646" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="26" />
-<RELATION ID="1697" RelationName="registra" Kind="1" SrcTable="1357" DestTable="1248" FKFields="id_sumula=sumula_id_sumula\n" FKFieldsComments="\n" relDirection="3" MidOffset="0" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1699" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="27" />
+<RELATION ID="1411" RelationName="\233 composta por" Kind="1" SrcTable="1263" DestTable="1410" FKFields="id_modalidade=modalidade_id_modalidade\n" FKFieldsComments="\n" relDirection="1" MidOffset="0" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="1" CaptionOffsetY="-22" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1414" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="18" />
+<RELATION ID="1412" RelationName="tem" Kind="1" SrcTable="1276" DestTable="1410" FKFields="id_edicao=edicao_id_edicao\n" FKFieldsComments="\n" relDirection="1" MidOffset="234" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="0" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1416" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="19" />
+<RELATION ID="1429" RelationName="realiza" Kind="1" SrcTable="1248" DestTable="1295" FKFields="id_usuario=usuario_id_usuario\nfoto_perfil_id_foto=usuario_foto_perfil_id_foto\nturma_partida_edicao_modalidade_edicao_id_edicao=usuario_turma_partida_edicao_modalidade_edicao_id_edicao\nturma_partida_edicao_modalidade_modalidade_id_modalidade=usuario_turma_partida_edicao_modalidade_modalidade_id_modalidade\nturma_partida_edicao_modalidade_id_edicao=usuario_turma_partida_edicao_modalidade_id_edicao\nturma_resultado_id_resultado=usuario_turma_resultado_id_resultado\nturma_partida_id_partida=usuario_turma_partida_id_partida\nturma_curso_id_curso=usuario_turma_curso_id_curso\nturma_id_turma=usuario_turma_id_turma\nturma_partida_resultado_id_resultado=usuario_turma_partida_resultado_id_resultado\nturma_classificacao_id_classificacao=usuario_turma_classificacao_id_classificacao\nturma_classificacao_edicao_modalidade_edicao_id_edicao=usuario_turma_classificacao_edicao_modalidade_edicao_id_edicao\nturma_classificacao_edicao_modalidade_modalidade_id_modalidade=usuario_turma_classificacao_edicao_modalidade_modalidade_id_modalidade\nturma_classificacao_edicao_modalidade_id_edicao=usuario_turma_classificacao_edicao_modalidade_id_edicao\nturma_partida_sumula_id_sumula=usuario_turma_partida_sumula_id_sumula\nsumula_id_sumula=usuario_sumula_id_sumula\nfeedback_id_feedback=usuario_feedback_id_feedback\n" FKFieldsComments="\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" relDirection="3" MidOffset="-71" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="9" CaptionOffsetY="-25" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1433" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="19" />
+<RELATION ID="1490" RelationName="Rel_16" Kind="1" SrcTable="1410" DestTable="1307" FKFields="id_edicao=edicao_modalidade_id_edicao\nmodalidade_id_modalidade=edicao_modalidade_modalidade_id_modalidade\nedicao_id_edicao=edicao_modalidade_edicao_id_edicao\n" FKFieldsComments="\n\n\n" relDirection="3" MidOffset="319" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="-22" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1494" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="23" />
+<RELATION ID="1404" RelationName="possui" Kind="1" SrcTable="1382" DestTable="1248" FKFields="id_foto=foto_perfil_id_foto\n" FKFieldsComments="\n" relDirection="1" MidOffset="46" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="-25" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1540" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="16" />
+<RELATION ID="1398" RelationName="pertence" Kind="0" SrcTable="1227" DestTable="1248" FKFields="id_turma=turma_id_turma\ncurso_id_curso=turma_curso_id_curso\npartida_id_partida=turma_partida_id_partida\nresultado_id_resultado=turma_resultado_id_resultado\npartida_edicao_modalidade_id_edicao=turma_partida_edicao_modalidade_id_edicao\npartida_edicao_modalidade_modalidade_id_modalidade=turma_partida_edicao_modalidade_modalidade_id_modalidade\npartida_edicao_modalidade_edicao_id_edicao=turma_partida_edicao_modalidade_edicao_id_edicao\npartida_resultado_id_resultado=turma_partida_resultado_id_resultado\nclassificacao_edicao_modalidade_id_edicao=turma_classificacao_edicao_modalidade_id_edicao\nclassificacao_edicao_modalidade_modalidade_id_modalidade=turma_classificacao_edicao_modalidade_modalidade_id_modalidade\nclassificacao_edicao_modalidade_edicao_id_edicao=turma_classificacao_edicao_modalidade_edicao_id_edicao\nclassificacao_id_classificacao=turma_classificacao_id_classificacao\npartida_sumula_id_sumula=turma_partida_sumula_id_sumula\n" FKFieldsComments="\n\n\n\n\n\n\n\n\n\n\n\n\n" relDirection="2" MidOffset="0" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="-1" CaptionOffsetY="-23" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1559" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="15" />
+<RELATION ID="1395" RelationName="cont\233m" Kind="1" SrcTable="1221" DestTable="1227" FKFields="id_curso=curso_id_curso\n" FKFieldsComments="\n" relDirection="1" MidOffset="2" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="-21" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1397" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="14" />
+<RELATION ID="1437" RelationName="realiza" Kind="1" SrcTable="1307" DestTable="1227" FKFields="id_partida=partida_id_partida\nedicao_modalidade_edicao_id_edicao=partida_edicao_modalidade_edicao_id_edicao\nedicao_modalidade_modalidade_id_modalidade=partida_edicao_modalidade_modalidade_id_modalidade\nedicao_modalidade_id_edicao=partida_edicao_modalidade_id_edicao\nresultado_id_resultado=partida_resultado_id_resultado\nsumula_id_sumula=partida_sumula_id_sumula\n" FKFieldsComments="\n\n\n\n\n\n" relDirection="1" MidOffset="39" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="-21" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1439" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="21" />
+<RELATION ID="1477" RelationName="consegue" Kind="1" SrcTable="1346" DestTable="1227" FKFields="id_resultado=resultado_id_resultado\n" FKFieldsComments="\n" relDirection="1" MidOffset="7" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="-5" CaptionOffsetY="-26" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1479" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="23" />
+<RELATION ID="1572" RelationName="cont\233m" Kind="0" SrcTable="1346" DestTable="1307" FKFields="id_resultado=resultado_id_resultado\n" FKFieldsComments="\n" relDirection="4" MidOffset="4" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="4" CaptionOffsetY="-22" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1574" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="23" />
+<RELATION ID="1582" RelationName="rel" Kind="1" SrcTable="1410" DestTable="1368" FKFields="id_edicao=edicao_modalidade_id_edicao\nmodalidade_id_modalidade=edicao_modalidade_modalidade_id_modalidade\nedicao_id_edicao=edicao_modalidade_edicao_id_edicao\n" FKFieldsComments="\n\n\n" relDirection="2" MidOffset="-2" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="1" CaptionOffsetY="-24" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1586" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="24" />
+<RELATION ID="1630" RelationName="Rel_27" Kind="1" SrcTable="1368" DestTable="1227" FKFields="id_classificacao=classificacao_id_classificacao\nedicao_modalidade_edicao_id_edicao=classificacao_edicao_modalidade_edicao_id_edicao\nedicao_modalidade_modalidade_id_modalidade=classificacao_edicao_modalidade_modalidade_id_modalidade\nedicao_modalidade_id_edicao=classificacao_edicao_modalidade_id_edicao\n" FKFieldsComments="\n\n\n\n" relDirection="3" MidOffset="-6" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="-2" CaptionOffsetY="-22" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1635" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="25" />
+<RELATION ID="1644" RelationName="possui" Kind="0" SrcTable="1357" DestTable="1307" FKFields="id_sumula=sumula_id_sumula\n" FKFieldsComments="\n" relDirection="4" MidOffset="2" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="-20" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1646" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="26" />
+<RELATION ID="1697" RelationName="registra" Kind="1" SrcTable="1357" DestTable="1248" FKFields="id_sumula=sumula_id_sumula\n" FKFieldsComments="\n" relDirection="1" MidOffset="86" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="-1" CaptionOffsetY="-21" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1699" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="27" />
+<RELATION ID="1714" RelationName="redigi" Kind="1" SrcTable="1701" DestTable="1248" FKFields="id_feedback=feedback_id_feedback\n" FKFieldsComments="\n" relDirection="1" MidOffset="28" OptionalStart="0" OptionalEnd="0" CaptionOffsetX="0" CaptionOffsetY="-21" StartIntervalOffsetX="0" StartIntervalOffsetY="0" EndIntervalOffsetX="0" EndIntervalOffsetY="0" CreateRefDef="1" Invisible="0" RefDef="Matching=0\nOnDelete=3\nOnUpdate=3\n" Comments="" FKRefDefIndex_Obj_id="1716" Splitted="0" IsLinkedObject="0" IDLinkedModel="-1" Obj_id_Linked="-1" OrderPos="29" />
 </RELATIONS>
 <NOTES>
 </NOTES>
