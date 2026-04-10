@@ -342,7 +342,7 @@
                 <strong id="r-turma">—</strong>
               </div>
               <div class="resumo-linha">
-                <span><i class="fa-solid fa-lock"></i> Senha</span>
+                <span><i class="fa-solid fa-lock"></i> Senha</span> 
                 <strong>••••••••</strong>
               </div>
             </div>

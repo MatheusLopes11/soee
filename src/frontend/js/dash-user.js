@@ -1,24 +1,20 @@
 /* ═══════════════════════════════════════════════════════════
-   dash-user.js — SOEE · Dashboard do Aluno (dados reais do banco)
+   dash-user.js — SOEE · Dashboard do Aluno
    Depende de PHP_DATA injetado pelo dash-user.php
 ═══════════════════════════════════════════════════════════ */
 'use strict';
 
-/* ── Constantes vindas do PHP ── */
 const {
   userId, userNome, userGenero, turmaId, nomeTurma, siglaCurso,
   modalidades, inscricoes, classificacao, proximaPartida
 } = PHP_DATA;
 
-// URL da API PHP
 const API = '/soee/src/backend/php/dashboard/api-dashboard.php';
 
-/* Estado atual */
-let modalidadeAtual = null;   // objeto da modalidade selecionada
-let emIdAtual       = null;   // id_edicao_modalidade atual
+let modalidadeAtual = null;
+let emIdAtual       = null;
 let paginaAtual     = 'overview';
 
-/* Ícones por tipo de modalidade */
 const ICONES_MODAL = {
   quadra: 'fa-solid fa-volleyball',
   mesa:   'fa-solid fa-table-tennis-paddle-ball',
@@ -26,7 +22,6 @@ const ICONES_MODAL = {
   outro:  'fa-solid fa-medal',
 };
 
-/* Cores para avatares dos jogadores */
 const CORES = ['#1e5671','#2c7da3','#ff4d12','#16a34a','#7c3aed','#ca8a04','#dc2626','#0891b2'];
 
 /* ══════════════════════════════════════════
@@ -70,11 +65,13 @@ btnTema?.addEventListener('click', () => {
 });
 
 /* ══════════════════════════════════════════
-   REVEAL (Intersection Observer)
+   REVEAL
 ══════════════════════════════════════════ */
 function setupReveal() {
   const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
   }, { threshold: 0.08 });
   document.querySelectorAll('.reveal:not(.visible)').forEach(el => obs.observe(el));
 }
@@ -89,7 +86,7 @@ function navigate(page, el) {
   const pageEl = document.getElementById('page-' + page);
   if (pageEl) pageEl.classList.add('active');
 
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item[data-page]').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
   else document.querySelectorAll(`[data-page="${page}"]`).forEach(n => n.classList.add('active'));
 
@@ -99,18 +96,18 @@ function navigate(page, el) {
     classificacao: 'Classificação',
     partidas:      'Partidas',
     meutime:       'Meu <span>Time</span>',
-    perfil:        'Perfil',
+    esportes:      'Esportes',
   };
   const pt = document.getElementById('pageTitle');
   if (pt) pt.innerHTML = titulos[page] || page;
 
-  // Carrega dados sob demanda
   if (emIdAtual) {
     if (page === 'classificacao') carregarClassificacao();
     if (page === 'times')         carregarTimes();
     if (page === 'partidas')      carregarPartidas();
     if (page === 'meutime')       carregarMeuTime();
   }
+  if (page === 'esportes') carregarEsportes();
 
   setTimeout(setupReveal, 80);
 }
@@ -119,9 +116,9 @@ function navigate(page, el) {
    FETCH HELPER
 ══════════════════════════════════════════ */
 async function apiFetch(acao, extra = {}) {
-  const params = new URLSearchParams({ acao, em_id: emIdAtual, ...extra });
+  const params = new URLSearchParams({ acao, em_id: emIdAtual ?? 0, ...extra });
   const res = await fetch(`${API}?${params}`);
-  if (!res.ok) throw new Error('Erro HTTP ' + res.status);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
   return res.json();
 }
 
@@ -132,24 +129,21 @@ function selecionarModalidade(mod) {
   modalidadeAtual = mod;
   emIdAtual = mod.id_edicao_modalidade;
 
-  // Atualiza badge da sidebar
   const icone = ICONES_MODAL[mod.tipo_modalidade] || 'fa-solid fa-medal';
   const si = document.getElementById('sportIcon');
   const sn = document.getElementById('sportName');
   if (si) si.innerHTML = `<i class="${icone}"></i>`;
   if (sn) sn.textContent = mod.nome_modalidade;
 
-  // Atualiza tags
   ['sportTagOverview','sportTagTimes','sportTagClass','sportTagPartidas','sportTagMeuTime'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = mod.nome_modalidade;
   });
 
-  // Atualiza hero subtitle
   const sub = document.getElementById('heroSub');
   if (sub) sub.textContent = `${nomeTurma} — ${mod.nome_modalidade}`;
 
-  // Dados da classificação já disponíveis do PHP (para a turma do usuário)
+  // Stats da turma do usuário (vindos do PHP)
   const clTurma = classificacao[emIdAtual];
   if (clTurma) {
     setText('sc1', clTurma.vitorias);
@@ -163,11 +157,45 @@ function selecionarModalidade(mod) {
     setText('heroRank', '—');
   }
 
-  // Carrega dados da página atual
   carregarTimes();
   if (paginaAtual === 'classificacao') carregarClassificacao();
   if (paginaAtual === 'partidas')      carregarPartidas();
   if (paginaAtual === 'meutime')       carregarMeuTime();
+}
+
+/* ══════════════════════════════════════════
+   CARREGAR ESPORTES (página dedicada)
+══════════════════════════════════════════ */
+async function carregarEsportes() {
+  const container = document.getElementById('esportesGrid');
+  if (!container) return;
+  container.innerHTML = '<p style="color:var(--texto-secundario);padding:16px">Carregando esportes…</p>';
+  try {
+    const { dados } = await fetch(`${API}?acao=esportes`).then(r => r.json());
+    if (!dados || !dados.length) {
+      container.innerHTML = '<p style="color:var(--texto-secundario);padding:16px">Nenhum campeonato ativo no momento.</p>';
+      return;
+    }
+    container.innerHTML = dados.map(m => {
+      const icone = ICONES_MODAL[m.tipo_modalidade] || 'fa-solid fa-medal';
+      const ativo = m.id_edicao_modalidade == emIdAtual;
+      return `<div class="team-card reveal ${ativo ? 'my-team' : ''}"
+                   onclick="selectSport(${m.id_modalidade})"
+                   style="cursor:pointer;text-align:center;">
+        ${ativo ? '<div class="my-team-badge">Ativo</div>' : ''}
+        <div class="team-logo" style="font-size:2rem;">
+          <i class="${icone}" style="color:white"></i>
+        </div>
+        <div class="team-name">${escHtml(m.nome_modalidade)}</div>
+        <div class="team-meta" style="margin-top:4px">
+          <span class="team-points-badge">${traduzirStatus(m.status_edicao_modalidade)}</span>
+        </div>
+      </div>`;
+    }).join('');
+    setupReveal();
+  } catch(e) {
+    container.innerHTML = '<p style="color:var(--texto-secundario);padding:16px">Erro ao carregar esportes.</p>';
+  }
 }
 
 /* ══════════════════════════════════════════
@@ -180,10 +208,9 @@ async function carregarClassificacao() {
   try {
     const { dados } = await apiFetch('classificacao');
     if (!dados || !dados.length) {
-      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--texto-secundario)">Nenhum dado de classificação ainda.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--texto-secundario)">Nenhuma classificação registrada ainda.</td></tr>';
       return;
     }
-    // Posição do usuário
     const posUsuario = dados.findIndex(r => String(r.turma_id_turma) === String(turmaId)) + 1;
     if (posUsuario > 0) setText('heroRank', posUsuario + 'º');
 
@@ -191,7 +218,6 @@ async function carregarClassificacao() {
     tbody.innerHTML = dados.map((r, i) => {
       const isMe = String(r.turma_id_turma) === String(turmaId);
       const cls  = medals[i] || (isMe ? 'my' : 'normal');
-      const apr  = r.jogos > 0 ? Math.round((r.vitorias * 3) / (r.jogos * 3) * 100) : 0;
       return `<tr class="${isMe ? 'highlight-row' : ''}">
         <td><span class="rank-pos ${cls}">${i + 1}</span></td>
         <td>
@@ -209,13 +235,13 @@ async function carregarClassificacao() {
         <td><span class="rank-pts">${r.pontos}</span></td>
       </tr>`;
     }).join('');
-  } catch (e) {
+  } catch(e) {
     tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--texto-secundario)">Erro ao carregar.</td></tr>';
   }
 }
 
 /* ══════════════════════════════════════════
-   CARREGAR TIMES + OVERVIEW GRID
+   CARREGAR TIMES
 ══════════════════════════════════════════ */
 async function carregarTimes() {
   try {
@@ -225,7 +251,6 @@ async function carregarTimes() {
     ]);
     if (!times) return;
 
-    // Mapeia pontos por turma
     const ptsMap = {};
     (classif || []).forEach(r => { ptsMap[r.turma_id_turma] = r; });
 
@@ -237,7 +262,6 @@ async function carregarTimes() {
 
     renderTeamsGrid(document.getElementById('teamsGridOverview'), sorted.slice(0, 4), ptsMap);
     renderTeamsGrid(document.getElementById('teamsGridFull'), sorted, ptsMap);
-    setText('teamsBadge', sorted.length);
   } catch(e) {
     console.error('Erro times:', e);
   }
@@ -246,17 +270,16 @@ async function carregarTimes() {
 function renderTeamsGrid(container, times, ptsMap) {
   if (!container) return;
   if (!times || !times.length) {
-    container.innerHTML = '<p style="color:var(--texto-secundario);padding:16px">Nenhum time cadastrado.</p>';
+    container.innerHTML = '<p style="color:var(--texto-secundario);padding:16px">Nenhum time inscrito nesta modalidade ainda.</p>';
     return;
   }
   container.innerHTML = times.map(t => {
     const isMe = String(t.id_turma) === String(turmaId);
     const cl   = ptsMap[t.id_turma];
     const pts  = cl ? cl.pontos : '—';
-    const inicial = t.nome_turma.charAt(0).toUpperCase();
     return `<div class="team-card ${isMe ? 'my-team' : ''} reveal" onclick="navigate('meutime',null)">
       ${isMe ? '<div class="my-team-badge">Meu Time</div>' : ''}
-      <div class="team-logo">${inicial}</div>
+      <div class="team-logo">${escHtml(t.nome_turma.charAt(0).toUpperCase())}</div>
       <div class="team-name">${escHtml(t.nome_turma)}</div>
       <div class="team-meta">${t.total_inscritos} inscrito(s)</div>
       <div class="team-points-badge">${pts} pts</div>
@@ -305,7 +328,7 @@ async function carregarPartidas() {
 }
 
 /* ══════════════════════════════════════════
-   CARREGAR MEU TIME (jogadores da turma)
+   CARREGAR MEU TIME
 ══════════════════════════════════════════ */
 async function carregarMeuTime() {
   if (!turmaId) return;
@@ -315,12 +338,11 @@ async function carregarMeuTime() {
       apiFetch('classificacao'),
     ]);
 
-    // Posição da minha turma
     if (classif) {
       const idx = classif.findIndex(r => String(r.turma_id_turma) === String(turmaId));
       const cl  = classif[idx];
-      setText('mtPos',     idx >= 0 ? (idx + 1) + 'º' : '—');
-      setText('mtPts',     cl ? cl.pontos : '—');
+      setText('mtPos', idx >= 0 ? (idx + 1) + 'º' : '—');
+      setText('mtPts', cl ? cl.pontos : '—');
     }
     setText('mtPlayers', jogadores ? jogadores.length : '—');
     setText('myTeamSport', modalidadeAtual ? modalidadeAtual.nome_modalidade + ' • ' + nomeTurma : nomeTurma);
@@ -391,7 +413,10 @@ function formatarData(str) {
   return `${d}/${m}/${y}`;
 }
 function traduzirStatus(s) {
-  return { agendada:'Agendada', realizada:'Realizada', cancelada:'Cancelada', wo:'W.O.' }[s] || s;
+  return {
+    agendada:'Agendada', realizada:'Realizada', cancelada:'Cancelada', wo:'W.O.',
+    inscricoes:'Inscrições abertas', em_andamento:'Em andamento', encerrado:'Encerrado'
+  }[s] || s;
 }
 function traduzirFase(f) {
   return { grupos:'Fase de Grupos', oitavas:'Oitavas', quartas:'Quartas', semi:'Semifinal', final:'Final', terceiro_lugar:'3º Lugar' }[f] || f;
@@ -401,22 +426,15 @@ function traduzirFase(f) {
    INIT
 ══════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  // Se o usuário tiver inscrições, seleciona a primeira modalidade
   if (inscricoes && inscricoes.length > 0) {
-    // Acha a modalidade correspondente à primeira inscrição
     const primeiraInsc = inscricoes[0];
     const mod = modalidades.find(m => m.id_edicao_modalidade == primeiraInsc.edicao_modalidade_id);
-    if (mod) {
-      selecionarModalidade(mod);
-    } else if (modalidades.length > 0) {
-      selecionarModalidade(modalidades[0]);
-    }
+    if (mod) selecionarModalidade(mod);
+    else if (modalidades.length > 0) selecionarModalidade(modalidades[0]);
   } else if (modalidades.length > 0) {
-    // Sem inscrição — mostra a primeira modalidade disponível
     selecionarModalidade(modalidades[0]);
   } else {
-    // Sem nenhuma modalidade ativa
-    ['sportName'].forEach(id => setText(id, 'Sem campeonato'));
+    setText('sportName', 'Sem campeonato');
   }
 
   setupReveal();

@@ -9,16 +9,18 @@ $userId   = AuthHome::getId();
 $userNome = AuthHome::getNome();
 
 /* ══════════════════════════════════════════
-   1. DADOS DO USUÁRIO LOGADO + TURMA
+   1. DADOS DO USUÁRIO LOGADO + TURMA + FOTO
 ══════════════════════════════════════════ */
 $stmtUser = $conn->prepare("
     SELECT u.id_usuario, u.nome_usuario, u.genero_usuario,
            t.id_turma, t.nome_turma,
            c.nome_curso, c.sigla_curso,
-           t.periodo_turma
+           t.periodo_turma,
+           fp.caminho_foto
     FROM usuario u
     LEFT JOIN turma t ON t.id_turma = u.turma_id_turma
     LEFT JOIN curso c ON c.id_curso = t.curso_id_curso
+    LEFT JOIN foto_perfil fp ON fp.usuario_id_usuario = u.id_usuario AND fp.atual_foto = 1
     WHERE u.id_usuario = :id
     LIMIT 1
 ");
@@ -28,9 +30,13 @@ $userData = $stmtUser->fetch(PDO::FETCH_ASSOC);
 $nomeTurma  = $userData['nome_turma']  ?? 'Sem turma';
 $siglaCurso = $userData['sigla_curso'] ?? '';
 $turmaId    = $userData['id_turma']    ?? null;
+$fotoPerfil = $userData['caminho_foto'] ?? null;
+
+// Inicial para avatar fallback
+$inicial = mb_strtoupper(mb_substr($userNome, 0, 1));
 
 /* ══════════════════════════════════════════
-   2. MODALIDADES ATIVAS (para o seletor de esporte)
+   2. MODALIDADES ATIVAS
 ══════════════════════════════════════════ */
 $stmtMod = $conn->query("
     SELECT m.id_modalidade, m.nome_modalidade, m.tipo_modalidade,
@@ -46,7 +52,7 @@ $stmtMod = $conn->query("
 $modalidades = $stmtMod->fetchAll(PDO::FETCH_ASSOC);
 
 /* ══════════════════════════════════════════
-   3. INSCRIÇÃO DO USUÁRIO (em qual modalidade/time está)
+   3. INSCRIÇÃO DO USUÁRIO
 ══════════════════════════════════════════ */
 $stmtInsc = $conn->prepare("
     SELECT i.id_inscricao, i.numero_camisa_inscricao, i.posicao_inscricao,
@@ -63,8 +69,7 @@ $stmtInsc->execute([':id' => $userId]);
 $inscricoes = $stmtInsc->fetchAll(PDO::FETCH_ASSOC);
 
 /* ══════════════════════════════════════════
-   4. CLASSIFICAÇÃO DA TURMA DO USUÁRIO
-     (para cada modalidade em que está inscrito)
+   4. CLASSIFICAÇÃO DA TURMA
 ══════════════════════════════════════════ */
 $classificacaoPorModalidade = [];
 if ($turmaId && !empty($inscricoes)) {
@@ -110,19 +115,19 @@ if ($turmaId) {
 }
 
 /* ══════════════════════════════════════════
-   6. DADOS PARA O JS (injetados inline)
+   6. DADOS PARA O JS
 ══════════════════════════════════════════ */
 $jsData = [
-    'userId'      => $userId,
-    'userNome'    => $userNome,
-    'userGenero'  => $userData['genero_usuario'] ?? 'n',
-    'turmaId'     => $turmaId,
-    'nomeTurma'   => $nomeTurma,
-    'siglaCurso'  => $siglaCurso,
-    'modalidades' => $modalidades,
-    'inscricoes'  => $inscricoes,
-    'classificacao' => $classificacaoPorModalidade,
-    'proximaPartida' => $proximaPartida,
+    'userId'          => $userId,
+    'userNome'        => $userNome,
+    'userGenero'      => $userData['genero_usuario'] ?? 'n',
+    'turmaId'         => $turmaId,
+    'nomeTurma'       => $nomeTurma,
+    'siglaCurso'      => $siglaCurso,
+    'modalidades'     => $modalidades,
+    'inscricoes'      => $inscricoes,
+    'classificacao'   => $classificacaoPorModalidade,
+    'proximaPartida'  => $proximaPartida,
 ];
 ?>
 
@@ -184,7 +189,8 @@ $jsData = [
             </a>
 
             <div class="nav-section-label" style="margin-top:16px">Conta</div>
-            <a class="nav-item" data-page="perfil" onclick="navigate('perfil',this)">
+            <!-- Perfil redireciona para user-conta igual ao adm -->
+            <a class="nav-item" href="/soee/src/backend/php/pages/user-conta.php">
                 <i class="fa-solid fa-user"></i> Perfil
             </a>
             <?php if (count($modalidades) > 1): ?>
@@ -192,21 +198,29 @@ $jsData = [
                 <i class="fa-solid fa-sliders"></i> Trocar Esporte
             </a>
             <?php endif; ?>
-            <a class="nav-item" href="/soee/src/backend/php/auth/logout.php" style="color:var(--laranja-destaque)">
-                <i class="fa-solid fa-right-from-bracket"></i> Sair
-            </a>
+            <!-- Botão Sair REMOVIDO conforme solicitado -->
         </nav>
 
+        <!-- Usuário na sidebar com foto de perfil -->
         <div class="sidebar-user">
-            <div class="user-avatar" id="userAvatarSidebar">
-                <?= mb_strtoupper(mb_substr($userNome, 0, 1)) ?>
-            </div>
-            <div class="user-info">
-                <div class="user-name" id="userNameSidebar">
-                    <?= htmlspecialchars(explode(' ', $userNome)[0]) ?>
+            <a href="/soee/src/backend/php/pages/user-conta.php"
+               style="display:flex;align-items:center;gap:10px;text-decoration:none;flex:1;min-width:0;">
+                <div class="user-avatar" id="userAvatarSidebar">
+                    <?php if ($fotoPerfil): ?>
+                        <img src="<?= htmlspecialchars($fotoPerfil) ?>"
+                             alt="Foto de perfil"
+                             style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                    <?php else: ?>
+                        <?= $inicial ?>
+                    <?php endif; ?>
                 </div>
-                <div class="user-role"><?= htmlspecialchars($nomeTurma) ?></div>
-            </div>
+                <div class="user-info">
+                    <div class="user-name" id="userNameSidebar">
+                        <?= htmlspecialchars(explode(' ', $userNome)[0]) ?>
+                    </div>
+                    <div class="user-role"><?= htmlspecialchars($nomeTurma) ?></div>
+                </div>
+            </a>
             <button class="user-menu-btn" id="toggle-theme" title="Alternar tema">
                 <i class="fa-solid fa-moon"></i>
             </button>
@@ -219,6 +233,13 @@ $jsData = [
         <!-- TOPBAR -->
         <header class="topbar">
             <div class="topbar-title" id="pageTitle">Visão <span>Geral</span></div>
+            <a href="/soee/src/backend/php/auth/logout.php"
+               class="topbar-logout"
+               title="Sair"
+               style="margin-left:auto;color:var(--laranja-destaque);display:flex;align-items:center;gap:6px;text-decoration:none;font-size:.9rem;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Sair</span>
+            </a>
         </header>
 
         <!-- CONTENT -->
@@ -280,7 +301,6 @@ $jsData = [
                 <?php endif; ?>
 
                 <div class="stats-grid" id="statsGrid">
-                    <!-- preenchido pelo JS com dados da classificação -->
                     <div class="stat-card reveal reveal-delay-1">
                         <div class="stat-card-change change-up" id="sc-vic-change"></div>
                         <div class="stat-card-icon orange"><i class="fa-solid fa-fire"></i></div>
@@ -388,55 +408,6 @@ $jsData = [
                 </div>
                 <div class="players-grid reveal" id="playersGrid">
                     <p style="color:var(--texto-secundario)">Carregando elenco…</p>
-                </div>
-            </div>
-
-            <!-- ──── PERFIL ──── -->
-            <div class="page-view" id="page-perfil">
-                <div class="perfil-card reveal">
-                    <div class="perfil-avatar">
-                        <?= mb_strtoupper(mb_substr($userNome, 0, 1)) ?>
-                    </div>
-                    <h2 class="perfil-nome"><?= htmlspecialchars($userNome) ?></h2>
-                    <p class="perfil-turma"><?= htmlspecialchars($nomeTurma . ($siglaCurso ? ' — ' . $siglaCurso : '')) ?></p>
-                    <div class="perfil-info-grid">
-                        <div class="perfil-info-item">
-                            <span class="perfil-info-label"><i class="fa-solid fa-school"></i> Turma</span>
-                            <span class="perfil-info-value"><?= htmlspecialchars($nomeTurma) ?></span>
-                        </div>
-                        <div class="perfil-info-item">
-                            <span class="perfil-info-label"><i class="fa-solid fa-book-open"></i> Curso</span>
-                            <span class="perfil-info-value"><?= htmlspecialchars($userData['nome_curso'] ?? '—') ?></span>
-                        </div>
-                        <div class="perfil-info-item">
-                            <span class="perfil-info-label"><i class="fa-solid fa-futbol"></i> Modalidades</span>
-                            <span class="perfil-info-value"><?= count($inscricoes) ?: '0' ?> inscrição(ões)</span>
-                        </div>
-                        <div class="perfil-info-item">
-                            <span class="perfil-info-label"><i class="fa-solid fa-id-badge"></i> Tipo</span>
-                            <span class="perfil-info-value">Aluno</span>
-                        </div>
-                    </div>
-                    <?php if (!empty($inscricoes)): ?>
-                    <div class="perfil-inscricoes">
-                        <div class="section-title" style="font-size:1rem;margin-bottom:12px">Minhas inscrições</div>
-                        <?php foreach ($inscricoes as $insc): ?>
-                        <div class="perfil-inscricao-item">
-                            <i class="fa-solid fa-medal"></i>
-                            <span><?= htmlspecialchars($insc['nome_modalidade']) ?></span>
-                            <?php if ($insc['posicao_inscricao']): ?>
-                            <span class="perfil-posicao"><?= htmlspecialchars($insc['posicao_inscricao']) ?></span>
-                            <?php endif; ?>
-                            <?php if ($insc['numero_camisa_inscricao']): ?>
-                            <span class="perfil-camisa">#<?= $insc['numero_camisa_inscricao'] ?></span>
-                            <?php endif; ?>
-                            <?php if ($insc['capitao_inscricao']): ?>
-                            <span class="captain-badge"><i class="fa-solid fa-star"></i> Capitão</span>
-                            <?php endif; ?>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                    <?php endif; ?>
                 </div>
             </div>
 

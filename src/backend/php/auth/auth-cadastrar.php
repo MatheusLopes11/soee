@@ -37,11 +37,19 @@ if (strlen($senha) < 8) {
     exit();
 }
 
-$cursosValidos = ['MTEC', 'EMIF', 'MTECPI'];
-if (!in_array($curso, $cursosValidos)) {
+/* ── Mapeia "MTECPI" para a sigla correta do banco ── */
+$mapaSignla = [
+    'MTEC'   => 'MTEC',
+    'EMIF'   => 'EMIF',
+    'MTECPI' => 'MTECPI',
+];
+
+if (!array_key_exists($curso, $mapaSignla)) {
     header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=curso');
     exit();
 }
+
+$sigla = $mapaSignla[$curso];
 
 if ($ano < 1 || $ano > 3) {
     header('Location: /soee/src/backend/php/form/form-cadastrar.php?erro=ano');
@@ -73,7 +81,7 @@ try {
         ORDER BY t.ano_letivo_turma DESC
         LIMIT 1
     ");
-    $stmtTurma->execute([':sigla' => $curso, ':ano' => $ano]);
+    $stmtTurma->execute([':sigla' => $sigla, ':ano' => $ano]);
     $turma = $stmtTurma->fetch(PDO::FETCH_ASSOC);
 
     if (!$turma) {
