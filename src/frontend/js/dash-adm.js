@@ -170,3 +170,9 @@ function editarUsuario(id) {
   document.getElementById('modal-usuario-titulo').textContent = 'Editar Usuário';
   abrirModal('modal-usuario');
 }
+
+function excluirRegistro(tipo, id) {
+    if (confirm("Tem certeza que deseja excluir?")) {
+        window.location.href = `/soee/src/backend/actions/excluir.php?tipo=${tipo}&id=${id}`;
+    }
+}
