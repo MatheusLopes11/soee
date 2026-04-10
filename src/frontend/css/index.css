@@ -177,6 +177,29 @@ body:has(button:hover) .cursor-ring{width:52px;height:52px;border-color:rgba(255
 }
 .alerta-erro i{font-size:.9rem;flex-shrink:0}
 
+.alerta-sucesso{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    background:rgba(34,197,94,.08); /* verde suave */
+    border:1px solid rgba(34,197,94,.35);
+
+    border-radius:var(--rm);
+    padding:12px 14px;
+
+    font-size:.85rem;
+    color:#166534; /* verde mais escuro */
+
+    margin-bottom:22px;
+}
+
+.alerta-sucesso i{
+    font-size:.9rem;
+    flex-shrink:0;
+    color:#22c55e;
+}
+
 .campo-grupo{margin-bottom:18px}
 .campo-label{
     display:block;font-size:.78rem;font-weight:700;
@@ -196,7 +219,6 @@ body:has(button:hover) .cursor-ring{width:52px;height:52px;border-color:rgba(255
     font-family:'DM Sans',sans-serif;
     font-size:.9rem;color:var(--texto);
     outline:none;transition:var(--tr);
-    -webkit-appearance:none;
 }
 .campo-input:focus{
     border-color:var(--azul-2);
@@ -280,3 +302,4 @@ body:has(button:hover) .cursor-ring{width:52px;height:52px;border-color:rgba(255
     .lado-direito{min-height:100vh;padding:28px 20px}
     .cursor-dot,.cursor-ring{display:none}
 }
+

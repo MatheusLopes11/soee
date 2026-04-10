@@ -8,6 +8,18 @@ AuthHome::exigirTipo(['professor']);
 $usuario_logado = AuthHome::getNome();
 $userId         = AuthHome::getId();
 
+// ── FOTO DE PERFIL ─────────────────────────────
+$stmtFoto = $conn->prepare("
+    SELECT fp.caminho_foto
+    FROM foto_perfil fp
+    WHERE fp.usuario_id_usuario = :id
+      AND fp.atual_foto = 1
+    LIMIT 1
+");
+
+$stmtFoto->execute([':id' => $userId]);
+$fotoPerfil = $stmtFoto->fetchColumn();
+
 // ── KPIs ──────────────────────────────────────────────────
 $kpi_alunos      = $conn->query("SELECT COUNT(*) FROM usuario WHERE tipo_usuario = 'aluno' AND ativo_usuario = 1")->fetchColumn();
 $kpi_partidas    = $conn->query("SELECT COUNT(*) FROM partida WHERE status_partida = 'agendada'")->fetchColumn();
@@ -225,7 +237,16 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
        style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:var(--raio-medio);transition:background .2s;cursor:pointer;"
        onmouseover="this.style.background='rgba(255,255,255,0.07)'"
        onmouseout="this.style.background='none'">
-      <div class="user-avatar"><?= strtoupper(substr($usuario_logado, 0, 2)) ?></div>
+      <div class="user-avatar">
+    <?php if (!empty($fotoPerfil)): ?>
+        <img src="<?= htmlspecialchars($fotoPerfil) ?>"
+             alt="Foto de perfil"
+             onerror="this.style.display='none'; this.parentNode.innerHTML='<?= strtoupper(substr($usuario_logado, 0, 2)) ?>';"
+             style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+    <?php else: ?>
+        <?= strtoupper(substr($usuario_logado, 0, 2)) ?>
+    <?php endif; ?>
+</div>
       <div class="user-info">
         <strong><?= htmlspecialchars($usuario_logado) ?></strong>
         <span>Professor</span>
@@ -737,12 +758,11 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
 
 <div class="toast-container" id="toast-container"></div>
 
-<!-- REUTILIZA o dash-adm.js inteiro -->
 <script src="/soee/src/frontend/js/dash-adm.js"></script>
 <script>
 function elegerAdmSala(idAluno, nomeAluno) {
     if (!confirm('Alterar cargo de "' + nomeAluno + '"?')) return;
-    fetch('/soee/src/backend/php/include/eleger-adm-sala.php', {  // ← caminho corrigido
+    fetch('/soee/src/backend/php/include/eleger-adm-sala.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'id_usuario=' + idAluno

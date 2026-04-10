@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
         $erro = $resultado['erro'];
     }
 }
-?>
+?> 
 
 <?PHP include __DIR__ . '/src/backend/php/include/doctype.php';?>
 <head>
@@ -169,4 +169,4 @@ const _t = localStorage.getItem('theme');
 if (_t) document.documentElement.setAttribute('data-theme', _t);
 </script>
 
-<?php include __DIR__ . '/src/backend/php/include/end.php';?>
+<?php include __DIR__ . '/src/backend/php/include/end.php';?>''
