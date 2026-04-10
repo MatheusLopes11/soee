@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
 
 <?PHP include __DIR__ . '/src/backend/php/include/doctype.php';?>
 <head>
-    <title>SOEE — Entrar</title>
+    <title>SOEE | Entrar</title>
     <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
     <?php include __DIR__ . '/src/backend/php/include/head-data.php';?>
 </head>
@@ -159,9 +159,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
 
 </div>
 
-<footer class="rodape-login">
-    &copy; <?= date('Y') ?> <a href="#">SOEE</a> — ETEC Juscelino Kubitschek de Oliveira
-</footer>
 
 <script src="/soee/src/frontend/js/index.js"></script>
 <script>

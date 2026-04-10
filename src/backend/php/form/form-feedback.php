@@ -1,6 +1,6 @@
 <?php include __DIR__ . '/../include/doctype.php';?>
   <head>
-    <title>Feedback — SOEE</title>
+    <title>Feedback | SOEE</title>
     <link rel="stylesheet" href="/soee/src/frontend/css/form-feedback.css">
     <?php include __DIR__ . '/../include/head-data.php';?>
   </head>
@@ -61,22 +61,21 @@
 <!-- CONTEÚDO PRINCIPAL -->
 <main>
   <div class="feedback-layout">
-
+    
     <!-- FORMULÁRIO -->
     <div class="form-card">
 
       <h2 class="form-titulo">Deixe seu Feedback</h2>
       <p class="form-subtitulo">Preencha o formulário abaixo. Campos com <span style="color:var(--laranja-destaque)">*</span> são obrigatórios.</p>
 
-      <form action="/soee/src/backend/php/auth/auth-feedback.php" method="POST" id="feedbackForm">
+     <form action="/soee/src/backend/php/auth/auth-feedback.php" method="POST">
 
         <!-- NOME E TURMA -->
         <div class="form-row">
           <div class="form-grupo">
-
             <label class="form-label" for="nome_feedback">Nome <span>*</span></label>
             <input type="text" id="nome_feedback" name="nome_feedback" class="form-input" placeholder="Seu nome completo"
-              value="<?= htmlspecialchars($_GET['nome'] ?? '') ?>" />
+             value="<?= htmlspecialchars($_POST['nome_feedback'] ?? '') ?>" />
             <span class="msg-erro" id="erroNome">Informe seu nome.</span>
           </div>
 
@@ -103,7 +102,7 @@
           <label class="form-label" for="email_feedback">E-mail <span>*</span></label>
           <input type="email" id="email_feedback" name="email_feedback" class="form-input"
             placeholder="seuemail@exemplo.com"
-            value="<?= htmlspecialchars($_GET['email'] ?? '') ?>" />
+            value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" />
           <span class="msg-erro" id="erroEmail">Informe um e-mail válido.</span>
         </div>
 
@@ -161,7 +160,7 @@
         </div>
 
         <div class="submit">
-          <input type="submit" id="btnSubmit" value="Enviar Feedback">
+          <input type="submit" value="Enviar Feedback">
         </div>
 
       </form>

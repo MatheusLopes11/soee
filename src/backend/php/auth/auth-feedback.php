@@ -1,65 +1,61 @@
 <?php
-try{
-include __DIR__ . '/../include/conexao.php';
+session_start();
 
-// Verifica se os dados foram entregues.
-if (!isset(
-    $_POST['nome_feedback'],
-    $_POST['turma_feedback'],
-    $_POST['email_feedback'],
-    $_POST['categorias[]'],
-    $_POST['tipo_feedback'],
-    $_POST['mensagem_feedback'])    
-    ||
-    empty($_POST['nota_feedback'])  ||
-    empty($_POST['nome_feedback'])  ||
-    empty($_POST['turma_feedback']) ||
-    empty($_POST['email_feedback']) ||
-    empty($_POST['categorias[]'])   ||
-    empty($_POST['tipo_feedback'])  ||
-    empty($_POST['mensagem_feedback'])) 
-{
-    header('Location: /soee/src/backend/php/form/form-feedback');
-    die("Preencha os campos obrigatórios.");
-}
+try {
+    include __DIR__ . '/../include/conexao.php';
 
-// Atribuição do dados entregues do formulário.    
-$nome        =  $_POST['nome_feedback'];     
-$turma       =  $_POST['turma_feedback'];   
-$email       =  $_POST['email_feedback'];    
-$tipo        =  $_POST['tipo_feedback'];     
-$categorias  =  $_POST['categorias[]'];      
-$mensagem    =  $_POST['mensagem_feedback']; 
+    if (!isset($_SESSION['usuario_id'])) {
+        die("Você precisa estar logado.");
+    }
 
-$comand = "insert into feedback (
-                    nome_feedback, 
-                    email_feedback, 
-                    nota_feedback, 
-                    turma_feedback, 
-                    tipo_feedback,
-                    categorias_feedback,
-                    mensagem_feedback
-                ) values (
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ? 
-                );";
+    if (
+        empty($_POST['nome_feedback'])  ||
+        empty($_POST['turma_feedback']) ||
+        empty($_POST['email_feedback']) ||
+        empty($_POST['categorias'])     ||
+        empty($_POST['tipo_feedback'])  ||
+        empty($_POST['mensagem_feedback'])
+    ) {
+        die("Preencha todos os campos.");
+    }
 
-    $stmt = $conn->prepare($comand);
-        $stmt->binParam(1,$nota);
-        $stmt->binParam(2,$nome);
-        $stmt->binParam(3,$turma);
-        $stmt->binParam(4,$email);
-        $stmt->binParam(5,$categorias);
-        $stmt->binParam(6,$tipo);
-        $stmt->binParam(7,$mensagem);
-    $stmt->execute();
+    $usuario_id = $_SESSION['usuario_id'];
 
-} catch(PDOException $erro) {
-    echo 'Erro ao processar o feedback' . $erro->getMessage();
+    $nome     = $_POST['nome_feedback'];
+    $turma    = $_POST['turma_feedback'];
+    $email    = $_POST['email_feedback'];
+    $tipo     = $_POST['tipo_feedback'];
+    $mensagem = $_POST['mensagem_feedback'];
+
+    $categorias = is_array($_POST['categorias'])
+        ? implode(',', $_POST['categorias'])
+        : '';
+
+    $sql = "INSERT INTO feedback (
+        usuario_id_usuario,
+        nome_feedback,
+        email_feedback,
+        turma_feedback,
+        tipo_feedback,
+        categorias_feedback,
+        mensagem_feedback
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+    $stmt = $conn->prepare($sql);
+
+    $stmt->execute([
+        $usuario_id,
+        $nome,
+        $email,
+        $turma,
+        $tipo,
+        $categorias,
+        $mensagem
+    ]);
+
+    header("Location: /soee/src/backend/php/form/form-feedback.php");
+    die();
+
+} catch (PDOException $erro) {
+    echo "Erro: " . $erro->getMessage();
 }

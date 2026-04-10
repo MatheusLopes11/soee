@@ -404,15 +404,41 @@
     }
 
   .submit {
-    background: #ff6600;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
 
-  .submit:hover {
-    background: #e65c00;
+.submit input {
+  background: linear-gradient(135deg, #ff6600, #ff8533);
+  color: white;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+
+  box-shadow: 0 6px 18px rgba(255, 102, 0, 0.3);
+  transition: all 0.25s ease;
+}
+
+/* HOVER */
+.submit input:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(255, 102, 0, 0.4);
+  background: linear-gradient(135deg, #ff751a, #ffa366);
+}
+
+/* CLICK */
+.submit input:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* FOCUS (acessibilidade) */
+.submit input:focus {
+  outline: 2px solid #ff944d;
+  outline-offset: 3px;
 }
