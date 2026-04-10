@@ -363,7 +363,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                 <div class="tabela-wrap">
                     <table id="tabela-usuarios">
                         <thead>
-                            <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Turma</th><th>Tipo</th><th>Gênero</th><th>Status</th><th>Ações</th></tr>
+                            <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Turma</th><th>Tipo</th><th>Gênero</th><th>Status</th></tr>
                         </thead>
                         <tbody>
                             <?php foreach ($usuarios as $u): ?>
@@ -375,10 +375,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><?= htmlspecialchars($u['tipo_usuario']) ?></td>
                                 <td><?= strtoupper($u['genero_usuario']) ?></td>
                                 <td><?= $u['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
-                                <td class="td-acoes">
-                                    <button class="btn btn-secundario btn-sm" onclick="editarUsuario(<?= $u['id_usuario'] ?>)"><i class="fas fa-edit"></i></button>
-                                    
-                                </td>
+                              
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -397,7 +394,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                 <div class="tabela-wrap">
                     <table>
                         <thead>
-                            <tr><th>#</th><th>Nome</th><th>Curso</th><th>Série</th><th>Ano Letivo</th><th>Período</th><th>Ações</th></tr>
+                            <tr><th>#</th><th>Nome</th><th>Curso</th><th>Série</th><th>Ano Letivo</th><th>Período</th></tr>
                         </thead>
                         <tbody>
                             <?php foreach ($turmas as $t): ?>
@@ -408,10 +405,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><?= $t['ano_serie_turma'] ?>º</td>
                                 <td><?= $t['ano_letivo_turma'] ?></td>
                                 <td><span class="badge-status ativo"><?= ucfirst($t['periodo_turma']) ?></span></td>
-                                <td class="td-acoes">
-                                    <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-turma')"><i class="fas fa-edit"></i></button>
-                                   
-                                </td>
+                              
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
