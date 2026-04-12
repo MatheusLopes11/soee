@@ -1,0 +1,72 @@
+.particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.particles span {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  animation: floatParticle linear infinite;
+}
+
+.particles span:nth-child(1) {
+  width: 320px;
+  height: 320px;
+  top: -80px;
+  left: -60px;
+  animation-duration: 18s;
+}
+
+.particles span:nth-child(2) {
+  width: 180px;
+  height: 180px;
+  top: 20%;
+  right: 8%;
+  animation-duration: 14s;
+  animation-delay: -5s;
+}
+
+.particles span:nth-child(3) {
+  width: 100px;
+  height: 100px;
+  bottom: 15%;
+  left: 15%;
+  animation-duration: 10s;
+  animation-delay: -3s;
+  background: rgba(255,77,18,0.08);
+}
+
+.particles span:nth-child(4) {
+  width: 60px;
+  height: 60px;
+  bottom: 30%;
+  right: 20%;
+  animation-duration: 8s;
+  background: rgba(255,255,255,0.04);
+}
+
+.particles span:nth-child(5) {
+  width: 240px;
+  height: 240px;
+  bottom: -60px;
+  right: -60px;
+  animation-duration: 16s;
+  animation-delay: -8s;
+}
+
+@keyframes floatParticle {
+  0% { 
+    transform: translate(0,0) scale(1); 
+    opacity: 0.6; 
+  }
+  50% { 
+    transform: translate(20px,-30px) scale(1.05); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: translate(0,0) scale(1); 
+    opacity: 0.6; 
+  }
+}

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/include/conexao.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/includes/conexao.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -19,5 +19,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ]);
 }
 
-header("Location: /soee/src/backend/php/dashboard/dash-adm.php");
+header("Location: /soee/src/frontend/views/dashboards/adm.php");
 exit;

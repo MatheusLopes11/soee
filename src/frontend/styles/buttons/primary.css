@@ -1,0 +1,15 @@
+.botao-primario {
+  background: var(--laranja-destaque);
+  color: var(--branco);
+  padding: 15px 36px; border-radius: var(--raio-medio);
+  font-weight: 700; font-size: 0.95rem;
+  text-decoration: none;
+  box-shadow: 0 8px 28px var(--laranja-sombra);
+  transition: var(--transicao);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+
+.botao-primario:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px var(--laranja-sombra);
+}

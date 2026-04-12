@@ -1,0 +1,17 @@
+.botao-secundario {
+  padding: 13px 34px; border-radius: var(--raio-medio);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: var(--branco); text-decoration: none;
+  font-weight: 600; font-size: 0.95rem;
+  transition: var(--transicao);
+  display: inline-flex; align-items: center; gap: 8px;
+  backdrop-filter: blur(4px);
+  background: rgba(255,255,255,0.06);
+}
+
+.botao-secundario:hover {
+  background: var(--branco);
+  color: var(--azul-principal);
+  border-color: transparent;
+  transform: translateY(-4px);
+}

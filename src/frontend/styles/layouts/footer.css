@@ -1,0 +1,63 @@
+.rodape { 
+  background: #060d14; 
+  color: #94a3b8; 
+}
+
+.rodape-conteudo {
+  max-width: 1200px; margin: auto;
+  padding: 80px 24px;
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px;
+}
+
+.rodape h3 { 
+  color: #e2e8f0; 
+  font-size: 1rem; 
+  font-weight: 700; 
+  margin-bottom: 16px; 
+}
+
+.rodape p  { 
+  font-size: 0.9rem; 
+  line-height: 1.7; 
+}
+.rodape-lista { 
+  list-style: none; 
+}
+
+.rodape-lista li { 
+  margin-bottom: 10px; 
+  font-size: 0.9rem; 
+}
+
+.rodape a {
+  color: #94a3b8; text-decoration: none;
+  transition: var(--transicao); display: inline-block;
+}
+
+.rodape a:hover { 
+  color: var(--laranja-destaque); 
+  transform: translateX(5px); 
+}
+
+.rodape-rede-social {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--raio-medio);
+  font-size: 1.1rem; margin-top: 16px;
+  transition: var(--transicao); color: #94a3b8 !important;
+}
+
+.rodape-rede-social:hover {
+  background: var(--laranja-destaque) !important;
+  border-color: var(--laranja-destaque) !important;
+  color: white !important;
+  transform: translateY(-3px) !important;
+}
+
+.rodape-direitos {
+  background: #020617; text-align: center; padding: 22px;
+  font-size: 0.78rem;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}

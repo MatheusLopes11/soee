@@ -1,5 +1,14 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/include/conexao.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/includes/conexao.php";
+
+$edicao_modalidade_id = filter_input(INPUT_POST, 'edicao_modalidade_id', FILTER_VALIDATE_INT);
+$turma_a = filter_input(INPUT_POST, 'turma_id_time_a', FILTER_VALIDATE_INT);
+$turma_b = filter_input(INPUT_POST, 'turma_id_time_b', FILTER_VALIDATE_INT);
+
+if (!$edicao_modalidade_id || !$turma_a || !$turma_b) {
+    header("Location: /soee/src/frontend/views/dashboards/adm.php?erro=dados_invalidos");
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -20,5 +29,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ]);
 }
 
-header("Location: /soee/src/backend/php/dashboard/dash-adm.php");
+header("Location: /soee/src/frontend/views/dashboards/adm.php");
 exit;

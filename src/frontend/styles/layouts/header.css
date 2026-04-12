@@ -1,0 +1,103 @@
+.cabecalho {
+  position: sticky; top: 0; z-index: 1000;
+  background: var(--vidro);
+  backdrop-filter: blur(16px) saturate(1.6);
+  border-bottom: 1px solid var(--borda-sutil);
+}
+
+.cabecalho-container {
+  max-width: 1300px; margin: auto;
+  padding: 14px 32px;
+  display: flex; 
+  align-items: center;
+  justify-content: space-between; 
+  gap: 24px;
+}
+.cabecalho-logos { 
+    display: flex; 
+    align-items: center; 
+    gap: 14px; 
+}
+.cabecalho-logos img { 
+    height: 3.2rem; 
+    transition: var(--transicao); 
+}
+
+.cabecalho-logos img:hover { 
+    transform: scale(1.06); 
+}
+
+.menu-lista { 
+    list-style: none; 
+    display: flex; 
+    gap: 4px; 
+}
+
+.menu-lista a {
+  text-decoration: none;
+  font-size: 0.73rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--texto-principal);
+  opacity: 0.6;
+  padding: 7px 14px;
+  border-radius: var(--raio-medio);
+  position: relative;
+  transition: var(--transicao);
+}
+.menu-lista a:hover,
+.menu-lista a[aria-current="page"] {
+  opacity: 1;
+  color: var(--laranja-destaque);
+  background: rgba(255,77,18,0.06);
+}
+.menu-lista a[aria-current="page"]::before {
+  content: '';
+  position: absolute; bottom: 2px; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 4px;
+  background: var(--laranja-destaque);
+  border-radius: 50%;
+}
+
+.cabecalho-acoes { 
+  display: flex; 
+  align-items: center; 
+  gap: 14px; 
+}
+
+.botao-icone {
+  background: none; border: none; cursor: pointer;
+  width: 38px; height: 38px;
+  border-radius: var(--raio-medio);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: var(--texto-principal);
+  border: 1px solid var(--borda-sutil);
+  transition: var(--transicao);
+}
+
+.botao-icone:hover {
+  background: var(--fundo-bloco);
+  transform: rotate(15deg) scale(1.1);
+  border-color: var(--laranja-destaque);
+  color: var(--laranja-destaque);
+}
+
+.botao-login {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--laranja-destaque);
+  color: var(--branco); border: none;
+  padding: 9px 20px; border-radius: var(--raio-medio);
+  font-weight: 700; font-size: 0.88rem;
+  text-decoration: none; cursor: pointer;
+  transition: var(--transicao);
+  box-shadow: 0 4px 14px var(--laranja-sombra);
+}
+
+.botao-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px var(--laranja-sombra);
+}
+
+.logo-sistema { 
+    height: 2.8rem; 
+}

@@ -1,0 +1,31 @@
+.stats {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 32px;
+  z-index: 2;
+}
+
+.stat {
+  text-align: center;
+  color: white;
+}
+
+.stat strong {
+  font-size: 2rem;
+  color: var(--laranja-destaque);
+  font-family: 'Playfair Display', serif;
+}
+
+.stat span {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+.stat-sep {
+  width: 1px;
+  background: rgba(255,255,255,0.15);
+}

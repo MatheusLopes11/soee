@@ -1,0 +1,92 @@
+:root {
+  /* CORES PRINCIPAIS */
+  --azul: #1e5671;
+  --azul-2: #2c7da3;
+  --azul-principal: #1e5671;
+  --azul-secundario: #2c7da3;
+
+  --laranja: #ff4d12;
+  --laranja-destaque: #ff4d12;
+  --laranja-s: rgba(255,77,18,.22);
+  --laranja-sombra: rgba(255,77,18,0.25);
+
+  --verde: #22c55e;
+  --verde-ok: #10b981;
+  --amarelo: #f59e0b;
+  --vermelho: #ef4444;
+  --vermelho-alerta: #ef4444;
+  --erro: #ef4444;
+  --sucesso: #22c55e;
+
+  --roxo: #8b5cf6;
+
+  --blue: #1a4a63;
+  --blue-light: #246584;
+  --blue-glow: #2e8ab8;
+
+  --orange: #ff4103;
+  --orange-dark: #cc3402;
+
+/* FUNDO / SUPERFÍCIE */
+  --fundo: #f8fafc;
+  --fundo-pagina: #f8fafc;
+  --fundo-bloco: #ffffff;
+  --fundo-card: #ffffff;
+  --bloco: #ffffff;
+  --surface: #111518;
+
+  --vidro: rgba(248,250,252,0.88);
+  --white: #f0f4f8;
+  --white-dim: rgba(240,244,248,0.55);
+  --white-ghost: rgba(240,244,248,0.08);
+
+  /* TEXTO */
+  --texto: #1e293b;
+  --texto-principal: #1e293b;
+  --texto-2: #64748b;
+  --texto-secundario: #64748b;
+  --texto-suave: #8aa8b8;
+
+  --black: #0d0f10;
+  --branco: #ffffff;
+
+  /* BORDA / SOMBRA */
+  --borda: rgba(30,86,113,.09);
+  --borda-h: rgba(30,86,113,.2);
+  --borda-sutil: rgba(30,86,113,0.09);
+
+  --sombra: 0 10px 40px -10px rgba(0,0,0,.1);
+  --sombra-h: 0 24px 48px -12px rgba(0,0,0,.14);
+  --sombra-leve: 0 10px 40px -10px rgba(0,0,0,0.08);
+  --sombra-hover: 0 24px 48px -12px rgba(0,0,0,0.14);
+  --sombra-card: 0 4px 24px rgba(30, 86, 113, 0.10);
+
+  /* LAYOUT / MEDIDAS */
+  --r: 20px;
+  --rm: 10px;
+  --raio: 10px;
+  --raio-grande: 20px;
+  --raio-medio: 10px;
+  --radius: 18px;
+
+  --sidebar: 260px;
+  --sidebar-w: 260px;
+  --header-h: 68px;
+
+  /* ANIMAÇÃO */
+  --tr: all .38s cubic-bezier(.4,0,.2,1);
+  --transicao: all 0.38s cubic-bezier(0.4,0,0.2,1);
+  --transition: 0.35s cubic-bezier(.4,0,.2,1);
+
+  /* OUTROS */
+  --azul-claro: #4fa3c8;
+  --input-bg: var(--fundo-pagina);
+  --input-bg-foco: var(--fundo-bloco);
+
+  --dica-bg: rgba(44, 125, 163, 0.06);
+  --dica-borda: rgba(44, 125, 163, 0.15);
+
+  --hover-item: rgba(30,86,113,0.04);
+
+  --teal: #0d9488;
+}

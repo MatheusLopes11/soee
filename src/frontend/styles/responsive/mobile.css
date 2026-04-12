@@ -1,0 +1,14 @@
+@media (max-width: 600px) {
+.intro-conteudo h1 { 
+    font-size: 2rem; 
+}
+
+.intro-acoes { 
+    flex-direction: column; align-items: center; 
+}
+
+.chamada-sistema { 
+    padding: 90px 24px; 
+}
+
+}

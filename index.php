@@ -1,47 +1,43 @@
 <?php
 ob_start();
-session_start(); // ESSENCIAL — deve vir antes de qualquer uso de $_SESSION
+session_start();
 
-include __DIR__ . '/src/backend/php/include/conexao.php';
-include __DIR__ . '/src/backend/php/auth/auth-home.php';
+require __DIR__ . '/src/backend/includes/conexao.php';
+require __DIR__ . '/src/backend/controllers/home.php';
 
 AuthHome::tentarLoginPorCookie($conn);
 
 if (AuthHome::estaLogado()) {
     AuthHome::redirecionarPorTipo();
+    die();
 }
 
-$erro    = '';
+$erro = '';
 $sucesso = '';
 
-if (isset($_GET['cadastro']) && $_GET['cadastro'] === 'sucesso') {
+if (!empty($_GET['cadastro']) && $_GET['cadastro'] === 'sucesso') {
     $sucesso = 'Conta criada com sucesso! Faça login para entrar.';
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
-    $login   = trim($_POST['username'] ?? '');
-    $senha   = trim($_POST['password'] ?? '');
-    $lembrar = isset($_POST['remember']);
-
-    $resultado = AuthHome::processarLogin($conn, $login, $senha, $lembrar);
-
-    if ($resultado['sucesso']) {
-        header('Location: ' . $resultado['redirect']);
-        exit();
-    } else {
-        $erro = $resultado['erro'];
-    }
+if (!empty($_SESSION['login_erro'])) {
+    $erro = $_SESSION['login_erro'];
+    unset($_SESSION['login_erro']);
 }
-?> 
 
-<?PHP include __DIR__ . '/src/backend/php/include/doctype.php';?>
+if (!empty($_SESSION['login_sucesso'])) {
+    $sucesso = $_SESSION['login_sucesso'];
+    unset($_SESSION['login_sucesso']);
+}
+?>
+<!-- ( HTML ) -->
+<?php include __DIR__ . '/src/frontend/views/includes/doctype.php';?>
 <head>
     <title>SOEE | Entrar</title>
-    <link rel="stylesheet" href="/soee/src/frontend/css/index.css">
-    <?php include __DIR__ . '/src/backend/php/include/head-data.php';?>
+    <link rel="stylesheet" href="/soee/src/frontend/styles/index.css">
+    <?php include __DIR__ . '/src/frontend/views/includes/head.php';?>
 </head>
-<body>
 
+<body>
 <div class="cursor-dot" id="cursorDot"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
@@ -49,76 +45,102 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
     <div class="loader-inner">
         <div class="loader-logo-text">SOEE</div>
         <div class="loader-logo-sub">Carregando sistema</div>
-        <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+        <div class="loader-bar">
+            <div class="loader-bar-fill"></div>
+        </div>
     </div>
 </div>
 
 <div class="pagina-login">
 
+    <!-- LADO ESQUERDO -->
     <div class="lado-esquerdo">
         <div class="grid"></div>
-        <div class="particles"><span></span><span></span><span></span></div>
+
+        <div class="particles">
+            <span></span><span></span><span></span>
+        </div>
 
         <div class="esq-conteudo">
+
             <div class="esq-badge">
                 <i class="fa-solid fa-circle fa-xs"></i>
                 ETEC Juscelino Kubitschek de Oliveira
             </div>
-            <h1>Sistema de<br><em>Esportes Escolares</em></h1>
+
+            <h1>
+                Sistema de<br>
+                <em>Esportes Escolares</em>
+            </h1>
+
             <p>
                 Plataforma digital para organizar inscrições, partidas e
-                classificações dos interclasses da ETEC JK com eficiência
-                e transparência.
+                classificações dos interclasses da ETEC JK com eficiência e transparência.
             </p>
+
             <div class="esq-stats">
                 <div class="esq-stat"><strong>9</strong><span>Turmas</span></div>
                 <div class="esq-stat"><strong>300+</strong><span>Alunos</span></div>
                 <div class="esq-stat"><strong>100%</strong><span>Digital</span></div>
             </div>
+
         </div>
     </div>
 
+    <!-- LADO DIREITO -->
     <div class="lado-direito">
+
         <div class="login-card">
+
             <div class="login-logo">S<span>O</span>EE</div>
-            <p class="login-subtitulo">Entre com sua conta para acessar o sistema</p>
 
-            <?php if ($sucesso): ?>
-            <div class="alerta-sucesso">
-                <i class="fa-solid fa-circle-check"></i>
-                <?= htmlspecialchars($sucesso) ?>
-            </div>
+            <p class="login-subtitulo">
+                Entre com sua conta para acessar o sistema
+            </p>
+
+            <!-- ALERTA SUCESSO -->
+            <?php if (!empty($sucesso)): ?>
+                <div class="alerta-sucesso">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <?= htmlspecialchars($sucesso) ?>
+                </div>
             <?php endif; ?>
 
-            <?php if ($erro): ?>
-            <div class="alerta-erro">
-                <i class="fa-solid fa-circle-xmark"></i>
-                <?= htmlspecialchars($erro) ?>
-            </div>
+            <!-- ALERTA ERRO -->
+            <?php if (!empty($erro)): ?>
+                <div class="alerta-erro">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <?= htmlspecialchars($erro) ?>
+                </div>
             <?php endif; ?>
 
-            <form method="POST" action="" id="formLogin" novalidate>
+            <!-- FORMULÁRIO (AGORA VAI PRO BACKEND) -->
+            <form method="POST" action="/soee/src/backend/controllers/login.php" id="formLogin" novalidate>
 
                 <div class="campo-grupo">
                     <label class="campo-label" for="username">Usuário ou E-mail</label>
+
                     <div class="campo-wrapper">
                         <i class="campo-icone fa-solid fa-user"></i>
+
                         <input
                             type="text"
                             id="username"
                             name="username"
                             class="campo-input"
                             placeholder="Seu nome ou e-mail"
-                            value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
                             autocomplete="username"
+                            required
                         >
                     </div>
                 </div>
 
                 <div class="campo-grupo">
                     <label class="campo-label" for="password">Senha</label>
+
                     <div class="campo-wrapper">
                         <i class="campo-icone fa-solid fa-lock"></i>
+
                         <input
                             type="password"
                             id="password"
@@ -126,8 +148,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
                             class="campo-input"
                             placeholder="Sua senha"
                             autocomplete="current-password"
+                            required
                         >
-                        <button type="button" class="campo-toggle-senha" id="toggleSenha" aria-label="Mostrar senha">
+
+                        <button type="button" class="campo-toggle-senha" id="toggleSenha">
                             <i class="fa-solid fa-eye" id="iconeSenha"></i>
                         </button>
                     </div>
@@ -135,35 +159,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
 
                 <div class="opcoes-login">
                     <label class="checkbox-label">
-                        <input type="checkbox" name="remember" value="1"> Lembrar de mim
+                        <input type="checkbox" name="remember" value="1">
+                        Lembrar de mim
                     </label>
-                    <a href="/soee/src/backend/php/form/form-cadastrar.php" class="link-esqueci">
+
+                    <a href="/soee/src/frontend/views/forms/cadastrar.php" class="link-esqueci">
                         Criar conta
                     </a>
                 </div>
 
                 <button type="submit" class="btn-entrar" id="btnEntrar">
                     <div class="btn-spinner"></div>
-                    <span class="btn-texto"><i class="fa-solid fa-right-to-bracket"></i> &nbsp;Entrar</span>
+                    <span class="btn-texto">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        Entrar
+                    </span>
                 </button>
 
                 <div class="divisor">ou</div>
 
-                <a href="/soee/src/backend/php/pages/inicio.php" class="btn-inicio-soee">
-                    <i class="fa-solid fa-globe"></i> Acessar como visitante
+                <a href="/soee/src/frontend/views/site/home.php" class="btn-inicio-soee">
+                    <i class="fa-solid fa-globe"></i>
+                    Acessar como visitante
                 </a>
 
             </form>
+
         </div>
+
     </div>
 
 </div>
 
+<script src="/soee/src/frontend/scripts/index.js"></script>
 
-<script src="/soee/src/frontend/js/index.js"></script>
 <script>
-const _t = localStorage.getItem('theme');
-if (_t) document.documentElement.setAttribute('data-theme', _t);
+const theme = localStorage.getItem('theme');
+if (theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+}
 </script>
 
-<?php include __DIR__ . '/src/backend/php/include/end.php';?>''
+<?php include __DIR__ . '/src/frontend/views/includes/end.php'; ?>
+
+</body>
+</html>

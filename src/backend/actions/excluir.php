@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../php/include/conexao.php';
+require_once __DIR__ . '/../includes/conexao.php';
 
 if (isset($_GET['tipo']) && isset($_GET['id'])) {
 
@@ -21,5 +21,5 @@ if (isset($_GET['tipo']) && isset($_GET['id'])) {
     }
 }
 
-header("Location: /soee/src/backend/php/dashboard/dash-adm.php");
+header("Location: /soee/src/frontend/views/dashboards/adm.php");
 exit;

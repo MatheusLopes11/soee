@@ -1,0 +1,40 @@
+.secao-conteudo,
+.secao-funcionalidades {
+  padding: 120px 24px;
+}
+.secao-problemas {
+  padding: 120px 24px;
+  background: var(--fundo-bloco);
+  position: relative; overflow: hidden;
+}
+.secao-problemas::before,
+.secao-problemas::after {
+  content: '';
+  position: absolute; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--borda-sutil), transparent);
+}
+.secao-problemas::before { top: 0; }
+.secao-problemas::after  { bottom: 0; }
+
+.secao-cabecalho { text-align: center; margin-bottom: 70px; }
+.secao-tag {
+  display: inline-block;
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--laranja-destaque);
+  background: rgba(255,77,18,0.08);
+  padding: 5px 14px; border-radius: 999px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,77,18,0.18);
+}
+.secao-cabecalho h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  color: var(--azul-principal);
+  margin-bottom: 12px; line-height: 1.2;
+}
+.secao-cabecalho p {
+  color: var(--texto-secundario);
+  font-size: 1.02rem;
+}

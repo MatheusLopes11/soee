@@ -1,0 +1,17 @@
+@media (max-width: 900px) {
+.menu-principal { 
+    display: none; 
+}
+.sobre-grid { 
+    grid-template-columns: 1fr; 
+}
+.rodape-conteudo { 
+    grid-template-columns: 1fr; gap: 36px; 
+}
+.hero-stats { 
+    display: none; 
+}
+.cursor-dot, .cursor-ring { 
+  display: none; 
+}
+}

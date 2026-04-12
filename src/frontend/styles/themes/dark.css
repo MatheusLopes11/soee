@@ -1,0 +1,8 @@
+[data-theme="dark"] {
+  --fundo-pagina: #060d14;
+  --fundo-bloco: #0c1825;
+  --texto-principal: #e2e8f0;
+  --texto-secundario: #8da8bc;
+  --vidro: rgba(6,13,20,0.92);
+  --borda-sutil: rgba(44,125,163,0.12);
+}

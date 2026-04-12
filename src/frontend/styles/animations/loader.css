@@ -1,0 +1,55 @@
+#loader {
+  position: fixed; inset: 0;
+  background: var(--azul-principal);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10000;
+  transition: opacity 0.6s, visibility 0.6s;
+}
+
+#loader.hide { 
+    opacity: 0; 
+    visibility: hidden; 
+}
+
+.loader-inner { 
+    text-align: center; 
+    color: white; 
+}
+
+.loader-bar {
+  width: 200px; height: 3px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 999px;
+  margin: 16px auto 0;
+  overflow: hidden;
+}
+
+.loader-bar-fill {
+  height: 100%;
+  background: var(--laranja-destaque);
+  border-radius: 999px;
+  animation: loadBar 1.4s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+@keyframes loadBar {
+  from { 
+    width: 0; 
+  }
+    to { 
+    width: 100%; 
+  }
+}
+
+.loader-logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem; font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.loader-logo-sub {
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  margin-top: 4px;
+}
