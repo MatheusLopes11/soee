@@ -305,3 +305,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--fundo);color:var(--texto)
     .bv-esq { flex-direction: column; align-items: flex-start; }
     .topbar-turma { display: none; }
 }
+
+.painel { display: none; }
+.painel.active { display: block; }

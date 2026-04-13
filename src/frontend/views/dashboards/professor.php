@@ -764,11 +764,11 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
 
 <div class="toast-container" id="toast-container"></div>
 
-<script src="/soee/src/frontend/scripts/dash-adm.js"></script>
+<script src="/soee/src/frontend/scripts/adm.js"></script>
 <script>
 function elegerAdmSala(idAluno, nomeAluno) {
     if (!confirm('Alterar cargo de "' + nomeAluno + '"?')) return;
-    fetch('/soee/src/backend/php/include/eleger-adm-sala.php', {
+    fetch('/soee/src/backend/actions/eleger-adm-sala.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'id_usuario=' + idAluno

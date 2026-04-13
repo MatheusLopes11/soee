@@ -12,9 +12,20 @@ require_once __DIR__ . '/../../../backend/includes/conexao.php';
 require_once __DIR__ . '/../../../backend/controllers/home.php';
 
 AuthHome::exigirTipo(['adm_geral']);
+AuthHome::exigirTipo(['adm_geral']);
 
 $usuario_logado = AuthHome::getNome();
 $tipo_usuario   = AuthHome::getTipo();
+$userId         = AuthHome::getId();
+
+// ── FOTO DE PERFIL ─────────────────────────────────────────
+$stmtFoto = $conn->prepare("
+    SELECT caminho_foto FROM foto_perfil
+    WHERE usuario_id_usuario = :id AND atual_foto = 1
+    LIMIT 1
+");
+$stmtFoto->execute([':id' => $userId]);
+$fotoPerfil = $stmtFoto->fetchColumn();
 
 // ── KPIs ──────────────────────────────────────────────────
 $kpi_alunos      = $conn->query("SELECT COUNT(*) FROM usuario WHERE tipo_usuario = 'aluno' AND ativo_usuario = 1")->fetchColumn();
@@ -231,7 +242,16 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
            style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:var(--raio-medio);transition:background .2s;cursor:pointer;"
            onmouseover="this.style.background='rgba(255,255,255,0.07)'"
            onmouseout="this.style.background='none'">
-            <div class="user-avatar"><?= strtoupper(substr($usuario_logado, 0, 2)) ?></div>
+            <div class="user-avatar">
+              <?php if (!empty($fotoPerfil)): ?>
+              <img src="<?= htmlspecialchars($fotoPerfil) ?>"
+                alt=""
+                onerror="this.style.display='none'"
+                style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+              <?php else: ?>
+              <?= strtoupper(substr($usuario_logado, 0, 2)) ?>
+            <?php endif; ?>
+      </div>
             <div class="user-info">
                 <strong><?= htmlspecialchars($usuario_logado) ?></strong>
                 <span>Adm. Geral</span>
