@@ -28,7 +28,7 @@
           <li><a href="/soee/src/frontend/views/site/modalidades.php">Modalidades</a></li>
           <li><a href="/soee/src/frontend/views/site/quem-somos.php">Quem Somos</a></li>
           <li><a href="/soee/src/frontend/views/site/sobre-etec.php">Sobre a ETEC</a></li>
-          <li><a href="/soee/src/frontend/views/site/portal.php">Portal</a></li>
+          
           <li><a href="/soee/src/frontend/views/forms/feedback.php">Feedback</a></li>
         </ul>
       </nav>

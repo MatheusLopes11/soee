@@ -738,6 +738,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
         <!-- ══════════════════════════════════════
              ALUNOS
         ══════════════════════════════════════ -->
+
         <div class="painel" id="painel-alunos">
             <div class="card">
                 <div class="card-header">
@@ -775,6 +776,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
         <!-- ══════════════════════════════════════
              INSCRIÇÕES
         ══════════════════════════════════════ -->
+
         <div class="painel" id="painel-inscricoes">
             <div class="card">
                 <div class="card-header">
@@ -813,6 +815,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
         <!-- ══════════════════════════════════════
              PARTIDAS
         ══════════════════════════════════════ -->
+        
         <div class="painel" id="painel-partidas">
             <div class="card">
                 <div class="card-header">

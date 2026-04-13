@@ -23,7 +23,7 @@
           <li><a href="/soee/src/frontend/views/site/home.php">Início</a></li>
           <li><a href="/soee/src/frontend/views/site/modalidades.php" aria-current="page">Modalidades</a></li>
           <li><a href="/soee/src/frontend/views/site/sobre-etec.php">Sobre a ETEC</a></li>
-          <li><a href="/soee/src/frontend/views/site/portal.php">Portal</a></li>
+       
           <li><a href="/soee/src/frontend/views/site/contato-redes.php">Contato & Redes</a></li>
           <li><a href="/soee/src/frontend/views/forms/feedback.php">Feedback</a></li>
         </ul>

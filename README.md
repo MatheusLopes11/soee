@@ -1,11 +1,5 @@
 # *SOEE - Sistema de Organização Esportiva Escolar*
 
-## HISTÓRIA
-
-<p>
-
-</p>
-
 ## INSTITUIÇÃO
 <p>
 Etec Juscelino Kubitschek de Oliveira<br>
