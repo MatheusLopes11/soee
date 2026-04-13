@@ -463,6 +463,9 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                     <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-edicao')">
                         <i class="fas fa-plus"></i> Nova Edição
                     </button>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-edicao-modalidade')">
+    <i class="fas fa-link"></i> Vincular Modalidade
+</button>
                 </div>
                 <div class="tabela-wrap">
                     <table>
@@ -593,7 +596,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><?= $s['id_sumula'] ?></td>
                                 <td><?= htmlspecialchars($s['nome_modalidade'] . ' — ' . $s['time_a'] . ' vs ' . $s['time_b']) ?></td>
                                 <td><?= htmlspecialchars($s['enviado_por']) ?></td>
-                                <td><a href="#" style="color:var(--azul-secundario)">
+                                <td><a href="<?= $s['caminho_arquivo_sumula'] ?>" style="color:var(--azul-secundario)">
                                     <i class="fas fa-file-<?= strtolower($s['tipo_arquivo_sumula']) === 'pdf' ? 'pdf' : 'image' ?>"></i>
                                     <?= htmlspecialchars($s['nome_arquivo_sumula']) ?>
                                 </a></td>
@@ -1018,6 +1021,72 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
     <div class="modal-footer">
       <button class="btn btn-secundario" onclick="fecharModal('modal-resultado')">Cancelar</button>
       <button class="btn btn-primario" onclick="document.getElementById('form-resultado').submit()"><i class="fas fa-save"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edicao-modalidade">
+  <div class="modal">
+    <div class="modal-header">
+      <h4>Vincular Modalidade à Edição</h4>
+      <button class="modal-close" onclick="fecharModal('modal-edicao-modalidade')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form action="/soee/src/backend/actions/salvar-edicao-modalidade.php" method="POST" id="form-edicao-modalidade">
+        
+        <div class="form-grid">
+
+          <!-- EDIÇÃO -->
+          <div class="form-grupo">
+            <label class="form-label">Edição</label>
+            <select name="edicao_id_edicao" class="form-select" required>
+              <?php foreach ($edicoes as $e): ?>
+                <option value="<?= $e['id_edicao'] ?>">
+                  <?= htmlspecialchars($e['nome_edicao']) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+
+          <!-- MODALIDADE -->
+          <div class="form-grupo">
+            <label class="form-label">Modalidade</label>
+            <select name="modalidade_id_modalidade" class="form-select" required>
+              <?php foreach ($modalidades as $m): ?>
+                <option value="<?= $m['id_modalidade'] ?>">
+                  <?= htmlspecialchars($m['nome_modalidade']) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+
+          <!-- DATA INICIO -->
+          <div class="form-grupo">
+            <label class="form-label">Início das Inscrições</label>
+            <input type="date" name="data_inicio_inscricao" class="form-input" required>
+          </div>
+
+          <!-- DATA FIM -->
+          <div class="form-grupo">
+            <label class="form-label">Fim das Inscrições</label>
+            <input type="date" name="data_fim_inscricao" class="form-input" required>
+          </div>
+
+        </div>
+
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secundario" onclick="fecharModal('modal-edicao-modalidade')">
+        Cancelar
+      </button>
+      <button class="btn btn-primario" onclick="document.getElementById('form-edicao-modalidade').submit()">
+        <i class="fas fa-save"></i> Salvar
+      </button>
     </div>
   </div>
 </div>

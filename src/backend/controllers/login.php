@@ -11,6 +11,10 @@ $lembrar = isset($_POST['remember']);
 $result = AuthHome::processarLogin($conn, $login, $senha, $lembrar);
 
 if ($result['sucesso']) {
+
+    $_SESSION['id_usuario'] = 1;
+
+    
     $_SESSION['login_sucesso'] = "Bem-vindo!";
     header("Location: " . $result['redirect']);
     exit();
