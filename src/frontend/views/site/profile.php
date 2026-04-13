@@ -4,14 +4,12 @@ session_start();
 require_once __DIR__ . '/../../../backend/includes/conexao.php';
 require_once __DIR__ . '/../../../backend/controllers/home.php';
 
-// exigirLogin() aceita qualquer tipo de usuário logado
 AuthHome::exigirLogin();
 
 $userId   = AuthHome::getId();
 $userTipo = AuthHome::getTipo();
 $userNome = AuthHome::getNome();
 
-// ── Upload de foto ──────────────────────────────────────────
 $msgFoto = '';
 $tipoMsg = '';
 
@@ -30,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['foto_perfil'])) {
         $msgFoto = 'Arquivo muito grande. Máximo 5MB.';
         $tipoMsg = 'erro';
     } else {
-        $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $nomeFoto = 'usuario_' . $userId . '_' . time() . '.' . $ext;
-        $destino  = $_SERVER['DOCUMENT_ROOT'] . '/soee/src/images/perfil/' . $nomeFoto;
+        $ext        = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $nomeFoto   = 'usuario_' . $userId . '_' . time() . '.' . $ext;
+        $destino    = $_SERVER['DOCUMENT_ROOT'] . '/soee/src/images/perfil/' . $nomeFoto;
         $caminhoWeb = '/soee/src/images/perfil/' . $nomeFoto;
 
         if (!is_dir(dirname($destino))) mkdir(dirname($destino), 0755, true);
@@ -59,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['foto_perfil'])) {
     }
 }
 
-// ── Busca dados do usuário ──────────────────────────────────
 $stmt = $conn->prepare("
     SELECT u.id_usuario, u.nome_usuario, u.email_usuario,
            u.genero_usuario, u.tipo_usuario, u.ativo_usuario,
@@ -74,7 +71,6 @@ $stmt = $conn->prepare("
 $stmt->execute([':id' => $userId]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// ── Inscrições ─────────────────────────────────────────────
 $stmtCamisa = $conn->prepare("
     SELECT numero_camisa_inscricao, posicao_inscricao, capitao_inscricao,
            m.nome_modalidade, e.nome_edicao, i.status_inscricao
@@ -89,24 +85,21 @@ $stmtCamisa = $conn->prepare("
 $stmtCamisa->execute([':id' => $userId]);
 $inscricoes = $stmtCamisa->fetchAll(PDO::FETCH_ASSOC);
 
-// ── Rótulos ────────────────────────────────────────────────
 $tipoLabel   = ['adm_geral' => 'Administrador Geral', 'adm_sala' => 'ADM de Sala', 'professor' => 'Professor', 'aluno' => 'Aluno'];
 $generoLabel = ['m' => 'Masculino', 'f' => 'Feminino', 'n' => 'Não informado'];
 $tipoIcone   = ['adm_geral' => 'crown', 'adm_sala' => 'user-shield', 'professor' => 'chalkboard-teacher', 'aluno' => 'graduation-cap'];
 
-// getRota() retorna o dashboard correto para o tipo do usuário
 $dashboardUrl = AuthHome::getRota($userTipo);
 ?>
 
-<?php include __DIR__ . '/../includes/doctype.php';?>
-    <head>
-        <title>SOEE | Minha Conta</title>
-        <link rel="stylesheet" href="/soee/src/frontend/styles/user-conta.css">
-        <?php include __DIR__ . '/../includes/head.php';?>
-    </head>
+<?php include __DIR__ . '/../includes/doctype.php'; ?>
+<head>
+    <title>SOEE | Minha Conta</title>
+    <link rel="stylesheet" href="/soee/src/frontend/styles/user-conta.css">
+    <?php include __DIR__ . '/../includes/head.php'; ?>
+</head>
 <body>
 
-<!-- Cursor personalizado -->
 <div class="cursor-dot" id="cursorDot"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
@@ -127,7 +120,6 @@ $dashboardUrl = AuthHome::getRota($userTipo);
     <div class="hero-particles">
         <span></span><span></span><span></span>
     </div>
-
     <div class="hero-conteudo">
         <div class="hero-avatar-wrap">
             <div class="hero-avatar" id="heroAvatar">
@@ -141,7 +133,6 @@ $dashboardUrl = AuthHome::getRota($userTipo);
                 <i class="fa-solid fa-camera"></i>
             </label>
         </div>
-
         <div class="hero-info">
             <div class="hero-tipo-badge">
                 <i class="fa-solid fa-<?= $tipoIcone[$userTipo] ?? 'user' ?>"></i>
@@ -166,7 +157,6 @@ $dashboardUrl = AuthHome::getRota($userTipo);
     <input type="file" name="foto_perfil" id="inputFoto" accept="image/jpeg,image/png,image/webp,image/gif">
 </form>
 
-<!-- TOAST do PHP -->
 <?php if ($msgFoto): ?>
 <div class="toast-fixo <?= $tipoMsg ?>" id="toastFoto">
     <i class="fa-solid fa-<?= $tipoMsg === 'sucesso' ? 'check-circle' : 'times-circle' ?>"></i>
@@ -259,7 +249,7 @@ $dashboardUrl = AuthHome::getRota($userTipo);
     <?php endif; ?>
 
     <!-- Foto de Perfil -->
-    <section class="conta-secao foto-secao reveal reveal-delay-3">
+    <section class="conta-secao reveal reveal-delay-3">
         <div class="secao-header">
             <i class="fa-solid fa-image"></i>
             <h2>Foto de Perfil</h2>
@@ -291,7 +281,7 @@ $dashboardUrl = AuthHome::getRota($userTipo);
     </section>
 
     <!-- Sessão / Logout -->
-    <section class="conta-secao logout-secao reveal reveal-delay-4">
+    <section class="conta-secao reveal reveal-delay-4">
         <div class="secao-header">
             <i class="fa-solid fa-right-from-bracket"></i>
             <h2>Sessão</h2>
@@ -317,4 +307,4 @@ $dashboardUrl = AuthHome::getRota($userTipo);
     if (_t) document.documentElement.setAttribute('data-theme', _t);
 </script>
 
-<?php include __DIR__ . '/../includes/end.php';?>
+<?php include __DIR__ . '/../includes/end.php'; ?>

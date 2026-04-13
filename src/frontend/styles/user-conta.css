@@ -1,6 +1,5 @@
 /* ─────────────────────────────────────────
    user-conta.css — SOEE
-   Redesenhado para combinar com inicio.css
 ───────────────────────────────────────── */
 
 :root {
@@ -178,7 +177,6 @@ body:has(button:hover) .cursor-ring {
     to   { opacity:1; transform:translateY(0); }
 }
 
-/* avatar */
 .hero-avatar-wrap { position: relative; flex-shrink: 0; }
 
 .hero-avatar {
@@ -207,7 +205,6 @@ body:has(button:hover) .cursor-ring {
 }
 .avatar-edit-btn:hover { transform: scale(1.12); background: #e03d08; }
 
-/* hero info */
 .hero-info { flex:1; min-width:200px; }
 
 .hero-tipo-badge {
@@ -272,17 +269,20 @@ body:has(button:hover) .cursor-ring {
     to   { opacity:1; transform:translateX(0); }
 }
 
-/* ── MAIN GRID ──────────────────────────── */
+/* ── MAIN LAYOUT ──────────────────────────── */
 .conta-main {
-    max-width: 900px; margin: 0 auto;
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
     padding: 40px 24px 80px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 24px;
 }
 
 /* ── CARD SEÇÃO ─────────────────────────── */
 .conta-secao {
+    width: 100%;
     background: var(--bloco);
     border: 1px solid var(--borda);
     border-radius: var(--r);
@@ -306,11 +306,6 @@ body:has(button:hover) .cursor-ring {
     transform: translateY(-4px) translateX(3px);
 }
 .conta-secao:hover::after { transform: scaleY(1); }
-
-.foto-secao,
-.logout-secao {
-    grid-column: span 2;
-}
 
 .secao-header {
     display: flex; align-items: center; gap: 10px;
@@ -538,11 +533,7 @@ body:has(button:hover) .cursor-ring {
 
 /* ── RESPONSIVO ─────────────────────────── */
 @media (max-width: 720px) {
-    .conta-main {
-        grid-template-columns: 1fr;
-        padding: 24px 16px 60px;
-    }
-    .foto-secao, .logout-secao { grid-column: span 1; }
+    .conta-main { padding: 24px 16px 60px; }
     .hero-conteudo { flex-direction: column; align-items: flex-start; gap: 20px; }
     .hero-avatar { width: 90px; height: 90px; font-size: 1.6rem; }
     .conta-topbar { padding: 0 18px; }
