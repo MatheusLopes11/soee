@@ -178,13 +178,7 @@
             <span>Todos os alunos da ETEC JK se beneficiam das melhorias.</span>
           </div>
         </div>
-        <div class="info-item">
-          <i class="fa-solid fa-shield-halved"></i>
-          <div>
-            <strong>Privacidade garantida</strong>
-            <span>Você pode enviar anonimamente, sem identificação.</span>
-          </div>
-        </div>
+        
         <div class="info-item">
           <i class="fa-solid fa-clock"></i>
           <div>

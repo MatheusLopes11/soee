@@ -8,14 +8,14 @@
 
       <ul class="rodape-lista">
         <li><h3>Comunicação</h3></li>
+        <li>Contato</li>
         <li>(11) 4053-9400</li>
-        <li><a href="#">Contato</a></li>
       </ul>
 
       <ul class="rodape-lista">
         <li><h3>Institucional</h3></li>
-        <li><a href="#">ETEC</a></li>
-        <li><a href="#">Centro Paula Souza</a></li>
+        <li><a href="https://etecjk.cps.sp.gov.br/">ETEC</a></li>
+        <li><a href="https://www.cps.sp.gov.br/">Centro Paula Souza</a></li>
       </ul>
 
     </div>
