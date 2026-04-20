@@ -712,3 +712,6 @@ body:has(button:hover) .cursor-ring { width:56px; height:56px; border-color:rgba
   border-color: rgba(134,239,172,0.2);
   color: #86efac;
 }
+
+.sidebar-user a { color: var(--texto-principal); }
+.sidebar-user a:visited { color: var(--texto-principal); }

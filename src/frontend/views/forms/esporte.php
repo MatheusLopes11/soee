@@ -3,7 +3,7 @@ session_start();
 require_once __DIR__ . '/../../../backend/includes/conexao.php';
 require_once __DIR__ . '/../../../backend/controllers/home.php';
 
-AuthHome::exigirTipo(['adm_geral', 'professor']);
+AuthHome::exigirTipo(['adm_geral', 'professor', 'adm_sala']);
 
 function sel($campo, $valor) {
     return isset($_POST[$campo]) && $_POST[$campo] === $valor ? 'selected' : '';
@@ -170,7 +170,7 @@ $erroMsg = match($erro) {
                     <div class="secao-titulo">
                         <span class="secao-numero">3</span>
                         <h2>Configurações da Competição</h2>
-                        <span class="secao-desc">Formato e estrutura do campeonato</span>
+                        <span class="secao-desc">Formato, estrutura e participação</span>
                     </div>
                     <div class="form-grid col-3">
                         <div class="campo-grupo">
@@ -182,7 +182,6 @@ $erroMsg = match($erro) {
                                 <option value="" disabled <?= empty($_POST['tipo_modalidade']) ? 'selected' : '' ?>>Selecione…</option>
                                 <option value="quadra" <?= sel('tipo_modalidade','quadra') ?>>🏀 Quadra</option>
                                 <option value="mesa"   <?= sel('tipo_modalidade','mesa')   ?>>🏓 Mesa</option>
-                                <option value="campo"  <?= sel('tipo_modalidade','campo')  ?>>⚽ Campo</option>
                                 <option value="outro"  <?= sel('tipo_modalidade','outro')  ?>>🎯 Outro</option>
                             </select>
                         </div>
@@ -211,6 +210,37 @@ $erroMsg = match($erro) {
                                 <option value="trio"  <?= sel('tipo_participacao','trio')  ?>>👥 Trio</option>
                                 <option value="time"  <?= sel('tipo_participacao','time')  ?>>🏅 Time</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <!-- Campo Gênero -->
+                    <div class="form-grid" style="margin-top:1.2rem;">
+                        <div class="campo-grupo">
+                            <label for="genero_modalidade">
+                                <i class="fa-solid fa-venus-mars label-icone"></i>
+                                Gênero da Modalidade <span class="obrigatorio">*</span>
+                            </label>
+                            <span class="campo-dica">Define quem pode participar desta modalidade.</span>
+                            <div class="genero-opcoes">
+                                <label class="genero-card <?= sel('genero_modalidade','masculino') ? 'selecionado' : '' ?>">
+                                    <input type="radio" name="genero_modalidade" value="masculino"
+                                        <?= sel('genero_modalidade','masculino') ? 'checked' : '' ?> required>
+                                    <i class="fa-solid fa-mars"></i>
+                                    <span>Masculino</span>
+                                </label>
+                                <label class="genero-card <?= sel('genero_modalidade','feminino') ? 'selecionado' : '' ?>">
+                                    <input type="radio" name="genero_modalidade" value="feminino"
+                                        <?= sel('genero_modalidade','feminino') ? 'checked' : '' ?>>
+                                    <i class="fa-solid fa-venus"></i>
+                                    <span>Feminino</span>
+                                </label>
+                                <label class="genero-card <?= sel('genero_modalidade','misto') ? 'selecionado' : '' ?>">
+                                    <input type="radio" name="genero_modalidade" value="misto"
+                                        <?= sel('genero_modalidade','misto') ? 'checked' : '' ?>>
+                                    <i class="fa-solid fa-venus-mars"></i>
+                                    <span>Misto</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -460,6 +490,14 @@ document.getElementById('duracao_minutos').addEventListener('change', function()
 /* ── DURAÇÃO — campo "outro" pontuação ── */
 document.getElementById('duracao_pontos').addEventListener('change', function() {
     document.getElementById('outro_pontos').style.display = this.value === 'outro' ? 'block' : 'none';
+});
+
+/* ── GÊNERO — highlight do card selecionado ── */
+document.querySelectorAll('.genero-card input[type="radio"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('.genero-card').forEach(c => c.classList.remove('selecionado'));
+        if (this.checked) this.closest('.genero-card').classList.add('selecionado');
+    });
 });
 </script>
 

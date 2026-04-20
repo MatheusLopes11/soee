@@ -504,3 +504,38 @@ input[type="number"] { -moz-appearance: textfield; }
   color: var(--texto-principal);
   font-weight: 700;
 }
+
+.genero-opcoes {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+.genero-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 24px;
+    border: 2px solid var(--borda, rgba(30,86,113,.15));
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .25s;
+    background: var(--bloco, #fff);
+    min-width: 100px;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--texto-2, #64748b);
+    user-select: none;
+}
+.genero-card input[type="radio"] { display: none; }
+.genero-card i { font-size: 1.4rem; }
+.genero-card:hover {
+    border-color: #ff4d12;
+    color: #ff4d12;
+}
+.genero-card.selecionado {
+    border-color: #ff4d12;
+    background: rgba(255,77,18,.06);
+    color: #ff4d12;
+}

@@ -111,7 +111,7 @@ $stmtStats->execute([
 ]);
 $stats = $stmtStats->fetch(PDO::FETCH_ASSOC);
 
-// ── MODALIDADES COM INSCRIÇÕES ABERTAS (para o overview/widget) ───
+// ── MODALIDADES COM INSCRIÇÕES ABERTAS (widget) ───────────────────
 $stmtModalidades = $conn->query("
     SELECT m.id_modalidade, m.nome_modalidade, m.tipo_participacao,
            em.id_edicao_modalidade, em.data_inicio_inscricao, em.data_fim_inscricao,
@@ -138,23 +138,23 @@ $stmtTodasModalidades = $conn->query("
 ");
 $todasModalidades = $stmtTodasModalidades->fetchAll(PDO::FETCH_ASSOC);
 
-// ── EDIÇÕES ATIVAS (para vincular modal em edição) ────────────────
+// ── TODAS AS EDIÇÕES (para vincular — incluindo todas) ────────────
+// Buscamos TODAS as edições disponíveis (criadas pelo professor ou adm)
 $stmtEdicoes = $conn->query("
-    SELECT id_edicao, nome_edicao, ano_edicao
+    SELECT id_edicao, nome_edicao, ano_edicao, status_edicao
     FROM edicao
-    WHERE status_edicao != 'encerrado'
     ORDER BY ano_edicao DESC, id_edicao DESC
 ");
 $edicoesAtivas = $stmtEdicoes->fetchAll(PDO::FETCH_ASSOC);
 
 // ── HELPERS ───────────────────────────────────────────────────────
 $faseLabel = [
-    'grupos'        => 'Grupos',
-    'oitavas'       => 'Oitavas',
-    'quartas'       => 'Quartas',
-    'semi'          => 'Semi',
-    'final'         => 'Final',
-    'terceiro_lugar'=> '3º Lugar',
+    'grupos'         => 'Grupos',
+    'oitavas'        => 'Oitavas',
+    'quartas'        => 'Quartas',
+    'semi'           => 'Semi',
+    'final'          => 'Final',
+    'terceiro_lugar' => '3º Lugar',
 ];
 $statusPartidaLabel = [
     'agendada'  => 'Agendada',
@@ -180,6 +180,12 @@ $participacaoLabel = [
     'trio'  => 'Trio',
     'time'  => 'Time',
 ];
+$statusEdicaoLabel = [
+    'planejamento'  => 'Planejamento',
+    'inscricoes'    => 'Inscrições',
+    'em_andamento'  => 'Em Andamento',
+    'encerrado'     => 'Encerrado',
+];
 
 // ── FLASH MESSAGE ─────────────────────────────────────────────────
 $flashMsg  = $_SESSION['flash_msg']  ?? '';
@@ -191,232 +197,6 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
     <title>SOEE | Dashboard — ADM Sala</title>
     <link rel="stylesheet" href="/soee/src/frontend/styles/dash-adm-sala.css">
     <?php include __DIR__ . '/../includes/head.php'; ?>
-    <style>
-        /* ════════════════════════════════════════════
-           PAINEL MODALIDADES — estilos exclusivos
-        ════════════════════════════════════════════ */
-
-        /* Botão nova modalidade */
-        .btn-nova-modalidade {
-            display: inline-flex; align-items: center; gap: 7px;
-            background: var(--laranja); color: #fff;
-            border: none; border-radius: var(--raio-medio);
-            padding: 8px 16px; font-size: .82rem; font-weight: 700;
-            cursor: pointer; transition: var(--transicao);
-            white-space: nowrap;
-        }
-        .btn-nova-modalidade:hover { filter: brightness(1.12); transform: translateY(-1px); }
-
-        /* Grid de cards */
-        .modalidades-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
-            gap: 16px;
-            padding: 4px 0 8px;
-        }
-
-        /* Card individual */
-        .modalidade-card {
-            background: var(--bg-card);
-            border: 1px solid var(--borda-sutil);
-            border-radius: var(--raio-grande);
-            padding: 18px;
-            display: flex; flex-direction: column; gap: 10px;
-            transition: var(--transicao);
-        }
-        .modalidade-card:hover {
-            border-color: var(--laranja);
-            box-shadow: 0 4px 20px rgba(0,0,0,.08);
-        }
-        .modalidade-card.inativa { opacity: .5; }
-
-        .mc-topo { display: flex; align-items: center; justify-content: space-between; }
-        .mc-icone {
-            width: 40px; height: 40px; border-radius: 10px;
-            background: rgba(234,88,12,.1);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--laranja); font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-        .mc-nome { font-size: .95rem; font-weight: 700; color: var(--texto-1); }
-        .mc-desc { font-size: .76rem; color: var(--texto-2); line-height: 1.45; }
-        .mc-meta {
-            display: flex; flex-wrap: wrap; gap: 5px;
-            font-size: .71rem; color: var(--texto-2);
-        }
-        .mc-meta span {
-            display: flex; align-items: center; gap: 4px;
-            background: var(--borda-sutil);
-            padding: 3px 8px; border-radius: 99px;
-        }
-        .mc-rodape { display: flex; gap: 8px; margin-top: auto; padding-top: 4px; }
-        .mc-btn-editar, .mc-btn-inscricao {
-            flex: 1; padding: 7px 6px; border-radius: var(--raio-medio);
-            font-size: .73rem; font-weight: 600; cursor: pointer;
-            border: 1px solid; transition: var(--transicao);
-            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-        }
-        .mc-btn-editar {
-            background: transparent; color: var(--texto-2);
-            border-color: var(--borda-sutil);
-        }
-        .mc-btn-editar:hover { background: var(--borda-sutil); color: var(--texto-1); }
-        .mc-btn-inscricao {
-            background: var(--laranja); color: #fff; border-color: var(--laranja);
-        }
-        .mc-btn-inscricao:hover { filter: brightness(1.1); }
-
-        /* Badge ativa */
-        .badge-ativa {
-            font-size: .68rem; font-weight: 700; padding: 3px 9px;
-            border-radius: 99px; white-space: nowrap;
-            background: rgba(34,197,94,.12); color: #16a34a;
-            border: 1px solid rgba(34,197,94,.25);
-        }
-        .badge-inativa {
-            font-size: .68rem; font-weight: 700; padding: 3px 9px;
-            border-radius: 99px; white-space: nowrap;
-            background: rgba(100,116,139,.12); color: var(--texto-2);
-            border: 1px solid var(--borda-sutil);
-        }
-
-        /* ── Overlay / Modal ── */
-        .modal-overlay-sala {
-            position: fixed; inset: 0; z-index: 9999;
-            background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
-            display: none; align-items: center; justify-content: center;
-            padding: 16px;
-        }
-        .modal-overlay-sala.open { display: flex; }
-
-        .modal-sala {
-            background: var(--bg-card);
-            border: 1px solid var(--borda-sutil);
-            border-radius: var(--raio-grande);
-            width: 100%; max-width: 680px;
-            max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 24px 64px rgba(0,0,0,.28);
-            animation: msSlideUp .22s ease;
-        }
-        @keyframes msSlideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to   { transform: translateY(0);    opacity: 1; }
-        }
-        .modal-sala-sm { max-width: 500px; }
-
-        .modal-sala-header {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 20px 24px; border-bottom: 1px solid var(--borda-sutil);
-            position: sticky; top: 0; background: var(--bg-card); z-index: 2;
-        }
-        .modal-sala-header h3 {
-            font-size: .95rem; font-weight: 700;
-            display: flex; align-items: center; gap: 8px;
-            margin: 0;
-        }
-        .modal-sala-fechar {
-            width: 32px; height: 32px; border-radius: 8px;
-            border: 1px solid var(--borda-sutil); background: none;
-            color: var(--texto-2); cursor: pointer; transition: var(--transicao);
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .modal-sala-fechar:hover {
-            background: #ef4444; color: #fff; border-color: #ef4444;
-        }
-
-        .modal-sala-body { padding: 24px; }
-
-        /* Grid de formulário */
-        .form-sala-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
-        }
-        .form-sala-grupo { display: flex; flex-direction: column; gap: 6px; }
-        .form-sala-grupo.span2 { grid-column: 1 / -1; }
-        .form-sala-label { font-size: .77rem; font-weight: 600; color: var(--texto-2); }
-        .form-sala-label .obrig { color: var(--laranja); }
-        .form-sala-input,
-        .form-sala-select,
-        .form-sala-textarea {
-            width: 100%; padding: 9px 12px;
-            background: var(--bg-input, rgba(0,0,0,.03));
-            border: 1px solid var(--borda-sutil);
-            border-radius: var(--raio-medio);
-            color: var(--texto-1); font-size: .84rem;
-            transition: var(--transicao); font-family: inherit;
-            box-sizing: border-box;
-        }
-        .form-sala-input:focus,
-        .form-sala-select:focus,
-        .form-sala-textarea:focus {
-            outline: none; border-color: var(--laranja);
-            box-shadow: 0 0 0 3px rgba(234,88,12,.12);
-        }
-        .form-sala-textarea { resize: vertical; min-height: 80px; }
-        .form-sala-input:disabled { opacity: .6; cursor: not-allowed; }
-
-        /* Toggle */
-        .toggle-label {
-            display: flex; align-items: center; gap: 10px;
-            cursor: pointer; font-size: .84rem; color: var(--texto-1);
-            user-select: none;
-        }
-        .toggle-label input[type="checkbox"] { display: none; }
-        .toggle-track {
-            width: 40px; height: 22px; border-radius: 99px;
-            background: var(--borda-sutil); position: relative;
-            transition: background .2s; flex-shrink: 0;
-        }
-        .toggle-track::after {
-            content: ''; position: absolute; top: 3px; left: 3px;
-            width: 16px; height: 16px; border-radius: 50%;
-            background: #fff; transition: transform .2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,.2);
-        }
-        .toggle-label input:checked + .toggle-track { background: #22c55e; }
-        .toggle-label input:checked + .toggle-track::after { transform: translateX(18px); }
-
-        /* Footer do modal */
-        .modal-sala-footer {
-            display: flex; justify-content: flex-end; gap: 10px;
-            padding: 16px 24px; border-top: 1px solid var(--borda-sutil);
-            position: sticky; bottom: 0; background: var(--bg-card); z-index: 2;
-        }
-        .btn-modal-cancelar {
-            padding: 9px 18px; border-radius: var(--raio-medio);
-            border: 1px solid var(--borda-sutil); background: none;
-            color: var(--texto-2); font-size: .84rem; cursor: pointer;
-            transition: var(--transicao);
-        }
-        .btn-modal-cancelar:hover { background: var(--borda-sutil); color: var(--texto-1); }
-        .btn-modal-salvar {
-            padding: 9px 20px; border-radius: var(--raio-medio);
-            background: var(--laranja); color: #fff;
-            border: none; font-size: .84rem; font-weight: 700;
-            cursor: pointer; display: flex; align-items: center; gap: 7px;
-            transition: var(--transicao);
-        }
-        .btn-modal-salvar:hover { filter: brightness(1.1); transform: translateY(-1px); }
-
-        /* Toast flash */
-        .flash-toast {
-            position: fixed; bottom: 24px; right: 24px; z-index: 99999;
-            padding: 12px 20px; border-radius: var(--raio-medio);
-            font-size: .84rem; font-weight: 600; color: #fff;
-            box-shadow: 0 8px 24px rgba(0,0,0,.2);
-            animation: msSlideUp .3s ease;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .flash-toast.sucesso { background: #22c55e; }
-        .flash-toast.erro    { background: #ef4444; }
-
-        @media (max-width: 640px) {
-            .form-sala-grid { grid-template-columns: 1fr; }
-            .form-sala-grupo.span2 { grid-column: 1; }
-            .modalidades-grid { grid-template-columns: 1fr; }
-            .modal-sala { max-height: 95vh; }
-        }
-    </style>
 </head>
 
 <body>
@@ -426,7 +206,6 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
     <i class="fa-solid <?= $flashTipo === 'sucesso' ? 'fa-circle-check' : 'fa-circle-xmark' ?>"></i>
     <?= htmlspecialchars($flashMsg) ?>
 </div>
-<script>setTimeout(function(){var t=document.getElementById('flashToast');if(t)t.remove();},4000);</script>
 <?php endif; ?>
 
 <aside class="sidebar" id="sidebar">
@@ -520,9 +299,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
 
     <main class="pagina">
 
-        <!-- ══════════════════════════════════════
-             OVERVIEW
-        ══════════════════════════════════════ -->
+        <!-- ══════════════════════ OVERVIEW ══════════════════════ -->
         <div class="painel active" id="painel-overview">
             <div class="boas-vindas">
                 <div class="bv-esq">
@@ -629,7 +406,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
                         <?php endif; ?>
                     </div>
 
-                    <!-- Modalidades abertas (widget) -->
+                    <!-- Modalidades abertas -->
                     <div class="card">
                         <div class="card-header">
                             <div class="card-titulo"><i class="fa-solid fa-futbol"></i> Modalidades Abertas</div>
@@ -735,10 +512,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════
-             ALUNOS
-        ══════════════════════════════════════ -->
-
+        <!-- ══════════════════════ ALUNOS ══════════════════════ -->
         <div class="painel" id="painel-alunos">
             <div class="card">
                 <div class="card-header">
@@ -773,10 +547,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════
-             INSCRIÇÕES
-        ══════════════════════════════════════ -->
-
+        <!-- ══════════════════════ INSCRIÇÕES ══════════════════════ -->
         <div class="painel" id="painel-inscricoes">
             <div class="card">
                 <div class="card-header">
@@ -812,10 +583,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════
-             PARTIDAS
-        ══════════════════════════════════════ -->
-        
+        <!-- ══════════════════════ PARTIDAS ══════════════════════ -->
         <div class="painel" id="painel-partidas">
             <div class="card">
                 <div class="card-header">
@@ -851,9 +619,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════
-             CLASSIFICAÇÃO
-        ══════════════════════════════════════ -->
+        <!-- ══════════════════════ CLASSIFICAÇÃO ══════════════════════ -->
         <div class="painel" id="painel-classificacao">
             <div class="card">
                 <div class="card-header">
@@ -882,12 +648,9 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════
-             MODALIDADES
-        ══════════════════════════════════════ -->
+        <!-- ══════════════════════ MODALIDADES ══════════════════════ -->
         <div class="painel" id="painel-modalidades">
 
-            <!-- KPIs -->
             <div class="stats-grid" style="margin-bottom:24px;">
                 <div class="stat-card azul">
                     <div class="stat-icone"><i class="fa-solid fa-layer-group"></i></div>
@@ -907,7 +670,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
                 <div class="stat-card amarelo">
                     <div class="stat-icone"><i class="fa-solid fa-trophy"></i></div>
                     <div class="stat-valor"><?= count($edicoesAtivas) ?></div>
-                    <div class="stat-label">Edições em Aberto</div>
+                    <div class="stat-label">Edições Disponíveis</div>
                 </div>
             </div>
 
@@ -915,12 +678,11 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
             <div class="card" style="margin-bottom:24px;">
                 <div class="card-header">
                     <div class="card-titulo"><i class="fa-solid fa-futbol"></i> Todas as Modalidades</div>
-                    <button class="btn-nova-modalidade" onclick="abrirModalNovaModalidade()">
+                    <a href="/soee/src/frontend/views/forms/esporte.php" class="btn-nova-modalidade">
                         <i class="fa-solid fa-plus"></i> Nova Modalidade
-                    </button>
+                    </a>
                 </div>
 
-                <!-- Filtro -->
                 <div class="busca-aluno" style="margin:0 0 16px;">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="filtroModalidade"
@@ -929,7 +691,6 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
                            oninput="filtrarModalidades(this.value)">
                 </div>
 
-                <!-- Grid de cards -->
                 <div class="modalidades-grid" id="gridModalidades">
                     <?php if (empty($todasModalidades)): ?>
                         <div class="empty-state" style="grid-column:1/-1">
@@ -1021,13 +782,13 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
 </div>
 
 <!-- ══════════════════════════════════════════════════
-     MODAL — Criar / Editar Modalidade
+     MODAL — Editar Modalidade
 ══════════════════════════════════════════════════ -->
 <div class="modal-overlay-sala" id="modal-modalidade" onclick="fecharSeOverlay(event,'modal-modalidade')">
     <div class="modal-sala">
         <div class="modal-sala-header">
             <h3 id="modal-modalidade-titulo">
-                <i class="fa-solid fa-futbol"></i> Nova Modalidade
+                <i class="fa-solid fa-pen"></i> Editar Modalidade
             </h3>
             <button class="modal-sala-fechar" onclick="fecharModal('modal-modalidade')" aria-label="Fechar">
                 <i class="fa-solid fa-xmark"></i>
@@ -1054,7 +815,6 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
                         <select class="form-sala-select" name="tipo_modalidade" id="inp-tipo" required>
                             <option value="">Selecionar…</option>
                             <option value="quadra">Quadra</option>
-                            <option value="campo">Campo</option>
                             <option value="mesa">Mesa</option>
                             <option value="outro">Outro</option>
                         </select>
@@ -1079,6 +839,16 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
                             <option value="dupla">Dupla</option>
                             <option value="trio">Trio</option>
                             <option value="time">Time</option>
+                        </select>
+                    </div>
+
+                    <div class="form-sala-grupo">
+                        <label class="form-sala-label">Gênero <span class="obrig">*</span></label>
+                        <select class="form-sala-select" name="genero_modalidade" id="inp-genero" required>
+                            <option value="">Selecionar…</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="feminino">Feminino</option>
+                            <option value="misto">Misto</option>
                         </select>
                     </div>
 
@@ -1167,8 +937,8 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
         </div>
         <div class="modal-sala-body">
             <form id="form-vincular"
-                  action="/soee/src/backend/actions/salvar-edicao-modalidade.php"
-                  method="POST">
+            action="/soee/src/backend/actions/salvar-edicao-modalidade.php"
+            method="POST">
                 <input type="hidden" name="modalidade_id_modalidade" id="vinc-modal-id">
 
                 <div class="form-sala-grid">
@@ -1180,14 +950,22 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
 
                     <div class="form-sala-grupo span2">
                         <label class="form-sala-label">Edição <span class="obrig">*</span></label>
+                        <?php if (empty($edicoesAtivas)): ?>
+                            <p style="font-size:.82rem;color:var(--vermelho);padding:8px;background:rgba(239,68,68,.08);border-radius:8px;">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                Nenhuma edição encontrada. Peça ao professor para criar uma edição primeiro.
+                            </p>
+                        <?php else: ?>
                         <select class="form-sala-select" name="edicao_id_edicao" required>
                             <option value="">Selecionar edição…</option>
                             <?php foreach ($edicoesAtivas as $ed): ?>
                             <option value="<?= $ed['id_edicao'] ?>">
                                 <?= htmlspecialchars($ed['nome_edicao']) ?> (<?= $ed['ano_edicao'] ?>)
+                                — <?= $statusEdicaoLabel[$ed['status_edicao']] ?? $ed['status_edicao'] ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
+                        <?php endif; ?>
                     </div>
 
                     <div class="form-sala-grupo">
@@ -1198,15 +976,6 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
                     <div class="form-sala-grupo">
                         <label class="form-sala-label">Fim das inscrições <span class="obrig">*</span></label>
                         <input class="form-sala-input" type="date" name="data_fim_inscricao" required>
-                    </div>
-
-                    <div class="form-sala-grupo span2">
-                        <label class="form-sala-label">Status <span class="obrig">*</span></label>
-                        <select class="form-sala-select" name="status_edicao_modalidade" required>
-                            <option value="inscricoes">Inscrições abertas</option>
-                            <option value="em_andamento">Em andamento</option>
-                            <option value="encerrado">Encerrado</option>
-                        </select>
                     </div>
 
                 </div>
@@ -1222,76 +991,5 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
 </div>
 
 <script src="/soee/src/frontend/scripts/dash-adm-sala.js"></script>
-<script>
-/* ── Tema ──────────────────────────────────────────── */
-(function () {
-    var t = localStorage.getItem('theme');
-    if (t) document.documentElement.setAttribute('data-theme', t);
-})();
-
-/* ── Modais — abrir ────────────────────────────────── */
-function abrirModalNovaModalidade() {
-    document.getElementById('modal-modalidade-titulo').innerHTML =
-        '<i class="fa-solid fa-plus"></i> Nova Modalidade';
-    document.getElementById('form-modalidade').reset();
-    document.getElementById('inp-id-modalidade').value = '';
-    document.getElementById('inp-ativo').checked = true;
-    toggleDuracao('');
-    document.getElementById('modal-modalidade').classList.add('open');
-}
-
-function abrirModalEditarModalidade(md) {
-    document.getElementById('modal-modalidade-titulo').innerHTML =
-        '<i class="fa-solid fa-pen"></i> Editar Modalidade';
-    document.getElementById('inp-id-modalidade').value   = md.id_modalidade    || '';
-    document.getElementById('inp-nome').value            = md.nome_modalidade  || '';
-    document.getElementById('inp-tipo').value            = md.tipo_modalidade  || '';
-    document.getElementById('inp-formato').value         = md.formato_modalidade || '';
-    document.getElementById('inp-participacao').value    = md.tipo_participacao || '';
-    document.getElementById('inp-min').value             = md.qtd_min_jogadores || '';
-    document.getElementById('inp-max').value             = md.qtd_max_jogadores || '';
-    document.getElementById('inp-desc').value            = md.descricao_modalidade  || '';
-    document.getElementById('inp-regul').value           = md.regulamento_modalidade || '';
-    document.getElementById('inp-ativo').checked         = md.ativo_modalidade == 1;
-
-    var td = md.tipo_duracao || '';
-    document.getElementById('inp-tipo-duracao').value = td;
-    toggleDuracao(td);
-    if (td === 'minutos') document.getElementById('inp-dur-minutos').value = md.duracao_minutos || '';
-    if (td === 'pontos')  document.getElementById('inp-dur-pontos').value  = md.duracao_pontos  || '';
-
-    document.getElementById('modal-modalidade').classList.add('open');
-}
-
-function abrirModalVincularEdicao(id, nome) {
-    document.getElementById('vinc-modal-id').value   = id;
-    document.getElementById('vinc-modal-nome').value = nome;
-    document.getElementById('modal-vincular').classList.add('open');
-}
-
-/* ── Modais — fechar ───────────────────────────────── */
-function fecharModal(id) {
-    document.getElementById(id).classList.remove('open');
-}
-function fecharSeOverlay(event, id) {
-    if (event.target === document.getElementById(id)) fecharModal(id);
-}
-
-/* ── Toggle duração ────────────────────────────────── */
-function toggleDuracao(val) {
-    document.getElementById('grupo-dur-minutos').style.display = val === 'minutos' ? '' : 'none';
-    document.getElementById('grupo-dur-pontos').style.display  = val === 'pontos'  ? '' : 'none';
-}
-
-/* ── Filtro de modalidades ─────────────────────────── */
-function filtrarModalidades(q) {
-    q = q.toLowerCase();
-    document.querySelectorAll('#gridModalidades .modalidade-card').forEach(function (el) {
-        var nome = el.dataset.nome || '';
-        var tipo = el.dataset.tipo || '';
-        el.style.display = (nome.includes(q) || tipo.includes(q)) ? '' : 'none';
-    });
-}
-</script>
 
 <?php include __DIR__ . '/../includes/end.php'; ?>

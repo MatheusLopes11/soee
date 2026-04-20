@@ -57,7 +57,7 @@ $stmtMod = $conn->query("
     INNER JOIN edicao e ON e.id_edicao = em.edicao_id_edicao
     WHERE m.ativo_modalidade = 1
       AND em.status_edicao_modalidade = 'inscricoes'
-      AND e.status_edicao NOT IN ('encerrado','planejamento')
+      AND e.status_edicao != 'encerrado'
     ORDER BY m.nome_modalidade
 ");
 $modalidades = $stmtMod->fetchAll(PDO::FETCH_ASSOC);
@@ -89,10 +89,11 @@ $partidas = [];
 if ($turmaId) {
     $stmtPart = $conn->prepare("
         SELECT p.id_partida, p.data_partida, p.hora_partida,
-               p.local_partida, p.fase_partida, p.status_partida,
-               ta.nome_turma AS time_a, tb.nome_turma AS time_b,
-               m.nome_modalidade,
-               r.placar_time_a, r.placar_time_b
+            p.local_partida, p.fase_partida, p.status_partida,
+            p.turma_id_time_a, p.turma_id_time_b,
+            ta.nome_turma AS time_a, tb.nome_turma AS time_b,
+            m.nome_modalidade,
+            r.placar_time_a, r.placar_time_b
         FROM partida p
         INNER JOIN turma ta ON ta.id_turma = p.turma_id_time_a
         INNER JOIN turma tb ON tb.id_turma = p.turma_id_time_b

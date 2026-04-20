@@ -1,210 +1,173 @@
 <?php
+session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/includes/conexao.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
 
-require_once __DIR__ . '/../includes/conexao.php';
+AuthHome::exigirTipo(['adm_geral', 'professor', 'adm_sala']);
 
-// Só aceita POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: /soee/src/frontend/views/dashboards/adm-sala.php");
-    exit;
-}
+$redir = '/soee/src/frontend/views/forms/esporte.php';
 
-// Inicia sessão apenas se ainda não estiver ativa (para flash msg)
-if (session_status() === PHP_SESSION_NONE) session_start();
+/* ── Campos obrigatórios ── */
+$obrigatorios = ['nome_modalidade', 'tipo_modalidade', 'formato_modalidade',
+                 'tipo_participacao', 'qtd_min_jogadores', 'qtd_max_jogadores',
+                 'tipo_duracao', 'regulamento_modalidade', 'genero_modalidade'];
 
-// ── Detecta a origem da requisição ────────────────────────────────
-// O modal do adm-sala envia id_modalidade (mesmo que vazio); o form
-// esporte.php nunca envia esse campo. Usamos isso para saber o destino.
-$viaModal  = isset($_POST['id_modalidade']);
-$idModal   = (int) ($_POST['id_modalidade'] ?? 0);
-
-// Páginas de destino
-$backSala   = '/soee/src/frontend/views/dashboards/adm-sala.php';
-$backEsporte = '/soee/src/frontend/views/forms/esporte.php';
-
-function redirSala(string $msg, string $tipo = 'sucesso'): never {
-    global $backSala;
-    $_SESSION['flash_msg']  = $msg;
-    $_SESSION['flash_tipo'] = $tipo;
-    header("Location: $backSala");
-    exit;
-}
-
-function redirEsporte(string $erro): never {
-    global $backEsporte;
-    header("Location: $backEsporte?erro=$erro");
-    exit;
-}
-
-// ── Coleta campos comuns ───────────────────────────────────────────
-$nome         = trim($_POST['nome_modalidade']        ?? '');
-$tipo         = $_POST['tipo_modalidade']             ?? null;
-$formato      = $_POST['formato_modalidade']          ?? null;
-$participacao = $_POST['tipo_participacao']           ?? null;
-$min          = $_POST['qtd_min_jogadores']           ?? null;
-$max          = $_POST['qtd_max_jogadores']           ?? null;
-$descricao    = trim($_POST['descricao_modalidade']   ?? '');
-$regulamento  = trim($_POST['regulamento_modalidade'] ?? '');
-$tipoDuracao  = $_POST['tipo_duracao']                ?? null;
-$ativo        = isset($_POST['ativo_modalidade']) ? 1 : 1; // padrão ativo
-
-// Valida campos obrigatórios
-if (!$nome || !$tipo || !$formato || !$participacao || !$min || !$max) {
-    if ($viaModal) redirSala('Preencha todos os campos obrigatórios.', 'erro');
-    else redirEsporte('dados_incompletos');
-}
-
-// ── Duração ────────────────────────────────────────────────────────
-$duracaoMinutos = null;
-$duracaoPontos  = null;
-
-if ($tipoDuracao === 'minutos') {
-    // Compatibilidade com esporte.php (select com opção "outro")
-    $val = $_POST['duracao_minutos'] ?? '';
-    $duracaoMinutos = ($val === 'outro')
-        ? trim($_POST['outro_minutos'] ?? '')
-        : $val;
-    if (!$duracaoMinutos) $tipoDuracao = null;
-
-} elseif ($tipoDuracao === 'pontos') {
-    $val = $_POST['duracao_pontos'] ?? '';
-    $duracaoPontos = ($val === 'outro')
-        ? (int)($_POST['outro_pontos'] ?? 0)
-        : (int)$val;
-    if (!$duracaoPontos) $tipoDuracao = null;
-
-} else {
-    $tipoDuracao = null;
-}
-
-// ── Foto ───────────────────────────────────────────────────────────
-$fotoFinal  = null;
-$origemFoto = $_POST['origem_foto'] ?? 'upload'; // upload | url | nenhuma
-
-if ($origemFoto === 'url') {
-    $url = trim($_POST['foto_url'] ?? '');
-    if ($url !== '') $fotoFinal = $url;
-
-} elseif ($origemFoto === 'upload') {
-    // Campo pode se chamar "foto_arquivo" (modal adm-sala) ou "foto_arquivo" (esporte.php)
-    $fileKey = isset($_FILES['foto_arquivo']) ? 'foto_arquivo' : null;
-
-    if ($fileKey && !empty($_FILES[$fileKey]['name'])) {
-        $file      = $_FILES[$fileKey];
-        $ext       = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $permitidos = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-        if (!in_array($ext, $permitidos)) {
-            if ($viaModal) redirSala('Formato de imagem não suportado.', 'erro');
-            else redirEsporte('foto_invalida');
-        }
-        if ($file['size'] > 5 * 1024 * 1024) {
-            if ($viaModal) redirSala('A imagem deve ter menos de 5 MB.', 'erro');
-            else redirEsporte('foto_grande');
-        }
-
-        $nomeArquivo = uniqid('modal_', true) . '.' . $ext;
-        $destino     = $_SERVER['DOCUMENT_ROOT'] . '/soee/src/frontend/assets/images/modalidades/';
-
-        if (!is_dir($destino)) mkdir($destino, 0755, true);
-
-        if (move_uploaded_file($file['tmp_name'], $destino . $nomeArquivo)) {
-            $fotoFinal = '/soee/src/frontend/assets/images/modalidades/' . $nomeArquivo;
-        } else {
-            if ($viaModal) redirSala('Falha ao salvar a imagem.', 'erro');
-            else redirEsporte('erro_db');
-        }
+foreach ($obrigatorios as $campo) {
+    if (empty($_POST[$campo])) {
+        header("Location: $redir?erro=dados_incompletos");
+        exit;
     }
 }
-// se nenhuma das condições acima: $fotoFinal permanece null
 
-// ── Persistência ───────────────────────────────────────────────────
+$idModalidade   = (int) ($_POST['id_modalidade'] ?? 0);
+$nome           = trim($_POST['nome_modalidade']);
+$descricao      = trim($_POST['descricao_modalidade'] ?? '');
+$tipo           = $_POST['tipo_modalidade'];
+$formato        = $_POST['formato_modalidade'];
+$participacao   = $_POST['tipo_participacao'];
+$qtdMin         = (int) $_POST['qtd_min_jogadores'];
+$qtdMax         = (int) $_POST['qtd_max_jogadores'];
+$tipoDuracao    = $_POST['tipo_duracao'];
+$regulamento    = trim($_POST['regulamento_modalidade']);
+$genero         = $_POST['genero_modalidade'];
+$ativo          = isset($_POST['ativo_modalidade']) ? 1 : 1; // novo cadastro sempre ativo
+
+/* ── Duração ── */
+$duracaoMinutos = null;
+$duracaoPontos  = null;
+if ($tipoDuracao === 'minutos') {
+    $duracaoMinutos = $_POST['duracao_minutos'] ?? null;
+    if ($duracaoMinutos === 'outro') $duracaoMinutos = trim($_POST['outro_minutos'] ?? '');
+} elseif ($tipoDuracao === 'pontos') {
+    $duracaoPontos = $_POST['duracao_pontos'] ?? null;
+    if ($duracaoPontos === 'outro') $duracaoPontos = (int) ($_POST['outro_pontos'] ?? 0) ?: null;
+    else $duracaoPontos = (int) $duracaoPontos ?: null;
+}
+
+/* ── Foto ── */
+$fotoFinal = null;
+$origemFoto = $_POST['origem_foto'] ?? 'nenhuma';
+
+if ($origemFoto === 'upload' && !empty($_FILES['foto_arquivo']['tmp_name'])) {
+    $file    = $_FILES['foto_arquivo'];
+    $allowed = ['image/jpeg','image/png','image/gif','image/webp'];
+    if (!in_array($file['type'], $allowed)) {
+        header("Location: $redir?erro=foto_invalida"); exit;
+    }
+    if ($file['size'] > 5 * 1024 * 1024) {
+        header("Location: $redir?erro=foto_grande"); exit;
+    }
+    $ext     = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $nome_arquivo = uniqid('modal_') . '.' . $ext;
+    $destino = $_SERVER['DOCUMENT_ROOT'] . '/soee/src/frontend/assets/modalidades/' . $nome_arquivo;
+    if (!is_dir(dirname($destino))) mkdir(dirname($destino), 0775, true);
+    if (move_uploaded_file($file['tmp_name'], $destino)) {
+        $fotoFinal = '/soee/src/frontend/assets/modalidades/' . $nome_arquivo;
+    }
+} elseif ($origemFoto === 'url' && !empty($_POST['foto_url'])) {
+    $fotoFinal = trim($_POST['foto_url']);
+}
+
+/* ── Verificar duplicata (apenas insert) ── */
+if ($idModalidade === 0) {
+    $check = $conn->prepare("SELECT id_modalidade FROM modalidade WHERE nome_modalidade = :nome LIMIT 1");
+    $check->execute([':nome' => $nome]);
+    if ($check->fetchColumn()) {
+        header("Location: $redir?erro=modalidade_duplicada"); exit;
+    }
+}
+
+/* ── Verificar se coluna genero_modalidade existe, senão adicionar ── */
 try {
-    if ($idModal > 0) {
-        // ── UPDATE ─────────────────────────────────────────────────
-        $sql = "
-            UPDATE modalidade SET
-                nome_modalidade        = ?,
-                descricao_modalidade   = ?,
-                tipo_modalidade        = ?,
-                formato_modalidade     = ?,
-                tipo_participacao      = ?,
-                qtd_min_jogadores      = ?,
-                qtd_max_jogadores      = ?,
-                ativo_modalidade       = ?,
-                regulamento_modalidade = ?,
-                tipo_duracao           = ?,
-                duracao_minutos        = ?,
-                duracao_pontos         = ?
-        ";
+    $conn->query("SELECT genero_modalidade FROM modalidade LIMIT 1");
+} catch (PDOException $e) {
+    $conn->exec("ALTER TABLE modalidade ADD COLUMN genero_modalidade ENUM('masculino','feminino','misto') NOT NULL DEFAULT 'misto' AFTER ativo_modalidade");
+}
+
+try {
+    if ($idModalidade > 0) {
+        /* ── UPDATE ── */
+        $sql = "UPDATE modalidade SET
+                    nome_modalidade        = :nome,
+                    descricao_modalidade   = :desc,
+                    tipo_modalidade        = :tipo,
+                    formato_modalidade     = :formato,
+                    tipo_participacao      = :participacao,
+                    qtd_min_jogadores      = :min,
+                    qtd_max_jogadores      = :max,
+                    ativo_modalidade       = :ativo,
+                    genero_modalidade      = :genero,
+                    tipo_duracao           = :tipoDur,
+                    duracao_minutos        = :durMin,
+                    duracao_pontos         = :durPts,
+                    regulamento_modalidade = :regul
+                    " . ($fotoFinal ? ', foto_modalidade = :foto' : '') . "
+                WHERE id_modalidade = :id";
         $params = [
-            $nome, $descricao ?: null, $tipo,
-            $formato, $participacao,
-            (int)$min, (int)$max,
-            $ativo,
-            $regulamento ?: null,
-            $tipoDuracao,
-            $duracaoMinutos,
-            $duracaoPontos,
+            ':nome' => $nome, ':desc' => $descricao, ':tipo' => $tipo,
+            ':formato' => $formato, ':participacao' => $participacao,
+            ':min' => $qtdMin, ':max' => $qtdMax,
+            ':ativo' => (int)($_POST['ativo_modalidade'] ?? 0),
+            ':genero' => $genero,
+            ':tipoDur' => $tipoDuracao, ':durMin' => $duracaoMinutos,
+            ':durPts' => $duracaoPontos, ':regul' => $regulamento,
+            ':id' => $idModalidade,
         ];
-
-        // Só atualiza foto se um novo arquivo foi enviado
-        if ($fotoFinal !== null) {
-            $sql .= ', foto_modalidade = ?';
-            $params[] = $fotoFinal;
-        }
-
-        $sql .= ' WHERE id_modalidade = ?';
-        $params[] = $idModal;
-
+        if ($fotoFinal) $params[':foto'] = $fotoFinal;
         $stmt = $conn->prepare($sql);
         $stmt->execute($params);
 
-        redirSala('Modalidade atualizada com sucesso!');
+        $_SESSION['flash_msg']  = 'Modalidade atualizada com sucesso!';
+        $_SESSION['flash_tipo'] = 'sucesso';
+        header('Location: /soee/src/frontend/views/dashboards/adm-sala.php');
+        exit;
 
     } else {
-        // ── INSERT ─────────────────────────────────────────────────
-        $sql = "
+        /* ── INSERT ── */
+        $stmt = $conn->prepare("
             INSERT INTO modalidade
                 (nome_modalidade, descricao_modalidade, tipo_modalidade,
-                 formato_modalidade, tipo_participacao,
-                 qtd_min_jogadores, qtd_max_jogadores,
-                 ativo_modalidade, foto_modalidade, regulamento_modalidade,
-                 tipo_duracao, duracao_minutos, duracao_pontos)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?)
-        ";
-        $stmt = $conn->prepare($sql);
+                 formato_modalidade, tipo_participacao, qtd_min_jogadores,
+                 qtd_max_jogadores, ativo_modalidade, genero_modalidade,
+                 foto_modalidade, tipo_duracao, duracao_minutos,
+                 duracao_pontos, regulamento_modalidade)
+            VALUES
+                (:nome, :desc, :tipo, :formato, :participacao, :min, :max,
+                 1, :genero, :foto, :tipoDur, :durMin, :durPts, :regul)
+        ");
         $stmt->execute([
-            $nome,
-            $descricao ?: null,
-            $tipo,
-            $formato,
-            $participacao,
-            (int)$min,
-            (int)$max,
-            $fotoFinal,
-            $regulamento ?: null,
-            $tipoDuracao,
-            $duracaoMinutos,
-            $duracaoPontos,
+            ':nome'         => $nome,
+            ':desc'         => $descricao,
+            ':tipo'         => $tipo,
+            ':formato'      => $formato,
+            ':participacao' => $participacao,
+            ':min'          => $qtdMin,
+            ':max'          => $qtdMax,
+            ':genero'       => $genero,
+            ':foto'         => $fotoFinal,
+            ':tipoDur'      => $tipoDuracao,
+            ':durMin'       => $duracaoMinutos,
+            ':durPts'       => $duracaoPontos,
+            ':regul'        => $regulamento,
         ]);
 
-        // Redireciona conforme a origem
-        if ($viaModal) {
-            redirSala('Modalidade criada com sucesso!');
+        $_SESSION['flash_msg']  = 'Modalidade cadastrada com sucesso!';
+        $_SESSION['flash_tipo'] = 'sucesso';
+
+        /* Redireciona para o dashboard de origem */
+        $tipo_user = AuthHome::getTipo();
+        if ($tipo_user === 'professor') {
+            header('Location: /soee/src/frontend/views/dashboards/professor.php?ok=1');
+        } elseif ($tipo_user === 'adm_sala') {
+            header('Location: /soee/src/frontend/views/dashboards/adm-sala.php');
         } else {
-            // Origem: esporte.php (comportamento original)
-            header("Location: /soee/src/frontend/views/dashboards/adm.php?cadastro=ok");
-            exit;
+            header('Location: /soee/src/frontend/views/dashboards/adm.php');
         }
+        exit;
     }
 
 } catch (PDOException $e) {
-    if ($e->getCode() === '23000') {
-        // Nome duplicado (UNIQUE constraint)
-        if ($viaModal) redirSala('Já existe uma modalidade com esse nome.', 'erro');
-        else redirEsporte('modalidade_duplicada');
-    }
-    error_log('[salvar-modalidade] ' . $e->getMessage());
-    if ($viaModal) redirSala('Erro interno ao salvar. Tente novamente.', 'erro');
-    else redirEsporte('erro_db');
+    error_log($e->getMessage());
+    header("Location: $redir?erro=erro_db");
+    exit;
 }

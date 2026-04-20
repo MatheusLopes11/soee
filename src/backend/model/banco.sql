@@ -1,4 +1,4 @@
-#drop database if exists soee;
+drop database if exists soee;
 create database if not exists soee;
 use soee;
 -----------------------------
@@ -39,12 +39,13 @@ CREATE TABLE modalidade (
     id_modalidade INT AUTO_INCREMENT PRIMARY KEY,
     nome_modalidade VARCHAR(60) NOT NULL UNIQUE,
     descricao_modalidade TEXT,
-    tipo_modalidade ENUM('quadra','mesa','campo','outro') NOT NULL,
+    tipo_modalidade ENUM('quadra','mesa','outro') NOT NULL,
     formato_modalidade ENUM('mata_mata','grupos','grupos_mata_mata','todos_contra_todos') NOT NULL,
     tipo_participacao ENUM('solo','dupla','trio','time') NOT NULL,
     qtd_min_jogadores INT NOT NULL,
     qtd_max_jogadores INT NOT NULL,
     ativo_modalidade TINYINT(1) DEFAULT 1,
+    genero_modalidade ENUM('masculino', 'feminino', 'misto') NOT NULL DEFAULT 'misto',
     foto_modalidade VARCHAR(255) NULL,
     regulamento_modalidade TEXT NULL,
     tipo_duracao ENUM('minutos','pontos') NULL,
@@ -127,22 +128,39 @@ create table sumula (
     foreign key (usuario_id_enviou) references usuario(id_usuario) on delete cascade on update cascade
 );
 
-create table classificacao (
-    id_classificacao int auto_increment primary key,
-    edicao_modalidade_id int not null,
-    turma_id_turma int not null,
-    pontos int default 0,
-    vitorias int default 0,
-    derrotas int default 0,
-    empates int default 0,
-    pontos_pro int default 0,
-    pontos_contra int default 0,
-    saldo int default 0,
-    jogos int default 0,
-    unique (edicao_modalidade_id, turma_id_turma),
-    foreign key (edicao_modalidade_id) references edicao_modalidade(id_edicao_modalidade) on delete cascade on update cascade,
-    foreign key (turma_id_turma) references turma(id_turma) on delete cascade on update cascade
+CREATE TABLE classificacao (
+    id_classificacao INT AUTO_INCREMENT PRIMARY KEY,
+    edicao_modalidade_id INT NOT NULL,
+    turma_id_turma INT NOT NULL,
+
+    grupo_classificacao CHAR(1) DEFAULT 'A', -- ✅ NOVA COLUNA
+
+    pontos INT DEFAULT 0,
+    vitorias INT DEFAULT 0,
+    derrotas INT DEFAULT 0,
+    empates INT DEFAULT 0,
+    pontos_pro INT DEFAULT 0,
+    pontos_contra INT DEFAULT 0,
+    saldo INT DEFAULT 0,
+    jogos INT DEFAULT 0,
+    UNIQUE (edicao_modalidade_id, turma_id_turma),
+    FOREIGN KEY (edicao_modalidade_id)
+	REFERENCES edicao_modalidade(id_edicao_modalidade)
+	ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (turma_id_turma)
+	REFERENCES turma(id_turma)
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+SET @grupo := 0;
+
+UPDATE classificacao
+SET grupo_classificacao = 
+    CASE 
+        WHEN (@grupo := @grupo + 1) % 2 = 0 THEN 'A'
+        ELSE 'B'
+    END
+ORDER BY turma_id_turma;
 
 create table foto_perfil (
     id_foto int auto_increment primary key,
@@ -175,13 +193,12 @@ insert into curso (nome_curso, sigla_curso)
 values
 	('Ensino medio com administração', 'MTEC'),
 	('Ensino medio com itinerario formativo', 'EMIF'),
-    ('Ensino medio com administração em periodo integral','MTECPI');
+    ('Ensino medio com administração em periodo integral','MTECPI'),
+    ('Professores','PROF');
 
 insert into turma 
 (curso_id_curso, nome_turma, ano_serie_turma, ano_letivo_turma, periodo_turma) 
 values
--- Professores
-(1, 'Professores', 4, 2026, 'manha'),
 
 -- MTEC (id_curso = 1)
 (1, '1 MTEC', 1, 2026, 'manha'),
@@ -196,11 +213,13 @@ values
 -- PI (id_curso = 3)
 (3, '1 PI', 1, 2026, 'manha'),
 (3, '2 PI', 2, 2026, 'manha'),
-(3, '3 PI', 3, 2026, 'manha');
+(3, '3 PI', 3, 2026, 'manha'),
 
+-- Professores
+(4, 'Professores', 10, 2026, 'manha');
 insert into usuario (turma_id_turma, nome_usuario, email_usuario, senha_usuario, genero_usuario, tipo_usuario, ativo_usuario) 
 values 
--- ADM (turma_id_turma é NULL)
+-- ADM --
 (NULL, 'Henrique Batista Orlovas', 'batista.henriqui@gmail.com', '12345hbo', 'm', 'adm_geral', 1),
 (NULL, 'Carlos Henrique Valentim', 'rikcar22@gmail.com', '12345chv', 'm', 'adm_geral', 1),
 (NULL, 'Miguel Lopes Aquinez da Silva', 'miguelaquinez17@gmail.com', '12345mlas', 'm', 'adm_geral', 1),
@@ -211,8 +230,6 @@ values
 -- Professores --
 (10, 'Silmara Beltrame', 'silmara.beltrame@gmail.com', '123456', 'f', 'professor', 1),
 
-
--- Adm sala --
 -- EMIF 1 (ID 4)
 (4, 'Guilherme Luiz', 'guilherme.luiz@gmail.com', '123456', 'n', 'aluno', 1),
 (4, 'Gabriel de Carvalho', 'gabriel.carvalho@gmail.com', '123456', 'n', 'aluno', 1),

@@ -16,7 +16,6 @@ $stmtFoto = $conn->prepare("
       AND fp.atual_foto = 1
     LIMIT 1
 ");
-
 $stmtFoto->execute([':id' => $userId]);
 $fotoPerfil = $stmtFoto->fetchColumn();
 
@@ -130,6 +129,11 @@ $edicoes_modal_select = $conn->query("
     ORDER BY e.ano_edicao DESC, m.nome_modalidade
 ")->fetchAll(PDO::FETCH_ASSOC);
 
+// ── Flash message ─────────────────────────────────────────
+$flashMsg  = $_SESSION['flash_msg']  ?? '';
+$flashTipo = $_SESSION['flash_tipo'] ?? '';
+unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
+
 // ── Helpers ───────────────────────────────────────────────
 function badgeStatus($s) {
     $map = ['agendada'=>'ativo','realizada'=>'verde','ativo'=>'ativo','em_andamento'=>'ativo',
@@ -150,13 +154,11 @@ $meses_pt = ['January'=>'Janeiro','February'=>'Fevereiro','March'=>'Março','Apr
 $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi'=>'Semifinal','final'=>'Final','terceiro_lugar'=>'3º Lugar'];
 ?>
 
-<!-- ( HTML ) -->
 <?php include __DIR__ . '/../includes/doctype.php';?>
 <head>
     <title>SOEE | Dashboard Professor</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- MESMO CSS DO ADM -->
     <link rel="stylesheet" href="/soee/src/frontend/styles/dash-adm.css">
     <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -164,19 +166,13 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
-        /* Único CSS exclusivo do professor: badge-cargo e btn-acao */
         .badge-cargo {
             display: inline-flex; align-items: center; gap: 5px;
             font-size: .7rem; font-weight: 700; padding: 4px 10px;
             border-radius: 999px; white-space: nowrap;
         }
-        .badge-cargo i { 
-          font-size: .65rem; 
-        }
-        .badge-cargo.aluno  { 
-          background: rgba(44,125,163,.12); 
-          color: var(--azul-secundario); 
-          border: 1px solid rgba(44,125,163,.2); }
+        .badge-cargo i { font-size: .65rem; }
+        .badge-cargo.aluno    { background: rgba(44,125,163,.12); color: var(--azul-secundario); border: 1px solid rgba(44,125,163,.2); }
         .badge-cargo.adm-sala { background: rgba(245,158,11,.12); color: #d97706; border: 1px solid rgba(245,158,11,.25); }
         [data-theme="dark"] .badge-cargo.aluno    { color: #7ec8e3; }
         [data-theme="dark"] .badge-cargo.adm-sala { color: #fbbf24; }
@@ -187,17 +183,42 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
             display: inline-flex; align-items: center; justify-content: center;
             font-size: .85rem; transition: var(--transicao);
         }
-        .btn-acao.eleger  { color: #f59e0b; border-color: rgba(245,158,11,.3); background: rgba(245,158,11,.08); }
-        .btn-acao.eleger:hover  { background: #f59e0b; color: #fff; border-color: #f59e0b; transform: scale(1.1); }
-        .btn-acao.remover { color: var(--texto-secundario); border-color: var(--borda-sutil); background: rgba(100,116,139,.08); }
+        .btn-acao.eleger       { color: #f59e0b; border-color: rgba(245,158,11,.3); background: rgba(245,158,11,.08); }
+        .btn-acao.eleger:hover { background: #f59e0b; color: #fff; border-color: #f59e0b; transform: scale(1.1); }
+        .btn-acao.remover       { color: var(--texto-secundario); border-color: var(--borda-sutil); background: rgba(100,116,139,.08); }
         .btn-acao.remover:hover { background: var(--vermelho-alerta); color: #fff; border-color: var(--vermelho-alerta); transform: scale(1.1); }
+
+        .modal-edicao { max-width: 580px; }
+
+        /* ── Select de status inline ── */
+        .status-select {
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--borda-sutil);
+            background: var(--fundo-card, #f8fafc);
+            color: var(--texto-principal);
+            font-size: .8rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+        .status-select:hover  { border-color: var(--azul-secundario); }
+        .status-select:focus  { border-color: var(--laranja); box-shadow: 0 0 0 3px rgba(255,140,0,.15); }
+        [data-theme="dark"] .status-select { background: #1a2535; color: #e2e8f0; }
     </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     SIDEBAR — mesma estrutura do adm
-══════════════════════════════════════ -->
+<?php if ($flashMsg): ?>
+<div class="toast-container" id="toast-container" style="position:fixed;bottom:28px;right:28px;z-index:9999;">
+    <div class="toast <?= htmlspecialchars($flashTipo) ?>" style="display:flex;">
+        <i class="fas <?= $flashTipo === 'sucesso' ? 'fa-check-circle' : 'fa-times-circle' ?>"></i>
+        <span><?= htmlspecialchars($flashMsg) ?></span>
+    </div>
+</div>
+<?php endif; ?>
+
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="sidebar-logo-text">SOEE<span class="sidebar-logo-dot"></span></div>
@@ -217,6 +238,7 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
     <div class="nav-group-label">Competições</div>
     <a class="nav-item" href="javascript:void(0)" data-painel="edicoes" onclick="trocarPainel(this)">
       <i class="fas fa-trophy"></i> Edições / Eventos
+      <span class="nav-badge"><?= count($edicoes) ?></span>
     </a>
     <a class="nav-item" href="javascript:void(0)" data-painel="partidas" onclick="trocarPainel(this)">
       <i class="fas fa-calendar-days"></i> Partidas
@@ -244,15 +266,14 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
        onmouseover="this.style.background='rgba(255,255,255,0.07)'"
        onmouseout="this.style.background='none'">
       <div class="user-avatar">
-    <?php if (!empty($fotoPerfil)): ?>
-        <img src="<?= htmlspecialchars($fotoPerfil) ?>"
-             alt="Foto de perfil"
-             onerror="this.style.display='none'; this.parentNode.innerHTML='<?= strtoupper(substr($usuario_logado, 0, 2)) ?>';"
-             style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
-    <?php else: ?>
-        <?= strtoupper(substr($usuario_logado, 0, 2)) ?>
-    <?php endif; ?>
-</div>
+        <?php if (!empty($fotoPerfil)): ?>
+            <img src="<?= htmlspecialchars($fotoPerfil) ?>" alt="Foto de perfil"
+                 onerror="this.style.display='none'; this.parentNode.innerHTML='<?= strtoupper(substr($usuario_logado, 0, 2)) ?>';"
+                 style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+        <?php else: ?>
+            <?= strtoupper(substr($usuario_logado, 0, 2)) ?>
+        <?php endif; ?>
+      </div>
       <div class="user-info">
         <strong><?= htmlspecialchars($usuario_logado) ?></strong>
         <span>Professor</span>
@@ -266,9 +287,6 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
   </div>
 </aside>
 
-<!-- ══════════════════════════════════════
-     MAIN — idêntico ao adm
-══════════════════════════════════════ -->
 <div class="main">
 
   <header class="topbar">
@@ -281,7 +299,7 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
       <input type="text" placeholder="Buscar aluno, turma, partida…" />
     </div>
     <button class="botao-icone" onclick="alternarTema()" title="Tema"><i class="fas fa-moon" id="tema-icone"></i></button>
-    <a href="/soee/src/backend/php/pages/inicio.php" class="botao-icone" title="Início"><i class="fas fa-home"></i></a>
+    <a href="/soee/src/frontend/views/site/home.php" class="botao-icone" title="Início"><i class="fas fa-home"></i></a>
   </header>
 
   <div class="content">
@@ -423,14 +441,29 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
       <div class="secao-card">
         <div class="secao-card-header">
           <h3>Edições / Eventos</h3>
-          <span class="secao-tag-mini"><?= count($edicoes) ?> registros</span>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span class="secao-tag-mini"><?= count($edicoes) ?> registros</span>
+            <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-edicao')">
+              <i class="fas fa-plus"></i> Nova Edição
+            </button>
+          </div>
         </div>
         <div class="tabela-wrap">
           <table>
-            <thead><tr><th>#</th><th>Nome do Evento</th><th>Ano</th><th>Início</th><th>Fim</th><th>Status</th></tr></thead>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome do Evento</th>
+                <th>Ano</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Status</th>
+                <th>Alterar Status</th>
+              </tr>
+            </thead>
             <tbody>
               <?php if(empty($edicoes)): ?>
-              <tr><td colspan="6" style="text-align:center;opacity:.6;padding:20px;">Nenhuma edição cadastrada.</td></tr>
+              <tr><td colspan="7" style="text-align:center;opacity:.6;padding:20px;">Nenhuma edição cadastrada.</td></tr>
               <?php else: foreach($edicoes as $e): ?>
               <tr>
                 <td><?= $e['id_edicao'] ?></td>
@@ -439,6 +472,15 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
                 <td><?= fmtData($e['data_inicio_edicao']) ?></td>
                 <td><?= fmtData($e['data_fim_edicao']) ?></td>
                 <td><?= badgeStatus($e['status_edicao']) ?></td>
+                <td>
+                  <select class="status-select"
+                          onchange="alterarStatusEdicao(<?= $e['id_edicao'] ?>, this.value, this)">
+                    <option value="planejamento" <?= $e['status_edicao']==='planejamento'  ? 'selected':'' ?>>Planejamento</option>
+                    <option value="inscricoes"   <?= $e['status_edicao']==='inscricoes'    ? 'selected':'' ?>>Inscrições Abertas</option>
+                    <option value="em_andamento" <?= $e['status_edicao']==='em_andamento'  ? 'selected':'' ?>>Em Andamento</option>
+                    <option value="encerrado"    <?= $e['status_edicao']==='encerrado'     ? 'selected':'' ?>>Encerrado</option>
+                  </select>
+                </td>
               </tr>
               <?php endforeach; endif; ?>
             </tbody>
@@ -608,7 +650,63 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
 </div><!-- /main -->
 
 <!-- ══════════════════════════════════════
-     MODAIS — mesmos do adm
+     MODAL — Criar Nova Edição
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-edicao">
+  <div class="modal modal-edicao">
+    <div class="modal-header">
+      <h4><i class="fas fa-trophy" style="color:var(--laranja);margin-right:6px;"></i> Nova Edição / Evento</h4>
+      <button class="modal-close" onclick="fecharModal('modal-edicao')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form action="/soee/src/backend/actions/salvar-edicao.php" method="POST" id="form-edicao">
+        <div class="form-grid">
+          <div class="form-grupo span2">
+            <label class="form-label">Nome do Evento <span style="color:var(--laranja)">*</span></label>
+            <input class="form-input" type="text" name="nome_edicao"
+                   placeholder="Ex.: Interclasse 2026 — 1º Semestre" maxlength="80" required />
+          </div>
+          <div class="form-grupo">
+            <label class="form-label">Ano <span style="color:var(--laranja)">*</span></label>
+            <input class="form-input" type="number" name="ano_edicao"
+                   value="<?= date('Y') ?>" min="2020" max="2099" required />
+          </div>
+          <div class="form-grupo">
+            <label class="form-label">Status <span style="color:var(--laranja)">*</span></label>
+            <select class="form-select" name="status_edicao" required>
+              <option value="planejamento">Planejamento</option>
+              <option value="inscricoes">Inscrições Abertas</option>
+              <option value="em_andamento">Em Andamento</option>
+              <option value="encerrado">Encerrado</option>
+            </select>
+          </div>
+          <div class="form-grupo">
+            <label class="form-label">Data de Início <span style="color:var(--laranja)">*</span></label>
+            <input class="form-input" type="date" name="data_inicio_edicao" required />
+          </div>
+          <div class="form-grupo">
+            <label class="form-label">Data de Fim (opcional)</label>
+            <input class="form-input" type="date" name="data_fim_edicao" />
+          </div>
+          <div class="form-grupo span2">
+            <label class="form-label">Descrição (opcional)</label>
+            <textarea class="form-textarea" name="descricao_edicao"
+                      placeholder="Descreva o evento, regras gerais, observações…" rows="3"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secundario" onclick="fecharModal('modal-edicao')">Cancelar</button>
+      <button class="btn btn-primario" onclick="document.getElementById('form-edicao').submit()">
+        <i class="fas fa-save"></i> Criar Edição
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL — Agendar Partida
 ══════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-partida">
   <div class="modal">
@@ -681,6 +779,7 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
   </div>
 </div>
 
+<!-- MODAL Resultado -->
 <div class="modal-overlay" id="modal-resultado">
   <div class="modal">
     <div class="modal-header">
@@ -688,7 +787,7 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
       <button class="modal-close" onclick="fecharModal('modal-resultado')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <form action="/soee/src/backend/php/actions/salvar-resultado.php" method="POST" id="form-resultado">
+      <form action="/soee/src/backend/actions/salvar-resultado.php" method="POST" id="form-resultado">
         <div class="form-grid">
           <div class="form-grupo span2">
             <label class="form-label">Partida</label>
@@ -730,6 +829,7 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas','semi
   </div>
 </div>
 
+<!-- MODAL Súmula -->
 <div class="modal-overlay" id="modal-sumula">
   <div class="modal">
     <div class="modal-header">
@@ -784,6 +884,42 @@ function elegerAdmSala(idAluno, nomeAluno) {
     })
     .catch(function() { toast('Erro de conexão.', 'erro'); });
 }
+
+function alterarStatusEdicao(id, status, selectEl) {
+    fetch('/soee/src/backend/actions/atualizar-status-edicao.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'id_edicao=' + id + '&status=' + encodeURIComponent(status)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.ok) {
+            toast('Status atualizado com sucesso!', 'sucesso');
+            // Atualiza o badge na mesma linha sem recarregar a página
+            var row = selectEl.closest('tr');
+            if (row) {
+                var badgeMap = {
+                    'planejamento': '<span class="badge-status pendente">Planejamento</span>',
+                    'inscricoes':   '<span class="badge-status pendente">Inscrições</span>',
+                    'em_andamento': '<span class="badge-status ativo">Em Andamento</span>',
+                    'encerrado':    '<span class="badge-status encerrado">Encerrado</span>'
+                };
+                var badgeTd = row.querySelectorAll('td')[5];
+                if (badgeTd && badgeMap[status]) badgeTd.innerHTML = badgeMap[status];
+            }
+        } else {
+            toast('Erro: ' + (d.erro || 'desconhecido'), 'erro');
+        }
+    })
+    .catch(function() { toast('Erro de conexão.', 'erro'); });
+}
+
+(function() {
+    var p = new URLSearchParams(window.location.search);
+    if (p.get('ok') === '1') {
+        history.replaceState({}, '', window.location.pathname);
+    }
+})();
 </script>
 
 <?php include __DIR__ . '/../includes/end.php';?>
