@@ -48,7 +48,7 @@ $modalidadesInscritas = array_column($inscricoes, 'edicao_modalidade_id');
 // ── MODALIDADES DISPONÍVEIS PARA INSCRIÇÃO ────────────────
 $stmtMod = $conn->query("
     SELECT m.id_modalidade, m.nome_modalidade, m.tipo_participacao,
-           m.tipo_modalidade, em.id_edicao_modalidade,
+        m.tipo_modalidade, m.genero_modalidade, em.id_edicao_modalidade,
            em.status_edicao_modalidade,
            em.data_inicio_inscricao, em.data_fim_inscricao,
            e.nome_edicao
@@ -819,6 +819,7 @@ function trocarPainelById(id) {
 }
 
 // ── Inscrição ──
+
 function enviarInscricao(e, edicaoModalidadeId) {
     e.preventDefault();
     const form    = e.target;

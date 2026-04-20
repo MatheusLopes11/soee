@@ -3,7 +3,7 @@
 ═══════════════════════════════════════════════════════════ */
 'use strict';
 
-/* ── LOADER ─────────────────────────────────────────────── */
+/* ── LOADER ──────────────────────────────────────────────── */
 function esconderLoader() {
     const l = document.getElementById('loader');
     if (l) l.classList.add('hide');
@@ -32,122 +32,70 @@ if (dot && ring) {
 }
 
 /* ── TEMA ────────────────────────────────────────────────── */
-const html       = document.documentElement;
-const btnTema    = document.getElementById('toggleTema');
-const iconeTema  = document.getElementById('iconeTema');
+const html      = document.documentElement;
+const btnTema   = document.getElementById('toggleTema');
+const iconeTema = document.getElementById('iconeTema');
 
 function setTheme(t) {
     html.setAttribute('data-theme', t);
     localStorage.setItem('theme', t);
-    if (iconeTema) {
-        iconeTema.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-    }
+    if (iconeTema) iconeTema.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
 }
-
-// Aplica tema salvo imediatamente
+// tema já foi aplicado inline no <head> para evitar flash
+// só sincroniza o ícone:
 setTheme(localStorage.getItem('theme') || 'light');
 
 if (btnTema) {
     btnTema.addEventListener('click', () => {
-        const atual = html.getAttribute('data-theme');
-        setTheme(atual === 'dark' ? 'light' : 'dark');
+        setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
 }
 
 /* ── TABS ────────────────────────────────────────────────── */
 function trocarTab(btnEl, tabId) {
-    // Remove ativo de todos os botões e conteúdos
     document.querySelectorAll('.tab').forEach(b => b.classList.remove('ativo'));
     document.querySelectorAll('.tab-conteudo').forEach(c => c.classList.remove('ativo'));
-
-    // Ativa o clicado
     btnEl.classList.add('ativo');
     const alvo = document.getElementById('tab-' + tabId);
     if (alvo) {
         alvo.classList.add('ativo');
-        // Dispara reveal para elementos dentro da tab recém aberta
-        setTimeout(setupReveal, 80);
+        setTimeout(setupReveal, 60);
+        // Anima pontos se for tab de grupos ou tabela-geral
+        if (tabId === 'grupos' || tabId === 'tabela-geral') {
+            setTimeout(animarPontos, 100);
+        }
     }
 }
 
-/* ── REVEAL POR SCROLL ───────────────────────────────────── */
+/* ── REVEAL ──────────────────────────────────────────────── */
 function setupReveal() {
     const obs = new IntersectionObserver(entries => {
         entries.forEach(e => {
-            if (e.isIntersecting) {
-                e.target.classList.add('visible');
-                obs.unobserve(e.target);
-            }
+            if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
         });
-    }, { threshold: 0.08 });
-
+    }, { threshold: 0.07 });
     document.querySelectorAll('.reveal:not(.visible)').forEach(el => obs.observe(el));
 }
-document.addEventListener('DOMContentLoaded', setupReveal);
 
-/* ── SIDEBAR MOBILE ─────────────────────────────────────── */
-const sidebar       = document.getElementById('sidebar');
-const sidebarToggle = document.getElementById('sidebarToggle');
-
-// Fecha sidebar ao clicar fora (mobile)
-document.addEventListener('click', e => {
-    if (!sidebar) return;
-    if (window.innerWidth > 900) return;
-    if (sidebar.classList.contains('aberta') &&
-        !sidebar.contains(e.target) &&
-        e.target !== sidebarToggle &&
-        !sidebarToggle?.contains(e.target)) {
-        sidebar.classList.remove('aberta');
-    }
-});
-
-// Fecha sidebar ao clicar em um item (mobile)
-document.querySelectorAll('.sidebar-item').forEach(item => {
-    item.addEventListener('click', () => {
-        if (window.innerWidth <= 900) {
-            sidebar?.classList.remove('aberta');
-        }
-    });
-});
-
-/* ── HIGHLIGHT ESPORTE ATIVO NA SIDEBAR ─────────────────── */
-(function() {
-    const params  = new URLSearchParams(window.location.search);
-    const idAtual = params.get('id');
-    if (!idAtual) return;
-
-    // Garante scroll da sidebar até o item ativo
+document.addEventListener('DOMContentLoaded', () => {
+    setupReveal();
+    // Scroll da sidebar até o item ativo
+    const sidebar  = document.getElementById('sidebar');
     const itemAtivo = document.querySelector('.sidebar-item.ativo');
     if (itemAtivo && sidebar) {
-        const itemTop    = itemAtivo.offsetTop;
-        const sidebarMid = sidebar.clientHeight / 2;
-        sidebar.scrollTop = itemTop - sidebarMid;
+        sidebar.scrollTop = itemAtivo.offsetTop - sidebar.clientHeight / 2;
     }
-})();
-
-/* ── EFEITO HOVER NOS JOGOS DO BRACKET ──────────────────── */
-document.querySelectorAll('.bracket-jogo').forEach(jogo => {
-    jogo.addEventListener('mouseenter', () => {
-        const times = jogo.querySelectorAll('.bracket-time-avatar');
-        times.forEach(a => {
-            a.style.transform = 'scale(1.08)';
-        });
-    });
-    jogo.addEventListener('mouseleave', () => {
-        const times = jogo.querySelectorAll('.bracket-time-avatar');
-        times.forEach(a => {
-            a.style.transform = '';
-        });
-    });
+    // Anima pontos na tab inicial
+    setTimeout(animarPontos, 1700);
 });
 
-/* ── ANIMAÇÃO DOS PONTOS NA TABELA ───────────────────────── */
-function animarContadores() {
-    document.querySelectorAll('.pts').forEach(el => {
-        const alvo = parseInt(el.textContent, 10);
-        if (isNaN(alvo) || alvo === 0) return;
+/* ── ANIMAÇÃO DOS PONTOS ─────────────────────────────────── */
+function animarPontos() {
+    document.querySelectorAll('.tab-conteudo.ativo .pts[data-target]').forEach(el => {
+        const alvo = parseInt(el.getAttribute('data-target'), 10);
+        if (isNaN(alvo)) return;
         let atual = 0;
-        const passo = Math.max(1, Math.ceil(alvo / 20));
+        const passo = Math.max(1, Math.ceil(alvo / 18));
         el.textContent = '0';
         const timer = setInterval(() => {
             atual = Math.min(atual + passo, alvo);
@@ -157,36 +105,48 @@ function animarContadores() {
     });
 }
 
-// Dispara animação dos contadores quando tab grupos está ativa
-const tabGrupos = document.querySelector('[data-tab="grupos"]');
-if (tabGrupos && tabGrupos.classList.contains('ativo')) {
-    setTimeout(animarContadores, 1600);
-}
+/* ── SIDEBAR MOBILE ──────────────────────────────────────── */
+const sidebar       = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebarToggle');
 
-// Também dispara ao trocar para a tab de grupos
-document.querySelectorAll('.tab[data-tab="grupos"]').forEach(btn => {
-    btn.addEventListener('click', () => setTimeout(animarContadores, 200));
+if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('aberta'));
+}
+document.addEventListener('click', e => {
+    if (!sidebar || window.innerWidth > 960) return;
+    if (sidebar.classList.contains('aberta') &&
+        !sidebar.contains(e.target) &&
+        e.target !== sidebarToggle) {
+        sidebar.classList.remove('aberta');
+    }
+});
+// Fecha ao navegar (mobile)
+document.querySelectorAll('.sidebar-item').forEach(item => {
+    item.addEventListener('click', () => {
+        if (window.innerWidth <= 960) sidebar?.classList.remove('aberta');
+    });
 });
 
-/* ── TOPBAR: ESCONDER AO ROLAR PARA BAIXO ───────────────── */
-(function() {
-    let lastY = 0;
-    const topbar = document.querySelector('.topbar');
-    if (!topbar) return;
+/* ── HIGHLIGHT ATIVO NA TABELA QUANDO SCROLL ─────────────── */
+document.querySelectorAll('.grupo-tabela tbody tr').forEach(tr => {
+    tr.addEventListener('mouseenter', () => tr.style.background = 'rgba(255,77,18,.04)');
+    tr.addEventListener('mouseleave', () => tr.style.background = '');
+});
 
-    window.addEventListener('scroll', () => {
-        const currentY = window.scrollY;
-        if (currentY > lastY && currentY > 80) {
-            // Rolando para baixo — mantém topbar visível (fixed)
-            // poderia esconder: topbar.style.transform = 'translateY(-100%)';
-        } else {
-            topbar.style.transform = 'translateY(0)';
-        }
-        lastY = currentY;
-    }, { passive: true });
-})();
-
-/* ── TOOLTIP NAS COLUNAS DA TABELA ──────────────────────── */
+/* ── TOOLTIP SIMPLES NAS COLUNAS ─────────────────────────── */
 document.querySelectorAll('.grupo-tabela th[title]').forEach(th => {
     th.style.cursor = 'help';
+    th.addEventListener('mouseenter', function(e) {
+        const tip = document.createElement('div');
+        tip.className = '_tip';
+        tip.textContent = this.title;
+        tip.style.cssText = 'position:fixed;background:#1e293b;color:#fff;font-size:.72rem;padding:4px 10px;border-radius:6px;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.2);';
+        document.body.appendChild(tip);
+        const rect = this.getBoundingClientRect();
+        tip.style.left = rect.left + rect.width / 2 - tip.offsetWidth / 2 + 'px';
+        tip.style.top  = rect.top - tip.offsetHeight - 6 + 'px';
+    });
+    th.addEventListener('mouseleave', () => {
+        document.querySelectorAll('._tip').forEach(t => t.remove());
+    });
 });
