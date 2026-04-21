@@ -163,12 +163,20 @@ SET grupo_classificacao =
     END
 ORDER BY turma_id_turma;
 
+<<<<<<< HEAD
 CREATE TABLE sorteio_gerado (
+=======
+create table sorteio_gerado (
+>>>>>>> 2bcbb5a3bf459c76ddd4add567cd304c16ea8994
     id INT AUTO_INCREMENT PRIMARY KEY,
     edicao_modalidade_id INT NOT NULL UNIQUE,
     gerado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
     gerado_por INT NULL,
+<<<<<<< HEAD
     FOREIGN KEY (edicao_modalidade_id)
+=======
+    FOREIGN KEY (edicao_modalidade_id) 
+>>>>>>> 2bcbb5a3bf459c76ddd4add567cd304c16ea8994
         REFERENCES edicao_modalidade(id_edicao_modalidade)
         ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (gerado_por)

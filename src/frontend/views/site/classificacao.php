@@ -19,7 +19,12 @@ $stmtEsportes = $conn->query("
     INNER JOIN edicao_modalidade em ON em.modalidade_id_modalidade = m.id_modalidade
     INNER JOIN edicao e ON e.id_edicao = em.edicao_id_edicao
     WHERE m.ativo_modalidade = 1
+<<<<<<< HEAD
       AND e.status_edicao = 'em_andamento'
+=======
+      AND em.status_edicao_modalidade = 'em_andamento'
+      AND e.status_edicao != 'encerrado'
+>>>>>>> 2bcbb5a3bf459c76ddd4add567cd304c16ea8994
     ORDER BY m.nome_modalidade ASC
 ");
 $esportes = $stmtEsportes->fetchAll(PDO::FETCH_ASSOC);
@@ -46,7 +51,12 @@ if ($modalidadeId) {
         INNER JOIN edicao_modalidade em ON em.modalidade_id_modalidade = m.id_modalidade
         INNER JOIN edicao e ON e.id_edicao = em.edicao_id_edicao
         WHERE m.id_modalidade = :id
+<<<<<<< HEAD
             AND e.status_edicao = 'em_andamento'
+=======
+          AND em.status_edicao_modalidade = 'em_andamento'
+          AND e.status_edicao != 'encerrado'
+>>>>>>> 2bcbb5a3bf459c76ddd4add567cd304c16ea8994
         ORDER BY em.id_edicao_modalidade DESC
         LIMIT 1
     ");
