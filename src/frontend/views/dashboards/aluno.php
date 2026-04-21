@@ -576,7 +576,6 @@ $statusLabel = [
 
             <!-- ══════ TIMES ══════ -->
             <div class="painel" id="painel-times">
-<<<<<<< HEAD
     <?php if (empty($inscricoes)): ?>
         <div class="empty"><i class="fa-solid fa-shield-halved"></i>Inscreva-se em uma modalidade para ver os times.</div>
     <?php else: ?>
@@ -593,31 +592,6 @@ $statusLabel = [
                     <span class="<?= $time['id_turma'] == $turmaId ? 'time-mine' : '' ?>">
                         <?php if ($time['id_turma'] == $turmaId): ?>
                         <i class="fa-solid fa-star" style="color:#f59e0b;font-size:.7rem;margin-right:4px"></i>
-=======
-                <?php if (empty($inscricoes)): ?>
-                    <div class="empty"><i class="fa-solid fa-shield-halved"></i>Inscreva-se em uma modalidade para ver os times.</div>
-                <?php else: ?>
-                    <?php foreach ($inscricoes as $insc):
-                        $emId  = $insc['edicao_modalidade_id'];
-                        $times = $todosOsTimes[$emId] ?? []; ?>
-                    <div class="modal-card">
-                        <h4><i class="fa-solid fa-shield-halved" style="color:#f97316"></i> <?= htmlspecialchars($insc['nome_modalidade']) ?></h4>
-                        <?php if (empty($times)): ?>
-                            <div class="empty"><i class="fa-solid fa-users-slash"></i>Nenhum time inscrito.</div>
-                        <?php else: ?>
-                            <?php foreach ($times as $time): ?>
-                            <div class="time-item">
-                                <span class="<?= $time['id_turma'] == $turmaId ? 'time-mine' : '' ?>">
-                                    <?php if ($time['id_turma'] == $turmaId): ?>
-                                    <i class="fa-solid fa-star" style="color:#f59e0b;font-size:.7rem;margin-right:4px"></i>
-                                    <?php endif; ?>
-                                    <?= htmlspecialchars($time['nome_turma']) ?>
-                                    <?= $time['id_turma'] == $turmaId ? ' (seu time)' : '' ?>
-                                </span>
-                                <span style="font-size:.78rem;color:var(--texto-2,#64748b)"><?= $time['total_inscritos'] ?> inscritos</span>
-                            </div>
-                            <?php endforeach; ?>
->>>>>>> 2bcbb5a3bf459c76ddd4add567cd304c16ea8994
                         <?php endif; ?>
                         <?= htmlspecialchars($time['nome_turma']) ?>
                         <?= $time['id_turma'] == $turmaId ? ' (seu time)' : '' ?>
