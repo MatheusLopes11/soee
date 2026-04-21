@@ -42,11 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['foto_perfil'])) {
             $conn->prepare("UPDATE foto_perfil SET atual_foto = 0 WHERE usuario_id_usuario = :id")
                  ->execute([':id' => $userId]);
 
-            $ins = $conn->prepare("
+            $conn->prepare("
                 INSERT INTO foto_perfil (usuario_id_usuario, caminho_foto, nome_arquivo_foto, tipo_arquivo_foto)
                 VALUES (:uid, :caminho, :nome, :tipo)
-            ");
-            $ins->execute([':uid' => $userId, ':caminho' => $caminhoWeb, ':nome' => $nomeFoto, ':tipo' => $ext]);
+            ")->execute([':uid' => $userId, ':caminho' => $caminhoWeb, ':nome' => $nomeFoto, ':tipo' => $ext]);
 
             $conn->prepare("UPDATE usuario SET foto_perfil_usuario = :foto WHERE id_usuario = :id")
                  ->execute([':foto' => $caminhoWeb, ':id' => $userId]);
@@ -63,12 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['foto_perfil'])) {
 // ─── Edição de informações pessoais ──────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'editar_perfil') {
 
-    $novoNome    = trim($_POST['nome_usuario']   ?? '');
-    $novoEmail   = trim($_POST['email_usuario']  ?? '');
-    $novoGenero  = $_POST['genero_usuario']      ?? '';
-    $novoTurmaId = (int)($_POST['turma_id']      ?? 0);
-    $numCamisa   = trim($_POST['numero_camisa']  ?? '');
-    $nomeCamisa  = trim($_POST['nome_camisa']    ?? '');
+    $novoNome   = trim($_POST['nome_usuario']  ?? '');
+    $novoEmail  = trim($_POST['email_usuario'] ?? '');
+    $novoGenero = $_POST['genero_usuario']     ?? '';
+    $numCamisa  = trim($_POST['numero_camisa'] ?? '');
+    $nomeCamisa = strtoupper(trim($_POST['nome_camisa'] ?? '')); // força maiúsculas no servidor
 
     $generosValidos = ['m', 'f', 'n'];
     $erros = [];
@@ -90,18 +88,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
         $msgEdit  = implode(' ', $erros);
         $tipoEdit = 'erro';
     } else {
+        // Atualiza dados do usuário (SEM turma — somente leitura)
         $conn->prepare("
             UPDATE usuario
             SET nome_usuario   = :nome,
                 email_usuario  = :email,
-                genero_usuario = :genero,
-                turma_id_turma = :turma
+                genero_usuario = :genero
             WHERE id_usuario = :id
         ")->execute([
             ':nome'   => $novoNome,
             ':email'  => $novoEmail,
             ':genero' => $novoGenero,
-            ':turma'  => $novoTurmaId > 0 ? $novoTurmaId : null,
             ':id'     => $userId,
         ]);
 
@@ -116,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
             LIMIT 1
         ")->execute([
             ':num'         => $numCamisa !== '' ? (int)$numCamisa : null,
-            ':nome_camisa' => $nomeCamisa !== '' ? strtoupper($nomeCamisa) : null,
+            ':nome_camisa' => $nomeCamisa !== '' ? $nomeCamisa : null,
             ':uid'         => $userId,
         ]);
 
@@ -129,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
 $stmt = $conn->prepare("
     SELECT u.id_usuario, u.nome_usuario, u.email_usuario,
            u.genero_usuario, u.tipo_usuario, u.ativo_usuario,
-           u.foto_perfil_usuario, u.turma_id_turma,
+           u.foto_perfil_usuario,
            t.nome_turma, t.periodo_turma,
            c.nome_curso, c.sigla_curso
     FROM usuario u
@@ -139,15 +136,6 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute([':id' => $userId]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// ─── Lista todas as turmas para o select ─────────────────────────────────────
-$turmas = $conn->query("
-    SELECT t.id_turma, t.nome_turma, t.periodo_turma,
-           c.nome_curso, c.sigla_curso
-    FROM turma t
-    INNER JOIN curso c ON c.id_curso = t.curso_id_curso
-    ORDER BY c.sigla_curso, t.nome_turma
-")->fetchAll(PDO::FETCH_ASSOC);
 
 // ─── Inscrições ───────────────────────────────────────────────────────────────
 $stmtIns = $conn->prepare("
@@ -165,6 +153,7 @@ $stmtIns = $conn->prepare("
 $stmtIns->execute([':id' => $userId]);
 $inscricoes = $stmtIns->fetchAll(PDO::FETCH_ASSOC);
 
+// Dados de camisa da inscrição ativa mais recente
 $camisaAtual = null;
 foreach ($inscricoes as $ins) {
     if ($ins['status_inscricao'] === 'ativa') { $camisaAtual = $ins; break; }
@@ -181,117 +170,6 @@ $dashboardUrl = AuthHome::getRota($userTipo);
     <title>SOEE | Minha Conta</title>
     <link rel="stylesheet" href="/soee/src/frontend/styles/user-conta.css">
     <?php include __DIR__ . '/../includes/head.php'; ?>
-    <style>
-        /* ── Campos editáveis: texto/input alternados pelo modo ──── */
-        .campo-editavel .val-texto { display: block; }
-        .campo-editavel .val-input { display: none;  }
-
-        .secao-editando .campo-editavel .val-texto { display: none;  }
-        .secao-editando .campo-editavel .val-input  { display: block; }
-
-        /* ── Campos de camisa: sempre visíveis, input só ao editar ── */
-        .campo-camisa .val-texto { display: block; }
-        .campo-camisa .val-input { display: none;  }
-
-        .secao-editando .campo-camisa .val-texto { display: none;  }
-        .secao-editando .campo-camisa .val-input  { display: block; }
-
-        /* ── Estilo dos inputs/selects no modo edição ─────────────── */
-        .secao-editando .val-input {
-            background  : var(--input-bg, rgba(255,255,255,.07));
-            border      : 1.5px solid var(--accent, #6c63ff);
-            border-radius: 8px;
-            color       : inherit;
-            font        : inherit;
-            font-size   : .95rem;
-            padding     : .38rem .7rem;
-            width       : 100%;
-            transition  : border-color .2s, box-shadow .2s;
-        }
-        .secao-editando .val-input:focus {
-            outline    : none;
-            box-shadow : 0 0 0 3px color-mix(in srgb, var(--accent,#6c63ff) 30%, transparent);
-        }
-
-        /* ── Valor vazio nos campos de camisa ─────────────────────── */
-        .valor-vazio {
-            opacity: .42;
-            font-style: italic;
-            font-size: .88rem;
-        }
-
-        /* ── Nome na camisa: destaque tipográfico ─────────────────── */
-        .camisa-nome-destaque {
-            font-family   : monospace;
-            letter-spacing: .12em;
-            font-weight   : 700;
-        }
-
-        /* ── Hint "opcional" ──────────────────────────────────────── */
-        .hint-opt {
-            font-size  : .72rem;
-            opacity    : .48;
-            font-weight: 400;
-            margin-left: .25rem;
-        }
-
-        /* ── Badge "Editando" no cabeçalho da seção ───────────────── */
-        .badge-editando {
-            display      : none;
-            font-size    : .7rem;
-            font-weight  : 700;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            background   : var(--accent, #6c63ff);
-            color        : #fff;
-            padding      : .16rem .55rem;
-            border-radius: 99px;
-            margin-left  : .55rem;
-            vertical-align: middle;
-        }
-        .secao-editando .badge-editando { display: inline; }
-
-        /* ── Barra de ações ───────────────────────────────────────── */
-        .secao-acoes {
-            display    : flex;
-            gap        : .75rem;
-            margin-top : 1.4rem;
-            flex-wrap  : wrap;
-            align-items: center;
-        }
-        .btn-editar,
-        .btn-salvar-edicao,
-        .btn-cancelar-edicao {
-            display    : inline-flex;
-            align-items: center;
-            gap        : .45rem;
-            padding    : .52rem 1.15rem;
-            border-radius: 8px;
-            font-size  : .9rem;
-            font-weight: 600;
-            cursor     : pointer;
-            border     : none;
-            transition : opacity .2s, transform .15s;
-        }
-        .btn-editar          { background: var(--accent, #6c63ff); color: #fff; }
-        .btn-salvar-edicao   { background: #22c55e; color: #fff; display: none; }
-        .btn-cancelar-edicao {
-            background: transparent;
-            border    : 1.5px solid #ef4444;
-            color     : #ef4444;
-            display   : none;
-        }
-        .btn-editar:hover, .btn-salvar-edicao:hover { opacity: .88; transform: translateY(-1px); }
-        .btn-cancelar-edicao:hover { background: rgba(239,68,68,.08); }
-
-        /* Troca visibilidade na edição */
-        .secao-editando .btn-editar          { display: none; }
-        .secao-editando .btn-salvar-edicao,
-        .secao-editando .btn-cancelar-edicao { display: inline-flex; }
-
-        /* ── Toast de edição: posição inferior ────────────────────── */
-        .toast-edit { top: auto; bottom: 1.5rem; }
-    </style>
 </head>
 <body>
 
@@ -367,7 +245,7 @@ $dashboardUrl = AuthHome::getRota($userTipo);
 <main class="conta-main">
 
     <!-- ══════════════════════════════════════════════════════════
-         Informações Pessoais — todos os campos editáveis
+         Informações Pessoais
     ══════════════════════════════════════════════════════════ -->
     <section class="conta-secao reveal reveal-delay-1" id="secaoInfoPessoais">
         <div class="secao-header">
@@ -383,92 +261,79 @@ $dashboardUrl = AuthHome::getRota($userTipo);
                 <!-- Nome completo -->
                 <div class="info-item campo-editavel">
                     <span class="info-label"><i class="fa-solid fa-user"></i> Nome completo</span>
-                    <span class="info-valor">
+                    <div class="info-valor">
                         <span class="val-texto"><?= htmlspecialchars($user['nome_usuario']) ?></span>
                         <input class="val-input" type="text" name="nome_usuario"
                                value="<?= htmlspecialchars($user['nome_usuario']) ?>"
                                placeholder="Nome completo" maxlength="100" required>
-                    </span>
+                    </div>
                 </div>
 
                 <!-- E-mail -->
                 <div class="info-item campo-editavel">
                     <span class="info-label"><i class="fa-solid fa-envelope"></i> E-mail</span>
-                    <span class="info-valor">
+                    <div class="info-valor">
                         <span class="val-texto"><?= htmlspecialchars($user['email_usuario']) ?></span>
                         <input class="val-input" type="email" name="email_usuario"
                                value="<?= htmlspecialchars($user['email_usuario']) ?>"
                                placeholder="E-mail" maxlength="120" required>
-                    </span>
+                    </div>
                 </div>
 
                 <!-- Gênero -->
                 <div class="info-item campo-editavel">
                     <span class="info-label"><i class="fa-solid fa-venus-mars"></i> Gênero</span>
-                    <span class="info-valor">
+                    <div class="info-valor">
                         <span class="val-texto"><?= htmlspecialchars($generoLabel[$user['genero_usuario']] ?? '—') ?></span>
                         <select class="val-input" name="genero_usuario">
                             <option value="m" <?= $user['genero_usuario'] === 'm' ? 'selected' : '' ?>>Masculino</option>
                             <option value="f" <?= $user['genero_usuario'] === 'f' ? 'selected' : '' ?>>Feminino</option>
                             <option value="n" <?= $user['genero_usuario'] === 'n' ? 'selected' : '' ?>>Não informado</option>
                         </select>
-                    </span>
+                    </div>
                 </div>
 
-                <!-- Tipo de conta (somente leitura — controlado pelo sistema) -->
+                <!-- Tipo de conta (somente leitura) -->
                 <div class="info-item">
                     <span class="info-label"><i class="fa-solid fa-id-badge"></i> Tipo de conta</span>
-                    <span class="info-valor">
+                    <div class="info-valor">
                         <span class="badge-tipo <?= $userTipo ?>"><?= htmlspecialchars($tipoLabel[$userTipo] ?? $userTipo) ?></span>
-                    </span>
+                    </div>
                 </div>
 
                 <!-- Status (somente leitura) -->
                 <div class="info-item">
                     <span class="info-label"><i class="fa-solid fa-circle-dot"></i> Status</span>
-                    <span class="info-valor">
+                    <div class="info-valor">
                         <span class="badge-status <?= $user['ativo_usuario'] ? 'ativo' : 'inativo' ?>">
                             <?= $user['ativo_usuario'] ? 'Ativa' : 'Inativa' ?>
                         </span>
-                    </span>
+                    </div>
                 </div>
 
-                <!-- Turma (select com todas as turmas) -->
-                <div class="info-item campo-editavel">
+                <!-- Turma (somente leitura) -->
+                <?php if (!empty($user['nome_turma'])): ?>
+                <div class="info-item">
                     <span class="info-label"><i class="fa-solid fa-door-open"></i> Turma</span>
-                    <span class="info-valor">
-                        <span class="val-texto"><?= htmlspecialchars($user['nome_turma'] ?? '—') ?></span>
-                        <select class="val-input" name="turma_id" id="selectTurma">
-                            <option value="0">— Sem turma —</option>
-                            <?php foreach ($turmas as $t): ?>
-                            <option value="<?= $t['id_turma'] ?>"
-                                <?= (int)$user['turma_id_turma'] === (int)$t['id_turma'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($t['nome_turma']) ?> · <?= htmlspecialchars($t['sigla_curso']) ?> · <?= ucfirst($t['periodo_turma']) ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </span>
+                    <div class="info-valor"><?= htmlspecialchars($user['nome_turma']) ?></div>
                 </div>
-
-                <!-- Curso (derivado da turma, somente leitura) -->
                 <div class="info-item">
                     <span class="info-label"><i class="fa-solid fa-book"></i> Curso</span>
-                    <span class="info-valor" id="campoCurso"><?= htmlspecialchars($user['nome_curso'] ?? '—') ?></span>
+                    <div class="info-valor"><?= htmlspecialchars($user['nome_curso'] ?? '—') ?></div>
                 </div>
-
-                <!-- Período (derivado da turma, somente leitura) -->
                 <div class="info-item">
                     <span class="info-label"><i class="fa-solid fa-sun"></i> Período</span>
-                    <span class="info-valor" id="campoPeriodo"><?= ucfirst($user['periodo_turma'] ?? '—') ?></span>
+                    <div class="info-valor"><?= ucfirst($user['periodo_turma'] ?? '—') ?></div>
                 </div>
+                <?php endif; ?>
 
-                <!-- ── Número da camisa (sempre visível) ─────────── -->
-                <div class="info-item campo-camisa">
+                <!-- Número da camisa (sempre visível) -->
+                <div class="info-item">
                     <span class="info-label">
                         <i class="fa-solid fa-shirt"></i> Número da camisa
                         <span class="hint-opt">(opcional)</span>
                     </span>
-                    <span class="info-valor">
+                    <div class="info-valor">
                         <span class="val-texto">
                             <?php if (!empty($camisaAtual['numero_camisa_inscricao'])): ?>
                                 #<?= htmlspecialchars($camisaAtual['numero_camisa_inscricao']) ?>
@@ -480,16 +345,16 @@ $dashboardUrl = AuthHome::getRota($userTipo);
                                min="1" max="999"
                                value="<?= htmlspecialchars($camisaAtual['numero_camisa_inscricao'] ?? '') ?>"
                                placeholder="Ex: 10">
-                    </span>
+                    </div>
                 </div>
 
-                <!-- ── Nome na camisa (sempre visível) ───────────── -->
-                <div class="info-item campo-camisa">
+                <!-- Nome na camisa (sempre visível) -->
+                <div class="info-item">
                     <span class="info-label">
                         <i class="fa-solid fa-tag"></i> Nome na camisa
                         <span class="hint-opt">(opcional)</span>
                     </span>
-                    <span class="info-valor">
+                    <div class="info-valor">
                         <span class="val-texto">
                             <?php if (!empty($camisaAtual['nome_camisa_inscricao'])): ?>
                                 <span class="camisa-nome-destaque"><?= htmlspecialchars(strtoupper($camisaAtual['nome_camisa_inscricao'])) ?></span>
@@ -497,12 +362,11 @@ $dashboardUrl = AuthHome::getRota($userTipo);
                                 <span class="valor-vazio">Não informado</span>
                             <?php endif; ?>
                         </span>
-                        <input class="val-input" type="text" name="nome_camisa"
+                        <input class="val-input val-input-camisa" type="text" name="nome_camisa"
                                maxlength="20"
-                               value="<?= htmlspecialchars($camisaAtual['nome_camisa_inscricao'] ?? '') ?>"
-                               placeholder="Ex: SILVA"
-                               style="text-transform:uppercase; letter-spacing:.1em;">
-                    </span>
+                               value="<?= htmlspecialchars(strtoupper($camisaAtual['nome_camisa_inscricao'] ?? '')) ?>"
+                               placeholder="Ex: SILVA">
+                    </div>
                 </div>
 
             </div><!-- /info-grid -->
@@ -537,9 +401,7 @@ $dashboardUrl = AuthHome::getRota($userTipo);
                     <span class="camisa-num"><?= $ins['numero_camisa_inscricao'] ? '#' . $ins['numero_camisa_inscricao'] : '—' ?></span>
                     <span class="camisa-label">Camisa</span>
                     <?php if (!empty($ins['nome_camisa_inscricao'])): ?>
-                    <span style="font-size:.68rem;letter-spacing:.1em;opacity:.7;font-weight:700;">
-                        <?= htmlspecialchars(strtoupper($ins['nome_camisa_inscricao'])) ?>
-                    </span>
+                    <span class="camisa-nome-card"><?= htmlspecialchars(strtoupper($ins['nome_camisa_inscricao'])) ?></span>
                     <?php endif; ?>
                 </div>
                 <div class="inscricao-info">
@@ -622,25 +484,16 @@ $dashboardUrl = AuthHome::getRota($userTipo);
 const _t = localStorage.getItem('theme');
 if (_t) document.documentElement.setAttribute('data-theme', _t);
 
-/* ── Mapa de turmas para atualizar Curso/Período via JS ──────────── */
-const turmasData = <?= json_encode(array_column($turmas, null, 'id_turma'), JSON_UNESCAPED_UNICODE) ?>;
-
 /* ── Referências ──────────────────────────────────────────────────── */
 const secao       = document.getElementById('secaoInfoPessoais');
 const btnEditar   = document.getElementById('btnEditar');
 const btnCancelar = document.getElementById('btnCancelar');
-const selectTurma = document.getElementById('selectTurma');
-const campoCurso  = document.getElementById('campoCurso');
-const campoPeriodo= document.getElementById('campoPeriodo');
 
 /* Captura snapshot dos valores atuais para o Cancelar */
 const snapshot = {};
 secao.querySelectorAll('input.val-input, select.val-input').forEach(el => {
     snapshot[el.name] = el.value;
 });
-/* Snapshot dos campos de texto derivados */
-const snapCurso   = campoCurso   ? campoCurso.textContent   : '';
-const snapPeriodo = campoPeriodo ? campoPeriodo.textContent : '';
 
 /* ── Ativar modo edição ───────────────────────────────────────────── */
 btnEditar.addEventListener('click', () => {
@@ -649,35 +502,34 @@ btnEditar.addEventListener('click', () => {
     if (primeiroInput) primeiroInput.focus();
 });
 
-/* ── Cancelar ────────────────────────────────────────────────────── */
+/* ── Cancelar: restaura valores e sai do modo edição ─────────────── */
 btnCancelar.addEventListener('click', () => {
     secao.querySelectorAll('input.val-input, select.val-input').forEach(el => {
         el.value = snapshot[el.name] ?? '';
     });
-    if (campoCurso)   campoCurso.textContent   = snapCurso;
-    if (campoPeriodo) campoPeriodo.textContent = snapPeriodo;
     secao.classList.remove('secao-editando');
 });
 
-/* ── Atualiza Curso e Período ao trocar a turma ──────────────────── */
-function syncTurma(idTurma) {
-    const t = turmasData[idTurma];
-    campoCurso.textContent   = t ? (t.nome_curso ?? t.sigla_curso ?? '—') : '—';
-    campoPeriodo.textContent = t
-        ? (t.periodo_turma.charAt(0).toUpperCase() + t.periodo_turma.slice(1))
-        : '—';
-}
-if (selectTurma) {
-    selectTurma.addEventListener('change', () => syncTurma(parseInt(selectTurma.value)));
-}
-
-/* ── Nome na camisa → força maiúsculas ao digitar ────────────────── */
+/* ── Nome na camisa: só aceita letras maiúsculas e espaço ─────────── */
 const inputNomeCamisa = document.querySelector('input[name="nome_camisa"]');
 if (inputNomeCamisa) {
+    inputNomeCamisa.addEventListener('keypress', function (e) {
+        const char = String.fromCharCode(e.which);
+        // Permite apenas letras (qualquer língua) e espaço
+        if (!/[\p{L} ]/u.test(char)) {
+            e.preventDefault();
+        }
+    });
     inputNomeCamisa.addEventListener('input', function () {
         const pos = this.selectionStart;
-        this.value = this.value.toUpperCase();
+        this.value = this.value.toUpperCase().replace(/[^A-ZÁÉÍÓÚÀÂÊÔÃÕÜÇ ]/g, '');
         this.setSelectionRange(pos, pos);
+    });
+    inputNomeCamisa.addEventListener('paste', function (e) {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        const clean = text.toUpperCase().replace(/[^A-ZÁÉÍÓÚÀÂÊÔÃÕÜÇ ]/g, '');
+        document.execCommand('insertText', false, clean);
     });
 }
 

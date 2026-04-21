@@ -5,20 +5,18 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php
 
 header('Content-Type: application/json');
 
-// Só alunos podem se inscrever
 AuthHome::exigirTipo(['aluno']);
 
-$userId            = AuthHome::getId();
+$userId             = AuthHome::getId();
 $edicaoModalidadeId = (int) ($_POST['edicao_modalidade_id'] ?? 0);
-$posicao           = trim($_POST['posicao'] ?? '');
-$camisa            = isset($_POST['camisa']) && $_POST['camisa'] !== '' ? (int) $_POST['camisa'] : null;
+$nomeCamisa         = trim($_POST['nome_camisa'] ?? '');
+$camisa             = isset($_POST['camisa']) && $_POST['camisa'] !== '' ? (int) $_POST['camisa'] : null;
 
 if (!$edicaoModalidadeId) {
     echo json_encode(['ok' => false, 'erro' => 'Modalidade inválida.']);
     exit;
 }
 
-// ── 1. Busca dados do usuário (gênero) ──────────────────────────
 $stmtU = $conn->prepare("SELECT genero_usuario FROM usuario WHERE id_usuario = :id LIMIT 1");
 $stmtU->execute([':id' => $userId]);
 $usuario = $stmtU->fetch(PDO::FETCH_ASSOC);
@@ -28,9 +26,8 @@ if (!$usuario) {
     exit;
 }
 
-$generoUsuario = $usuario['genero_usuario']; // 'm', 'f' ou 'n'
+$generoUsuario = $usuario['genero_usuario'];
 
-// ── 2. Busca gênero da modalidade e status da edição ────────────
 $stmtMod = $conn->prepare("
     SELECT m.genero_modalidade, em.status_edicao_modalidade, e.status_edicao
     FROM edicao_modalidade em
@@ -47,7 +44,6 @@ if (!$modalidade) {
     exit;
 }
 
-// ── 3. Verifica se inscrições estão abertas ──────────────────────
 if ($modalidade['status_edicao_modalidade'] !== 'inscricoes') {
     echo json_encode(['ok' => false, 'erro' => 'As inscrições para esta modalidade estão encerradas.']);
     exit;
@@ -57,31 +53,20 @@ if ($modalidade['status_edicao'] === 'encerrado') {
     exit;
 }
 
-// ── 4. Validação de gênero ───────────────────────────────────────
-$generoModalidade = $modalidade['genero_modalidade']; // 'masculino', 'feminino', 'misto'
+$generoModalidade = $modalidade['genero_modalidade'];
 
 if ($generoModalidade !== 'misto') {
-    // Modalidade não é mista — verificar compatibilidade
-    // Usuário com genero 'n' (não informado) não pode participar de modalidades restritas
     $permitido = false;
-
-    if ($generoModalidade === 'masculino' && $generoUsuario === 'm') {
-        $permitido = true;
-    } elseif ($generoModalidade === 'feminino' && $generoUsuario === 'f') {
-        $permitido = true;
-    }
+    if ($generoModalidade === 'masculino' && $generoUsuario === 'm') $permitido = true;
+    if ($generoModalidade === 'feminino'  && $generoUsuario === 'f') $permitido = true;
 
     if (!$permitido) {
         $nomeGenero = $generoModalidade === 'masculino' ? 'masculina' : 'feminina';
-        echo json_encode([
-            'ok'   => false,
-            'erro' => "Esta modalidade é $nomeGenero. Seu perfil não permite a inscrição.",
-        ]);
+        echo json_encode(['ok' => false, 'erro' => "Esta modalidade é $nomeGenero. Seu perfil não permite a inscrição."]);
         exit;
     }
 }
 
-// ── 5. Verifica se já está inscrito ─────────────────────────────
 $stmtDup = $conn->prepare("
     SELECT id_inscricao FROM inscricao
     WHERE usuario_id_usuario = :uid
@@ -95,19 +80,18 @@ if ($stmtDup->fetch()) {
     exit;
 }
 
-// ── 6. Insere inscrição ──────────────────────────────────────────
 try {
     $stmtIns = $conn->prepare("
         INSERT INTO inscricao
-            (usuario_id_usuario, edicao_modalidade_id, posicao_inscricao, numero_camisa_inscricao)
+            (usuario_id_usuario, edicao_modalidade_id, nome_camisa_inscricao, numero_camisa_inscricao)
         VALUES
-            (:uid, :emid, :posicao, :camisa)
+            (:uid, :emid, :nome_camisa, :camisa)
     ");
     $stmtIns->execute([
-        ':uid'    => $userId,
-        ':emid'   => $edicaoModalidadeId,
-        ':posicao' => $posicao ?: null,
-        ':camisa'  => $camisa,
+        ':uid'         => $userId,
+        ':emid'        => $edicaoModalidadeId,
+        ':nome_camisa' => $nomeCamisa ?: null,
+        ':camisa'      => $camisa,
     ]);
 
     echo json_encode(['ok' => true]);

@@ -29,11 +29,27 @@ $siglaCurso = $userData['sigla_curso']  ?? '';
 $turmaId    = $userData['id_turma']     ?? null;
 $fotoPerfil = $userData['caminho_foto'] ?? null;
 $inicial    = mb_strtoupper(mb_substr($userNome, 0, 1));
+$generoUser = $userData['genero_usuario'] ?? 'n';
+
+// ── NOME DA CAMISA SALVO ANTERIORMENTE ───────────────────
+// Busca o último nome de camisa que o aluno usou em qualquer inscrição ativa
+$stmtNomeCamisa = $conn->prepare("
+    SELECT nome_camisa_inscricao
+    FROM inscricao
+    WHERE usuario_id_usuario = :id
+      AND nome_camisa_inscricao IS NOT NULL
+      AND nome_camisa_inscricao != ''
+    ORDER BY data_inscricao DESC
+    LIMIT 1
+");
+$stmtNomeCamisa->execute([':id' => $userId]);
+$nomeCamisaSalvo = $stmtNomeCamisa->fetchColumn() ?: '';
 
 // ── INSCRIÇÕES ATIVAS DO ALUNO ────────────────────────────
 $stmtInsc = $conn->prepare("
-    SELECT i.id_inscricao, i.numero_camisa_inscricao, i.posicao_inscricao,
-           i.capitao_inscricao, i.edicao_modalidade_id, i.status_inscricao,
+    SELECT i.id_inscricao, i.numero_camisa_inscricao, i.nome_camisa_inscricao,
+           i.posicao_inscricao, i.capitao_inscricao,
+           i.edicao_modalidade_id, i.status_inscricao,
            m.nome_modalidade, m.id_modalidade
     FROM inscricao i
     INNER JOIN edicao_modalidade em ON em.id_edicao_modalidade = i.edicao_modalidade_id
@@ -48,7 +64,7 @@ $modalidadesInscritas = array_column($inscricoes, 'edicao_modalidade_id');
 // ── MODALIDADES DISPONÍVEIS PARA INSCRIÇÃO ────────────────
 $stmtMod = $conn->query("
     SELECT m.id_modalidade, m.nome_modalidade, m.tipo_participacao,
-        m.tipo_modalidade, m.genero_modalidade, em.id_edicao_modalidade,
+           m.tipo_modalidade, m.genero_modalidade, em.id_edicao_modalidade,
            em.status_edicao_modalidade,
            em.data_inicio_inscricao, em.data_fim_inscricao,
            e.nome_edicao
@@ -89,11 +105,11 @@ $partidas = [];
 if ($turmaId) {
     $stmtPart = $conn->prepare("
         SELECT p.id_partida, p.data_partida, p.hora_partida,
-            p.local_partida, p.fase_partida, p.status_partida,
-            p.turma_id_time_a, p.turma_id_time_b,
-            ta.nome_turma AS time_a, tb.nome_turma AS time_b,
-            m.nome_modalidade,
-            r.placar_time_a, r.placar_time_b
+               p.local_partida, p.fase_partida, p.status_partida,
+               p.turma_id_time_a, p.turma_id_time_b,
+               ta.nome_turma AS time_a, tb.nome_turma AS time_b,
+               m.nome_modalidade,
+               r.placar_time_a, r.placar_time_b
         FROM partida p
         INNER JOIN turma ta ON ta.id_turma = p.turma_id_time_a
         INNER JOIN turma tb ON tb.id_turma = p.turma_id_time_b
@@ -128,7 +144,7 @@ if ($turmaId && !empty($inscricoes)) {
     }
 }
 
-// ── CLASSIFICAÇÃO GERAL (todas as turmas, por modalidade) ─
+// ── CLASSIFICAÇÃO GERAL ───────────────────────────────────
 $rankingGeral = [];
 if (!empty($inscricoes)) {
     foreach ($inscricoes as $insc) {
@@ -136,8 +152,7 @@ if (!empty($inscricoes)) {
         $stmtRk = $conn->prepare("
             SELECT cl.pontos, cl.vitorias, cl.derrotas, cl.empates,
                    cl.jogos, cl.saldo, cl.pontos_pro, cl.pontos_contra,
-                   t.nome_turma,
-                   m.nome_modalidade
+                   t.nome_turma, m.nome_modalidade
             FROM classificacao cl
             INNER JOIN turma t ON t.id_turma = cl.turma_id_turma
             INNER JOIN edicao_modalidade em ON em.id_edicao_modalidade = cl.edicao_modalidade_id
@@ -150,14 +165,15 @@ if (!empty($inscricoes)) {
     }
 }
 
-// ── ELENCO DA TURMA (alunos inscritos) ───────────────────
+// ── ELENCO DA TURMA ───────────────────────────────────────
 $elenco = [];
 if ($turmaId && !empty($inscricoes)) {
     foreach ($inscricoes as $insc) {
         $emId = $insc['edicao_modalidade_id'];
         $stmtEl = $conn->prepare("
             SELECT u.id_usuario, u.nome_usuario, u.foto_perfil_usuario,
-                   i.numero_camisa_inscricao, i.posicao_inscricao, i.capitao_inscricao
+                   i.numero_camisa_inscricao, i.nome_camisa_inscricao,
+                   i.posicao_inscricao, i.capitao_inscricao
             FROM inscricao i
             INNER JOIN usuario u ON u.id_usuario = i.usuario_id_usuario
             WHERE i.edicao_modalidade_id = :emid
@@ -170,7 +186,7 @@ if ($turmaId && !empty($inscricoes)) {
     }
 }
 
-// ── TODOS OS TIMES (todas turmas inscritas, por modalidade) ─
+// ── TODOS OS TIMES ────────────────────────────────────────
 $todosOsTimes = [];
 if (!empty($inscricoes)) {
     foreach ($inscricoes as $insc) {
@@ -210,34 +226,29 @@ $statusLabel = [
         .painel.active { display: block; }
 
         .stat-resumo {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            display: grid; grid-template-columns: repeat(4,1fr);
             gap: 16px; margin-bottom: 28px;
         }
         .stat-resumo-card {
-            background: var(--bloco, #fff);
-            border: 1px solid var(--borda, #e2e8f0);
-            border-radius: 16px; padding: 20px;
-            text-align: center;
+            background: var(--bloco,#fff); border: 1px solid var(--borda,#e2e8f0);
+            border-radius: 16px; padding: 20px; text-align: center;
         }
         .stat-resumo-card strong {
-            display: block;
-            font-size: 1.8rem; font-weight: 800;
-            font-family: 'Playfair Display', serif;
+            display: block; font-size: 1.8rem; font-weight: 800;
+            font-family: 'Playfair Display',serif;
         }
-        .stat-resumo-card span { font-size: .75rem; color: var(--texto-2, #64748b); text-transform: uppercase; }
+        .stat-resumo-card span { font-size: .75rem; color: var(--texto-2,#64748b); text-transform: uppercase; }
 
         .proxima-card {
-            background: linear-gradient(135deg, #0f2d3d, #2c7da3);
-            border-radius: 16px; padding: 24px; margin-bottom: 28px;
-            color: white;
+            background: linear-gradient(135deg,#0f2d3d,#2c7da3);
+            border-radius: 16px; padding: 24px; margin-bottom: 28px; color: white;
         }
-        .proxima-card .pp-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; opacity: .7; margin-bottom: 12px; }
-        .proxima-card .pp-times { display: flex; align-items: center; gap: 16px; font-size: 1.2rem; font-weight: 800; margin-bottom: 12px; }
-        .proxima-card .pp-vs { opacity: .5; font-size: .9rem; }
-        .proxima-card .pp-mine { color: #fbbf24; }
-        .proxima-card .pp-meta { display: flex; gap: 16px; font-size: .82rem; opacity: .75; flex-wrap: wrap; }
-        .proxima-card .pp-meta span { display: flex; align-items: center; gap: 6px; }
+        .proxima-card .pp-label { font-size:.75rem; text-transform:uppercase; letter-spacing:.1em; opacity:.7; margin-bottom:12px; }
+        .proxima-card .pp-times { display:flex; align-items:center; gap:16px; font-size:1.2rem; font-weight:800; margin-bottom:12px; }
+        .proxima-card .pp-vs { opacity:.5; font-size:.9rem; }
+        .proxima-card .pp-mine { color:#fbbf24; }
+        .proxima-card .pp-meta { display:flex; gap:16px; font-size:.82rem; opacity:.75; flex-wrap:wrap; }
+        .proxima-card .pp-meta span { display:flex; align-items:center; gap:6px; }
 
         .inscricao-badge {
             display: inline-flex; align-items: center; gap: 6px;
@@ -248,90 +259,96 @@ $statusLabel = [
         }
         [data-theme="dark"] .inscricao-badge { color: #4ade80; }
 
+        .genero-bloqueado {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(239,68,68,.08); color: #ef4444;
+            border: 1px solid rgba(239,68,68,.2);
+            border-radius: 999px; padding: 4px 12px;
+            font-size: .75rem; font-weight: 600;
+        }
+
         .modal-card {
-            background: var(--bloco, #fff);
-            border: 1px solid var(--borda, #e2e8f0);
+            background: var(--bloco,#fff); border: 1px solid var(--borda,#e2e8f0);
             border-radius: 16px; padding: 20px; margin-bottom: 16px;
         }
         .modal-card h4 { margin-bottom: 12px; font-size: 1rem; }
 
         .player-item {
             display: flex; align-items: center; gap: 12px;
-            padding: 10px 0; border-bottom: 1px solid var(--borda, #e2e8f0);
+            padding: 10px 0; border-bottom: 1px solid var(--borda,#e2e8f0);
         }
         .player-item:last-child { border-bottom: none; }
         .player-avatar {
             width: 36px; height: 36px; border-radius: 50%;
-            background: var(--fundo, #f0f4f8);
+            background: var(--fundo,#f0f4f8);
             display: flex; align-items: center; justify-content: center;
             font-size: .85rem; overflow: hidden; flex-shrink: 0;
         }
-        .player-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .player-avatar img { width:100%; height:100%; object-fit:cover; }
 
         .time-item {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 0; border-bottom: 1px solid var(--borda, #e2e8f0);
+            padding: 12px 0; border-bottom: 1px solid var(--borda,#e2e8f0);
         }
         .time-item:last-child { border-bottom: none; }
-        .time-mine { font-weight: 800; color: var(--laranja, #f97316); }
+        .time-mine { font-weight: 800; color: var(--laranja,#f97316); }
 
-        .ranking-table { width: 100%; border-collapse: collapse; }
+        .ranking-table { width:100%; border-collapse:collapse; }
         .ranking-table th, .ranking-table td {
             padding: 10px 12px; text-align: center;
-            border-bottom: 1px solid var(--borda, #e2e8f0);
-            font-size: .82rem;
+            border-bottom: 1px solid var(--borda,#e2e8f0); font-size: .82rem;
         }
-        .ranking-table th { font-weight: 700; color: var(--texto-2, #64748b); text-transform: uppercase; font-size: .7rem; }
-        .ranking-table tr.minha-turma td { background: rgba(255,77,18,.07); font-weight: 700; }
+        .ranking-table th { font-weight:700; color:var(--texto-2,#64748b); text-transform:uppercase; font-size:.7rem; }
+        .ranking-table tr.minha-turma td { background: rgba(255,77,18,.07); font-weight:700; }
 
         .partida-row {
             display: flex; align-items: center; gap: 12px;
-            padding: 14px 0; border-bottom: 1px solid var(--borda, #e2e8f0);
+            padding: 14px 0; border-bottom: 1px solid var(--borda,#e2e8f0);
         }
         .partida-row:last-child { border-bottom: none; }
-        .partida-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-        .partida-dot.agendada  { background: #f59e0b; }
-        .partida-dot.realizada { background: #22c55e; }
-        .partida-dot.cancelada, .partida-dot.wo { background: #ef4444; }
-        .partida-info { flex: 1; }
-        .partida-times { font-weight: 700; font-size: .9rem; }
-        .partida-meta  { font-size: .75rem; color: var(--texto-2, #64748b); margin-top: 2px; }
+        .partida-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+        .partida-dot.agendada  { background:#f59e0b; }
+        .partida-dot.realizada { background:#22c55e; }
+        .partida-dot.cancelada, .partida-dot.wo { background:#ef4444; }
+        .partida-info { flex:1; }
+        .partida-times { font-weight:700; font-size:.9rem; }
+        .partida-meta  { font-size:.75rem; color:var(--texto-2,#64748b); margin-top:2px; }
         .partida-placar {
-            font-weight: 800; font-size: .9rem;
-            background: var(--fundo, #f0f4f8);
-            padding: 4px 10px; border-radius: 8px;
-            white-space: nowrap;
+            font-weight:800; font-size:.9rem;
+            background:var(--fundo,#f0f4f8);
+            padding:4px 10px; border-radius:8px; white-space:nowrap;
         }
 
-        .insc-form { display: flex; flex-direction: column; gap: 12px; }
-        .insc-form label { font-size: .82rem; font-weight: 600; margin-bottom: 4px; display: block; }
-        .insc-form input, .insc-form select {
-            width: 100%; padding: 9px 12px;
-            border: 1px solid var(--borda, #e2e8f0);
-            border-radius: 10px; background: var(--fundo, #f0f4f8);
-            color: var(--texto, #1e293b); font-family: inherit; font-size: .88rem;
-        }
         .btn-inscrever {
-            background: #22c55e; color: white; border: none;
-            padding: 10px 20px; border-radius: 10px;
-            font-weight: 700; cursor: pointer; font-size: .88rem;
-            transition: background .2s;
+            background:#22c55e; color:white; border:none;
+            padding:10px 20px; border-radius:10px;
+            font-weight:700; cursor:pointer; font-size:.88rem; transition:background .2s;
         }
-        .btn-inscrever:hover { background: #16a34a; }
+        .btn-inscrever:hover { background:#16a34a; }
         .btn-cancelar-insc {
-            background: rgba(239,68,68,.1); color: #ef4444;
-            border: 1px solid rgba(239,68,68,.25);
-            padding: 8px 16px; border-radius: 10px;
-            font-weight: 700; cursor: pointer; font-size: .82rem;
-            transition: background .2s;
+            background:rgba(239,68,68,.1); color:#ef4444;
+            border:1px solid rgba(239,68,68,.25);
+            padding:8px 16px; border-radius:10px;
+            font-weight:700; cursor:pointer; font-size:.82rem; transition:background .2s;
         }
-        .btn-cancelar-insc:hover { background: #ef4444; color: white; }
+        .btn-cancelar-insc:hover { background:#ef4444; color:white; }
 
-        .empty { padding: 32px; text-align: center; color: var(--texto-2, #64748b); }
-        .empty i { font-size: 2rem; opacity: .3; display: block; margin-bottom: 8px; }
+        .insc-input {
+            width:100%; padding:8px 10px;
+            border:1px solid var(--borda,#e2e8f0);
+            border-radius:8px; background:var(--fundo,#f0f4f8);
+            color:var(--texto,#1e293b); font-family:inherit; font-size:.85rem;
+        }
+        .insc-label {
+            font-size:.75rem; font-weight:600;
+            display:block; margin-bottom:4px;
+        }
 
-        @media (max-width: 768px) {
-            .stat-resumo { grid-template-columns: repeat(2, 1fr); }
+        .empty { padding:32px; text-align:center; color:var(--texto-2,#64748b); }
+        .empty i { font-size:2rem; opacity:.3; display:block; margin-bottom:8px; }
+
+        @media (max-width:768px) {
+            .stat-resumo { grid-template-columns: repeat(2,1fr); }
         }
     </style>
 </head>
@@ -345,7 +362,6 @@ $statusLabel = [
             <div class="sidebar-logo-icon"><i class="fa-solid fa-trophy"></i></div>
             <span class="sidebar-logo-text">SOEE</span>
         </div>
-
         <nav class="sidebar-nav">
             <div class="nav-section-label">Principal</div>
             <a class="nav-item active" href="javascript:void(0)" data-painel="overview" onclick="trocarPainel(this)">
@@ -369,13 +385,11 @@ $statusLabel = [
                 <span class="nav-badge"><?= count($modalidades) ?></span>
                 <?php endif; ?>
             </a>
-
             <div class="nav-section-label" style="margin-top:16px">Conta</div>
             <a class="nav-item" href="/soee/src/frontend/views/site/profile.php">
                 <i class="fa-solid fa-user"></i> Perfil
             </a>
         </nav>
-
         <div class="sidebar-user">
             <a href="/soee/src/frontend/views/site/profile.php"
                style="display:flex;align-items:center;gap:10px;text-decoration:none;flex:1;min-width:0;">
@@ -401,7 +415,9 @@ $statusLabel = [
     <!-- MAIN -->
     <main class="dash-main">
         <header class="topbar">
-            <button class="topbar-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--texto,#1e293b);">
+            <button class="topbar-menu-btn"
+                onclick="document.getElementById('sidebar').classList.toggle('open')"
+                style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--texto,#1e293b);">
                 <i class="fa-solid fa-bars"></i>
             </button>
             <div class="topbar-title" id="topbar-titulo">Visão <span>Geral</span></div>
@@ -415,11 +431,9 @@ $statusLabel = [
 
             <!-- ══════ OVERVIEW ══════ -->
             <div class="painel active" id="painel-overview">
-
-                <!-- Banner de boas-vindas -->
                 <div class="proxima-card" style="background:linear-gradient(135deg,#0f2d3d,#1e5671,#2c7da3);margin-bottom:28px;">
                     <div style="font-size:.75rem;opacity:.6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">
-                        <?= $userData['genero_usuario'] === 'f' ? 'Bem-vinda de volta' : 'Bem-vindo de volta' ?>
+                        <?= $generoUser === 'f' ? 'Bem-vinda de volta' : 'Bem-vindo de volta' ?>
                     </div>
                     <div style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:800;margin-bottom:4px;">
                         Olá, <?= htmlspecialchars(explode(' ', $userNome)[0]) ?>!
@@ -438,7 +452,6 @@ $statusLabel = [
                     <?php endif; ?>
                 </div>
 
-                <!-- Stats da turma -->
                 <?php if (!empty($classificacoes)): ?>
                 <?php $cl = reset($classificacoes); ?>
                 <div class="stat-resumo">
@@ -461,7 +474,6 @@ $statusLabel = [
                 </div>
                 <?php endif; ?>
 
-                <!-- Próxima partida -->
                 <?php if ($proximaPartida): ?>
                 <div class="proxima-card" style="margin-bottom:28px;">
                     <div class="pp-label"><i class="fa-solid fa-clock"></i> Próxima Partida</div>
@@ -490,7 +502,6 @@ $statusLabel = [
                 </div>
                 <?php endif; ?>
 
-                <!-- Inscrições resumo -->
                 <?php if (!empty($inscricoes)): ?>
                 <div class="modal-card">
                     <h4><i class="fa-solid fa-clipboard-check" style="color:#22c55e"></i> Suas Inscrições</h4>
@@ -498,8 +509,10 @@ $statusLabel = [
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--borda,#e2e8f0);">
                         <div>
                             <strong style="font-size:.88rem"><?= htmlspecialchars($ins['nome_modalidade']) ?></strong>
-                            <?php if ($ins['posicao_inscricao']): ?>
-                            <span style="font-size:.75rem;color:var(--texto-2,#64748b);margin-left:8px"><?= htmlspecialchars($ins['posicao_inscricao']) ?></span>
+                            <?php if ($ins['nome_camisa_inscricao']): ?>
+                            <span style="font-size:.75rem;color:var(--texto-2,#64748b);margin-left:8px">
+                                <i class="fa-solid fa-shirt" style="font-size:.65rem"></i> <?= htmlspecialchars($ins['nome_camisa_inscricao']) ?>
+                            </span>
                             <?php endif; ?>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px;">
@@ -515,7 +528,6 @@ $statusLabel = [
                     <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
-
             </div>
 
             <!-- ══════ PARTIDAS ══════ -->
@@ -564,36 +576,52 @@ $statusLabel = [
 
             <!-- ══════ TIMES ══════ -->
             <div class="painel" id="painel-times">
-                <?php if (empty($inscricoes)): ?>
-                    <div class="empty"><i class="fa-solid fa-shield-halved"></i>Inscreva-se em uma modalidade para ver os times.</div>
-                <?php else: ?>
-                    <?php foreach ($inscricoes as $insc):
-                        $emId = $insc['edicao_modalidade_id'];
-                        $times = $todosOsTimes[$emId] ?? []; ?>
-                    <div class="modal-card">
-                        <h4><i class="fa-solid fa-shield-halved" style="color:#f97316"></i> <?= htmlspecialchars($insc['nome_modalidade']) ?></h4>
-                        <?php if (empty($times)): ?>
-                            <div class="empty"><i class="fa-solid fa-users-slash"></i>Nenhum time inscrito.</div>
-                        <?php else: ?>
-                            <?php foreach ($times as $time): ?>
-                            <div class="time-item">
-                                <span class="<?= $time['id_turma'] == $turmaId ? 'time-mine' : '' ?>">
-                                    <?php if ($time['id_turma'] == $turmaId): ?>
-                                    <i class="fa-solid fa-star" style="color:#f59e0b;font-size:.7rem;margin-right:4px"></i>
-                                    <?php endif; ?>
-                                    <?= htmlspecialchars($time['nome_turma']) ?>
-                                    <?= $time['id_turma'] == $turmaId ? ' (seu time)' : '' ?>
-                                </span>
-                                <span style="font-size:.78rem;color:var(--texto-2,#64748b)">
-                                    <?= $time['total_inscritos'] ?> inscritos
-                                </span>
-                            </div>
-                            <?php endforeach; ?>
+    <?php if (empty($inscricoes)): ?>
+        <div class="empty"><i class="fa-solid fa-shield-halved"></i>Inscreva-se em uma modalidade para ver os times.</div>
+    <?php else: ?>
+        <?php foreach ($inscricoes as $insc):
+            $emId  = $insc['edicao_modalidade_id'];
+            $times = $todosOsTimes[$emId] ?? []; ?>
+        <div class="modal-card">
+            <h4><i class="fa-solid fa-shield-halved" style="color:#f97316"></i> <?= htmlspecialchars($insc['nome_modalidade']) ?></h4>
+            <?php if (empty($times)): ?>
+                <div class="empty"><i class="fa-solid fa-users-slash"></i>Nenhum time inscrito.</div>
+            <?php else: ?>
+                <?php foreach ($times as $time): ?>
+                <div class="time-item" style="align-items:center;">
+                    <span class="<?= $time['id_turma'] == $turmaId ? 'time-mine' : '' ?>">
+                        <?php if ($time['id_turma'] == $turmaId): ?>
+                        <i class="fa-solid fa-star" style="color:#f59e0b;font-size:.7rem;margin-right:4px"></i>
                         <?php endif; ?>
+                        <?= htmlspecialchars($time['nome_turma']) ?>
+                        <?= $time['id_turma'] == $turmaId ? ' (seu time)' : '' ?>
+                    </span>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:.78rem;color:var(--texto-2,#64748b)"><?= $time['total_inscritos'] ?> inscritos</span>
+                        <!-- BOTÃO VER TIME -->
+                        <a href="/soee/src/frontend/views/site/team.php?turma=<?= $time['id_turma'] ?>&em=<?= $emId ?>"
+                           style="display:inline-flex;align-items:center;gap:5px;
+                                  background:rgba(30,86,113,.08);
+                                  border:1px solid rgba(30,86,113,.18);
+                                  color:var(--azul-2,#2c7da3);
+                                  border-radius:8px;
+                                  padding:5px 12px;
+                                  font-size:.75rem;
+                                  font-weight:700;
+                                  text-decoration:none;
+                                  transition:all .2s;"
+                           onmouseover="this.style.background='var(--azul-2,#2c7da3)';this.style.color='#fff';"
+                           onmouseout="this.style.background='rgba(30,86,113,.08)';this.style.color='var(--azul-2,#2c7da3)';">
+                            <i class="fa-solid fa-users" style="font-size:.7rem"></i> Ver time
+                        </a>
                     </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+                </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</div>
 
             <!-- ══════ CLASSIFICAÇÃO ══════ -->
             <div class="painel" id="painel-classificacao">
@@ -601,7 +629,7 @@ $statusLabel = [
                     <div class="empty"><i class="fa-solid fa-ranking-star"></i>Inscreva-se em uma modalidade para ver a classificação.</div>
                 <?php else: ?>
                     <?php foreach ($inscricoes as $insc):
-                        $emId   = $insc['edicao_modalidade_id'];
+                        $emId    = $insc['edicao_modalidade_id'];
                         $ranking = $rankingGeral[$emId] ?? []; ?>
                     <div class="modal-card">
                         <h4><i class="fa-solid fa-ranking-star" style="color:#f97316"></i> <?= htmlspecialchars($insc['nome_modalidade']) ?></h4>
@@ -643,12 +671,15 @@ $statusLabel = [
                     <div class="empty"><i class="fa-solid fa-people-group"></i>Inscreva-se em uma modalidade para ver seu elenco.</div>
                 <?php else: ?>
                     <?php foreach ($inscricoes as $insc):
-                        $emId    = $insc['edicao_modalidade_id'];
+                        $emId      = $insc['edicao_modalidade_id'];
                         $jogadores = $elenco[$emId] ?? [];
-                        $cl      = $classificacoes[$emId] ?? null; ?>
+                        $cl        = $classificacoes[$emId] ?? null; ?>
                     <div class="modal-card">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-                            <h4 style="margin:0"><i class="fa-solid fa-people-group" style="color:#f97316"></i> <?= htmlspecialchars($nomeTurma) ?> — <?= htmlspecialchars($insc['nome_modalidade']) ?></h4>
+                            <h4 style="margin:0">
+                                <i class="fa-solid fa-people-group" style="color:#f97316"></i>
+                                <?= htmlspecialchars($nomeTurma) ?> — <?= htmlspecialchars($insc['nome_modalidade']) ?>
+                            </h4>
                             <?php if ($cl): ?>
                             <div style="display:flex;gap:12px;font-size:.8rem;">
                                 <span><strong style="color:#22c55e"><?= $cl['vitorias'] ?>V</strong></span>
@@ -672,9 +703,12 @@ $statusLabel = [
                                 </div>
                                 <div style="flex:1">
                                     <div style="font-weight:600;font-size:.88rem"><?= htmlspecialchars($j['nome_usuario']) ?></div>
+                                    <?php if ($j['nome_camisa_inscricao']): ?>
                                     <div style="font-size:.72rem;color:var(--texto-2,#64748b)">
-                                        <?= $j['posicao_inscricao'] ? htmlspecialchars($j['posicao_inscricao']) : 'Sem posição' ?>
+                                        <i class="fa-solid fa-shirt" style="font-size:.65rem"></i>
+                                        <?= htmlspecialchars($j['nome_camisa_inscricao']) ?>
                                     </div>
+                                    <?php endif; ?>
                                 </div>
                                 <div style="display:flex;align-items:center;gap:8px;">
                                     <?php if ($j['capitao_inscricao']): ?>
@@ -695,7 +729,6 @@ $statusLabel = [
             <!-- ══════ INSCRIÇÕES ══════ -->
             <div class="painel" id="painel-inscricoes">
 
-                <!-- Inscrições atuais -->
                 <?php if (!empty($inscricoes)): ?>
                 <div class="modal-card">
                     <h4><i class="fa-solid fa-clipboard-check" style="color:#22c55e"></i> Minhas Inscrições Ativas</h4>
@@ -703,8 +736,11 @@ $statusLabel = [
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--borda,#e2e8f0);">
                         <div>
                             <strong style="font-size:.9rem"><?= htmlspecialchars($ins['nome_modalidade']) ?></strong>
-                            <?php if ($ins['posicao_inscricao']): ?>
-                            <div style="font-size:.75rem;color:var(--texto-2,#64748b)"><?= htmlspecialchars($ins['posicao_inscricao']) ?></div>
+                            <?php if ($ins['nome_camisa_inscricao']): ?>
+                            <div style="font-size:.75rem;color:var(--texto-2,#64748b)">
+                                <i class="fa-solid fa-shirt" style="font-size:.65rem"></i>
+                                <?= htmlspecialchars($ins['nome_camisa_inscricao']) ?>
+                            </div>
                             <?php endif; ?>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px;">
@@ -725,36 +761,78 @@ $statusLabel = [
                 <!-- Modalidades disponíveis -->
                 <div class="modal-card">
                     <h4><i class="fa-solid fa-futbol" style="color:#f97316"></i> Modalidades Disponíveis para Inscrição</h4>
+
+                    <?php if ($nomeCamisaSalvo): ?>
+                    <div style="margin-bottom:16px;padding:10px 14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;font-size:.82rem;color:var(--texto,#1e293b);">
+                        <i class="fa-solid fa-shirt" style="color:#22c55e"></i>
+                        Nome de camisa salvo: <strong><?= htmlspecialchars($nomeCamisaSalvo) ?></strong>
+                        — preenchido automaticamente nos formulários abaixo.
+                    </div>
+                    <?php endif; ?>
+
                     <?php if (empty($modalidades)): ?>
                         <div class="empty"><i class="fa-solid fa-futbol"></i>Nenhuma modalidade com inscrições abertas.</div>
                     <?php else: ?>
                         <?php foreach ($modalidades as $md):
-                            $jaInscrito = in_array($md['id_edicao_modalidade'], $modalidadesInscritas); ?>
+                            $jaInscrito    = in_array($md['id_edicao_modalidade'], $modalidadesInscritas);
+                            $generoMod     = $md['genero_modalidade'];
+                            $bloqueado     = false;
+                            $motivoBloqueio = '';
+
+                            if ($generoMod === 'masculino' && $generoUser !== 'm') {
+                                $bloqueado      = true;
+                                $motivoBloqueio = 'Modalidade masculina';
+                            } elseif ($generoMod === 'feminino' && $generoUser !== 'f') {
+                                $bloqueado      = true;
+                                $motivoBloqueio = 'Modalidade feminina';
+                            }
+
+                            // Badge de gênero
+                            $generoBadge = match($generoMod) {
+                                'masculino' => '<span style="font-size:.7rem;background:rgba(59,130,246,.1);color:#2563eb;border-radius:999px;padding:2px 8px;border:1px solid rgba(59,130,246,.2)"><i class="fa-solid fa-mars"></i> Masculino</span>',
+                                'feminino'  => '<span style="font-size:.7rem;background:rgba(236,72,153,.1);color:#be185d;border-radius:999px;padding:2px 8px;border:1px solid rgba(236,72,153,.2)"><i class="fa-solid fa-venus"></i> Feminino</span>',
+                                default     => '<span style="font-size:.7rem;background:rgba(100,116,139,.1);color:#475569;border-radius:999px;padding:2px 8px;border:1px solid rgba(100,116,139,.2)"><i class="fa-solid fa-venus-mars"></i> Misto</span>',
+                            };
+                        ?>
                         <div style="padding:16px 0;border-bottom:1px solid var(--borda,#e2e8f0);">
-                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:<?= $jaInscrito ? '0' : '12px' ?>;">
+                            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
                                 <div>
-                                    <strong><?= htmlspecialchars($md['nome_modalidade']) ?></strong>
-                                    <div style="font-size:.75rem;color:var(--texto-2,#64748b)">
+                                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                        <strong><?= htmlspecialchars($md['nome_modalidade']) ?></strong>
+                                        <?= $generoBadge ?>
+                                    </div>
+                                    <div style="font-size:.75rem;color:var(--texto-2,#64748b);margin-top:3px;">
                                         <?= htmlspecialchars($md['nome_edicao']) ?>
                                         &middot; <?= ucfirst($md['tipo_participacao']) ?>
                                         &middot; Inscrições até <?= date('d/m/Y', strtotime($md['data_fim_inscricao'])) ?>
                                     </div>
                                 </div>
                                 <?php if ($jaInscrito): ?>
-                                <span class="inscricao-badge"><i class="fa-solid fa-check"></i> Inscrito</span>
+                                    <span class="inscricao-badge"><i class="fa-solid fa-check"></i> Inscrito</span>
+                                <?php elseif ($bloqueado): ?>
+                                    <span class="genero-bloqueado"><i class="fa-solid fa-ban"></i> <?= $motivoBloqueio ?></span>
                                 <?php endif; ?>
                             </div>
 
-                            <?php if (!$jaInscrito): ?>
+                            <?php if (!$jaInscrito && !$bloqueado): ?>
                             <form onsubmit="enviarInscricao(event, <?= $md['id_edicao_modalidade'] ?>)">
                                 <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;">
                                     <div>
-                                        <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:4px;">Posição (opcional)</label>
-                                        <input type="text" name="posicao" placeholder="Ex: Atacante" style="width:100%;padding:8px 10px;border:1px solid var(--borda,#e2e8f0);border-radius:8px;background:var(--fundo,#f0f4f8);color:var(--texto,#1e293b);font-family:inherit;font-size:.85rem;">
+                                        <label class="insc-label">
+                                            <i class="fa-solid fa-shirt" style="font-size:.7rem"></i>
+                                            Nome da Camisa <span style="font-weight:400;color:var(--texto-2,#64748b)">(opcional)</span>
+                                        </label>
+                                        <input type="text" name="nome_camisa"
+                                               class="insc-input"
+                                               placeholder="Ex: Cafu, Neymar…"
+                                               value="<?= htmlspecialchars($nomeCamisaSalvo) ?>"
+                                               maxlength="20">
                                     </div>
                                     <div>
-                                        <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:4px;">Nº Camisa (opcional)</label>
-                                        <input type="number" name="camisa" min="1" max="99" placeholder="Ex: 10" style="width:100%;padding:8px 10px;border:1px solid var(--borda,#e2e8f0);border-radius:8px;background:var(--fundo,#f0f4f8);color:var(--texto,#1e293b);font-family:inherit;font-size:.85rem;">
+                                        <label class="insc-label">Nº Camisa <span style="font-weight:400;color:var(--texto-2,#64748b)">(opcional)</span></label>
+                                        <input type="number" name="camisa" min="1" max="99"
+                                               class="insc-input"
+                                               placeholder="Ex: 10">
                                     </div>
                                     <button type="submit" class="btn-inscrever">
                                         <i class="fa-solid fa-plus"></i> Inscrever
@@ -768,7 +846,7 @@ $statusLabel = [
                 </div>
             </div>
 
-        </div><!-- dash-content -->
+        </div><!-- /dash-content -->
     </main>
 </div>
 
@@ -819,17 +897,18 @@ function trocarPainelById(id) {
 }
 
 // ── Inscrição ──
-
 function enviarInscricao(e, edicaoModalidadeId) {
     e.preventDefault();
-    const form    = e.target;
-    const posicao = form.posicao.value.trim();
-    const camisa  = form.camisa.value.trim();
+    const form     = e.target;
+    const nomeCamisa = (form.nome_camisa?.value ?? '').trim();
+    const camisa   = (form.camisa?.value ?? '').trim();
 
     fetch('/soee/src/backend/actions/inscrever-aluno.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `edicao_modalidade_id=${edicaoModalidadeId}&posicao=${encodeURIComponent(posicao)}&camisa=${encodeURIComponent(camisa)}`
+        body: `edicao_modalidade_id=${edicaoModalidadeId}`
+            + `&nome_camisa=${encodeURIComponent(nomeCamisa)}`
+            + `&camisa=${encodeURIComponent(camisa)}`
     })
     .then(r => r.json())
     .then(d => {
@@ -860,4 +939,4 @@ function cancelarInscricao(id, nome) {
 }
 </script>
 
-<?php include __DIR__ . '/../includes/end.php'; ?>  
+<?php include __DIR__ . '/../includes/end.php'; ?>

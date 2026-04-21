@@ -79,6 +79,7 @@ create table inscricao (
     usuario_id_usuario int not null,
     edicao_modalidade_id int not null,
     numero_camisa_inscricao int,
+    nome_camisa_inscricao VARCHAR(20) NULL,
     posicao_inscricao varchar(40),
     capitao_inscricao tinyint(1) default 0,
     data_inscricao datetime default current_timestamp,
@@ -96,7 +97,7 @@ create table partida (
     hora_partida time not null,
     local_partida varchar(100),
     fase_partida enum('grupos','oitavas','quartas','semi','final','terceiro_lugar') not null,
-    grupo_partida char(1),
+	grupo_partida CHAR(1) NULL,
     status_partida enum('agendada','realizada','cancelada','wo') default 'agendada',
     observacoes_partida text,
     foreign key (edicao_modalidade_id) references edicao_modalidade(id_edicao_modalidade) on delete cascade on update cascade,
@@ -133,7 +134,7 @@ CREATE TABLE classificacao (
     edicao_modalidade_id INT NOT NULL,
     turma_id_turma INT NOT NULL,
 
-    grupo_classificacao CHAR(1) DEFAULT 'A', -- ✅ NOVA COLUNA
+    grupo_classificacao CHAR(1) DEFAULT 'A',
 
     pontos INT DEFAULT 0,
     vitorias INT DEFAULT 0,
@@ -162,6 +163,19 @@ SET grupo_classificacao =
     END
 ORDER BY turma_id_turma;
 
+CREATE TABLE sorteio_gerado (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    edicao_modalidade_id INT NOT NULL UNIQUE,
+    gerado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+    gerado_por INT NULL,
+    FOREIGN KEY (edicao_modalidade_id)
+        REFERENCES edicao_modalidade(id_edicao_modalidade)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (gerado_por)
+        REFERENCES usuario(id_usuario)
+        ON DELETE SET NULL ON UPDATE CASCADE
+);
+ 
 create table foto_perfil (
     id_foto int auto_increment primary key,
     usuario_id_usuario int not null,
@@ -186,6 +200,13 @@ create table feedback (
     status_feedback enum('pendente','lido','respondido') default 'pendente', 
     foreign key(usuario_id_usuario) references usuario(id_usuario) on delete cascade on update cascade
 );
+
+CREATE INDEX idx_partida_emid_fase 
+    ON partida(edicao_modalidade_id, fase_partida);
+    
+CREATE INDEX idx_classif_emid 
+    ON classificacao(edicao_modalidade_id, grupo_classificacao, pontos DESC);
+
 --------------------------------------
 ---- Area de Alimentação de Dados ----
 --------------------------------------
