@@ -138,6 +138,40 @@ $stmtTodasModalidades = $conn->query("
 ");
 $todasModalidades = $stmtTodasModalidades->fetchAll(PDO::FETCH_ASSOC);
 
+// ── INSCRIÇÕES ATIVAS DO PRÓPRIO ADM ─────────────────────────────
+$stmtMinhasInsc = $conn->prepare("
+    SELECT i.id_inscricao, i.numero_camisa_inscricao, i.nome_camisa_inscricao,
+           i.posicao_inscricao, i.capitao_inscricao, i.status_inscricao,
+           i.edicao_modalidade_id,
+           m.nome_modalidade, e.nome_edicao
+    FROM inscricao i
+    INNER JOIN edicao_modalidade em ON em.id_edicao_modalidade = i.edicao_modalidade_id
+    INNER JOIN modalidade m         ON m.id_modalidade = em.modalidade_id_modalidade
+    INNER JOIN edicao e             ON e.id_edicao     = em.edicao_id_edicao
+    WHERE i.usuario_id_usuario = :id
+      AND i.status_inscricao   = 'ativa'
+    ORDER BY i.data_inscricao DESC
+");
+$stmtMinhasInsc->execute([':id' => $userId]);
+$minhasInscricoes = $stmtMinhasInsc->fetchAll(PDO::FETCH_ASSOC);
+$minhasEmIds = array_column($minhasInscricoes, 'edicao_modalidade_id');
+ 
+// Nome de camisa mais recente do ADM (pré-preenche o form)
+$stmtNomeCamisaAdm = $conn->prepare("
+    SELECT nome_camisa_inscricao
+    FROM inscricao
+    WHERE usuario_id_usuario  = :id
+      AND nome_camisa_inscricao IS NOT NULL
+      AND nome_camisa_inscricao != ''
+    ORDER BY data_inscricao DESC
+    LIMIT 1
+");
+$stmtNomeCamisaAdm->execute([':id' => $userId]);
+$nomeCamisaAdm = $stmtNomeCamisaAdm->fetchColumn() ?: '';
+ 
+// Gênero do ADM (para filtrar modalidades por gênero)
+$generoAdm = $userData['genero_usuario'] ?? 'n';
+ 
 // ── TODAS AS EDIÇÕES (para vincular — incluindo todas) ────────────
 // Buscamos TODAS as edições disponíveis (criadas pelo professor ou adm)
 $stmtEdicoes = $conn->query("
@@ -269,6 +303,14 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
             <i class="fa-solid fa-futbol"></i> Modalidades
             <span class="nav-badge"><?= count($todasModalidades) ?></span>
         </a>
+
+        <a href="javascript:void(0)" class="nav-item" data-painel="minhas-inscricoes" onclick="trocarPainel(this)">
+            <i class="fa-solid fa-shirt"></i> Minhas Inscrições
+            <?php if (count($minhasInscricoes) > 0): ?>
+            <span class="nav-badge"><?= count($minhasInscricoes) ?></span>
+            <?php endif; ?>
+        </a>
+
         <a href="/soee/src/frontend/views/forms/feedback.php" class="nav-item">
             <i class="fa-solid fa-comment-dots"></i> Feedback
         </a>
@@ -777,7 +819,191 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
             <?php endif; ?>
 
         </div><!-- /painel-modalidades -->
-
+         
+        <!-- ══════════════════════ MINHAS INSCRIÇÕES (ADM) ══════════════════════ -->
+        <div class="painel" id="painel-minhas-inscricoes">
+ 
+            <!-- Inscrições ativas -->
+            <?php if (!empty($minhasInscricoes)): ?>
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header">
+                    <div class="card-titulo">
+                        <i class="fa-solid fa-clipboard-check" style="color:#22c55e"></i>
+                        Minhas Inscrições Ativas
+                    </div>
+                    <span style="font-size:.8rem;color:var(--texto-2)"><?= count($minhasInscricoes) ?> inscri&ccedil;&atilde;o(ões)</span>
+                </div>
+                <?php foreach ($minhasInscricoes as $ins): ?>
+                <div class="inscricao-item">
+                    <div class="ins-info">
+                        <div class="ins-nome"><?= htmlspecialchars($ins['nome_modalidade']) ?></div>
+                        <div class="ins-detalhe">
+                            <?= htmlspecialchars($ins['nome_edicao']) ?>
+                            <?php if (!empty($ins['nome_camisa_inscricao'])): ?>
+                                &middot; <i class="fa-solid fa-shirt" style="font-size:.65rem"></i>
+                                <?= htmlspecialchars(strtoupper($ins['nome_camisa_inscricao'])) ?>
+                            <?php endif; ?>
+                            <?php if ($ins['posicao_inscricao']): ?>
+                                &middot; <?= htmlspecialchars($ins['posicao_inscricao']) ?>
+                            <?php endif; ?>
+                            <?php if ($ins['capitao_inscricao']): ?>
+                                &middot; <span style="color:var(--laranja);font-weight:700">
+                                    <i class="fa-solid fa-star" style="font-size:.65rem"></i> Capitão
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php if ($ins['numero_camisa_inscricao']): ?>
+                        <div class="ins-camisa">#<?= $ins['numero_camisa_inscricao'] ?></div>
+                    <?php endif; ?>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="badge-status ativa">Ativa</span>
+                        <button class="btn-cancelar-insc-adm"
+                                onclick="cancelarInscricaoAdm(<?= $ins['id_inscricao'] ?>, '<?= addslashes(htmlspecialchars($ins['nome_modalidade'])) ?>')"
+                                style="background:rgba(239,68,68,.1);color:#ef4444;
+                                       border:1px solid rgba(239,68,68,.25);
+                                       padding:5px 12px;border-radius:8px;
+                                       font-size:.75rem;font-weight:700;cursor:pointer;
+                                       font-family:inherit;transition:background .2s;">
+                            <i class="fa-solid fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+ 
+            <!-- Modalidades disponíveis -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-titulo">
+                        <i class="fa-solid fa-futbol" style="color:var(--laranja)"></i>
+                        Modalidades Disponíveis
+                    </div>
+                </div>
+ 
+                <?php if ($nomeCamisaAdm): ?>
+                <div style="margin:0 0 16px;padding:10px 14px;
+                            background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);
+                            border-radius:10px;font-size:.82rem;color:var(--texto);">
+                    <i class="fa-solid fa-shirt" style="color:#22c55e"></i>
+                    Nome de camisa salvo: <strong><?= htmlspecialchars($nomeCamisaAdm) ?></strong>
+                    — preenchido automaticamente abaixo.
+                </div>
+                <?php endif; ?>
+ 
+                <?php
+                // Filtra modalidades abertas — mesma lógica do dash-user
+                $modalidadesAdm = array_filter($modalidades, function($md) use ($minhasEmIds, $generoAdm) {
+                    // Filtra gênero
+                    $gm = $md['genero_modalidade'] ?? 'misto';
+                    if ($gm === 'masculino' && $generoAdm !== 'm') return false;
+                    if ($gm === 'feminino'  && $generoAdm !== 'f') return false;
+                    return true;
+                });
+ 
+                if (empty($modalidades)): ?>
+                    <div class="empty-state"><i class="fa-solid fa-futbol"></i>Nenhuma modalidade com inscrições abertas.</div>
+                <?php else: ?>
+                    <?php foreach ($modalidades as $md):
+                        $jaInscrito     = in_array($md['id_edicao_modalidade'], $minhasEmIds);
+                        $generoMod      = $md['genero_modalidade'] ?? 'misto';
+                        $bloqueado      = false;
+                        $motivoBloqueio = '';
+ 
+                        if ($generoMod === 'masculino' && $generoAdm !== 'm') {
+                            $bloqueado      = true;
+                            $motivoBloqueio = 'Modalidade masculina';
+                        } elseif ($generoMod === 'feminino' && $generoAdm !== 'f') {
+                            $bloqueado      = true;
+                            $motivoBloqueio = 'Modalidade feminina';
+                        }
+ 
+                        $generoBadge = match($generoMod) {
+                            'masculino' => '<span style="font-size:.7rem;background:rgba(59,130,246,.1);color:#2563eb;border-radius:999px;padding:2px 8px;border:1px solid rgba(59,130,246,.2)"><i class="fa-solid fa-mars"></i> Masculino</span>',
+                            'feminino'  => '<span style="font-size:.7rem;background:rgba(236,72,153,.1);color:#be185d;border-radius:999px;padding:2px 8px;border:1px solid rgba(236,72,153,.2)"><i class="fa-solid fa-venus"></i> Feminino</span>',
+                            default     => '<span style="font-size:.7rem;background:rgba(100,116,139,.1);color:#475569;border-radius:999px;padding:2px 8px;border:1px solid rgba(100,116,139,.2)"><i class="fa-solid fa-venus-mars"></i> Misto</span>',
+                        };
+                    ?>
+                    <div style="padding:16px 0;border-bottom:1px solid var(--borda,#e2e8f0);">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
+                            <div>
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                    <strong style="font-size:.9rem"><?= htmlspecialchars($md['nome_modalidade']) ?></strong>
+                                    <?= $generoBadge ?>
+                                </div>
+                                <div style="font-size:.75rem;color:var(--texto-2);margin-top:3px;">
+                                    <?= htmlspecialchars($md['nome_edicao']) ?>
+                                    &middot; <?= ucfirst($md['tipo_participacao']) ?>
+                                    &middot; Inscrições até <?= date('d/m/Y', strtotime($md['data_fim_inscricao'])) ?>
+                                </div>
+                            </div>
+                            <?php if ($jaInscrito): ?>
+                                <span style="display:inline-flex;align-items:center;gap:6px;
+                                             background:rgba(34,197,94,.12);color:#15803d;
+                                             border:1px solid rgba(34,197,94,.25);
+                                             border-radius:999px;padding:4px 12px;
+                                             font-size:.75rem;font-weight:700;">
+                                    <i class="fa-solid fa-check"></i> Inscrito
+                                </span>
+                            <?php elseif ($bloqueado): ?>
+                                <span style="display:inline-flex;align-items:center;gap:6px;
+                                             background:rgba(239,68,68,.08);color:#ef4444;
+                                             border:1px solid rgba(239,68,68,.2);
+                                             border-radius:999px;padding:4px 12px;
+                                             font-size:.75rem;font-weight:600;">
+                                    <i class="fa-solid fa-ban"></i> <?= $motivoBloqueio ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+ 
+                        <?php if (!$jaInscrito && !$bloqueado): ?>
+                        <form onsubmit="enviarInscricaoAdm(event, <?= $md['id_edicao_modalidade'] ?>)">
+                            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;">
+                                <div>
+                                    <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:4px;">
+                                        <i class="fa-solid fa-shirt" style="font-size:.7rem"></i>
+                                        Nome da Camisa
+                                        <span style="font-weight:400;color:var(--texto-2)">(opcional)</span>
+                                    </label>
+                                    <input type="text" name="nome_camisa"
+                                           style="width:100%;padding:8px 10px;border:1px solid var(--borda,#e2e8f0);
+                                                  border-radius:8px;background:var(--fundo,#f0f4f8);
+                                                  color:var(--texto,#1e293b);font-family:inherit;font-size:.85rem;
+                                                  text-transform:uppercase;letter-spacing:.05em;"
+                                           placeholder="Ex: SILVA"
+                                           value="<?= htmlspecialchars($nomeCamisaAdm) ?>"
+                                           maxlength="20"
+                                           oninput="this.value=this.value.toUpperCase().replace(/[^A-ZÁÉÍÓÚÀÂÊÔÃÕÜÇ ]/g,'')">
+                                </div>
+                                <div>
+                                    <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:4px;">
+                                        Nº Camisa <span style="font-weight:400;color:var(--texto-2)">(opcional)</span>
+                                    </label>
+                                    <input type="number" name="camisa" min="1" max="99"
+                                           style="width:100%;padding:8px 10px;border:1px solid var(--borda,#e2e8f0);
+                                                  border-radius:8px;background:var(--fundo,#f0f4f8);
+                                                  color:var(--texto,#1e293b);font-family:inherit;font-size:.85rem;"
+                                           placeholder="Ex: 10">
+                                </div>
+                                <button type="submit"
+                                        style="background:#22c55e;color:white;border:none;
+                                               padding:10px 20px;border-radius:10px;
+                                               font-weight:700;cursor:pointer;font-size:.88rem;
+                                               font-family:inherit;transition:background .2s;white-space:nowrap;"
+                                        onmouseover="this.style.background='#16a34a'"
+                                        onmouseout="this.style.background='#22c55e'">
+                                    <i class="fa-solid fa-plus"></i> Inscrever
+                                </button>
+                            </div>
+                        </form>
+                        <?php endif; ?>
+                    </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div><!-- /painel-minhas-inscricoes -->
+ 
     </main>
 </div>
 

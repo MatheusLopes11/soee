@@ -406,25 +406,23 @@ $statusLabel = [
                     <div class="user-role"><?= htmlspecialchars($nomeTurma) ?></div>
                 </div>
             </a>
-            <button id="toggle-theme" class="user-menu-btn" title="Alternar tema">
-                <i class="fa-solid fa-moon" id="temaIcone"></i>
-            </button>
         </div>
     </aside>
 
     <!-- MAIN -->
     <main class="dash-main">
         <header class="topbar">
-            <button class="topbar-menu-btn"
-                onclick="document.getElementById('sidebar').classList.toggle('open')"
-                style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--texto,#1e293b);">
-                <i class="fa-solid fa-bars"></i>
-            </button>
             <div class="topbar-title" id="topbar-titulo">Visão <span>Geral</span></div>
             <a href="/soee/src/backend/includes/logout.php"
                style="margin-left:auto;color:#ef4444;display:flex;align-items:center;gap:6px;text-decoration:none;font-size:.88rem;font-weight:600;">
                 <i class="fa-solid fa-right-from-bracket"></i> Sair
             </a>
+<button class="botao-icone" onclick="alternarTema()" title="Tema">
+  <i class="fas fa-moon" id="tema-icone"></i>
+</button>
+        <a href="/soee/src/frontend/views/site/home.php" class="botao-icone" title="Início">
+            <i class="fas fa-home"></i>
+        </a>
         </header>
 
         <div class="dash-content">
@@ -849,7 +847,7 @@ $statusLabel = [
         </div><!-- /dash-content -->
     </main>
 </div>
-
+<script src="../../scripts/dash-user.js"></script>
 <script>
 // ── Tema ──
 (function() {
@@ -938,5 +936,4 @@ function cancelarInscricao(id, nome) {
     .catch(() => alert('Erro de conexão.'));
 }
 </script>
-
 <?php include __DIR__ . '/../includes/end.php'; ?>

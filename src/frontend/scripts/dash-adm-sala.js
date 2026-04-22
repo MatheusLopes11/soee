@@ -151,3 +151,44 @@ function filtrarModalidades(q) {
         el.style.display = (nome.includes(q) || tipo.includes(q)) ? '' : 'none';
     });
 }
+// ── Inscrição do ADM ──────────────────────────────────────────────
+function enviarInscricaoAdm(e, edicaoModalidadeId) {
+    e.preventDefault();
+    const form       = e.target;
+    const nomeCamisa = (form.nome_camisa?.value ?? '').trim();
+    const camisa     = (form.camisa?.value ?? '').trim();
+ 
+    fetch('/soee/src/backend/actions/inscrever-aluno.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `edicao_modalidade_id=${edicaoModalidadeId}`
+            + `&nome_camisa=${encodeURIComponent(nomeCamisa)}`
+            + `&camisa=${encodeURIComponent(camisa)}`
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.ok) {
+            alert('Inscrição realizada com sucesso!');
+            location.reload();
+        } else {
+            alert('Erro: ' + (d.erro || 'desconhecido'));
+        }
+    })
+    .catch(() => alert('Erro de conexão.'));
+}
+ 
+// ── Cancelar inscrição do ADM ─────────────────────────────────────
+function cancelarInscricaoAdm(id, nome) {
+    if (!confirm('Cancelar inscrição em "' + nome + '"?')) return;
+    fetch('/soee/src/backend/actions/cancelar-inscricao.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `id_inscricao=${id}`
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.ok) { alert('Inscrição cancelada.'); location.reload(); }
+        else alert('Erro: ' + (d.erro || 'desconhecido'));
+    })
+    .catch(() => alert('Erro de conexão.'));
+}

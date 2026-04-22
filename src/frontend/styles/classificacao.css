@@ -14,7 +14,7 @@
     --amarelo:   #f59e0b;
     --fundo:     #f0f4f8;
     --bloco:     #ffffff;
-    --texto:     #010203;
+    --texto:     #1e293b;
     --texto-2:   #64748b;
     --borda:     rgba(30,86,113,.1);
     --sombra:    0 4px 20px -4px rgba(0,0,0,.09);
@@ -230,7 +230,6 @@ body:has(a:hover) .cursor-ring,body:has(button:hover) .cursor-ring{width:52px;he
 
 /* ── PARTIDAS ── */
 .partidas-lista{display:flex;flex-direction:column;gap:26px}
-.partidas-secao{}
 .partidas-secao-titulo{display:flex;align-items:center;gap:9px;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--azul);margin-bottom:12px;padding-bottom:9px;border-bottom:2px solid var(--borda)}
 .partidas-secao-titulo i{color:var(--laranja);font-size:.82rem}
 [data-theme="dark"] .partidas-secao-titulo{color:var(--azul-2)}
@@ -287,6 +286,7 @@ body:has(a:hover) .cursor-ring,body:has(button:hover) .cursor-ring{width:52px;he
     .tab{padding:11px 13px;font-size:.78rem}
     .tab-conteudo{padding:14px 10px}
     .topbar-edicao{display:none}
-    /* Esconde colunas menos importantes em telas pequenas */
-    .grupo-tabela th:nth-child(n+8),.grupo-tabela td:nth-child(n+8){display:none}
+    /* Tabela rola horizontalmente — todas as colunas visíveis */
+    .grupo-tabela-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .grupo-tabela{min-width:520px}
 }

@@ -305,9 +305,6 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas',
 <div class="main">
 
     <header class="topbar">
-        <button class="botao-icone" onclick="document.getElementById('sidebar').classList.toggle('open')" title="Menu">
-            <i class="fas fa-bars"></i>
-        </button>
         <div class="topbar-title" id="topbar-titulo">Dashboard</div>
         <div class="topbar-search">
             <i class="fas fa-search"></i>

@@ -198,6 +198,12 @@ async function carregarEsportes() {
   }
 }
 
+function alternarTema() {
+  const atual = document.documentElement.getAttribute('data-theme');
+  const novo = atual === 'dark' ? 'light' : 'dark';
+  setTheme(novo);
+}
+
 /* ══════════════════════════════════════════
    CARREGAR CLASSIFICAÇÃO
 ══════════════════════════════════════════ */
