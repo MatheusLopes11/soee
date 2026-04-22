@@ -153,22 +153,12 @@ CREATE TABLE classificacao (
 	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-SET @grupo := 0;
-
-UPDATE classificacao
-SET grupo_classificacao = 
-    CASE 
-        WHEN (@grupo := @grupo + 1) % 2 = 0 THEN 'A'
-        ELSE 'B'
-    END
-ORDER BY turma_id_turma;
-
 CREATE TABLE sorteio_gerado (
     id INT AUTO_INCREMENT PRIMARY KEY,
     edicao_modalidade_id INT NOT NULL UNIQUE,
     gerado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
     gerado_por INT NULL,
-    FOREIGN KEY (edicao_modalidade_id)
+    FOREIGN KEY (edicao_modalidade_id) 
         REFERENCES edicao_modalidade(id_edicao_modalidade)
         ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (gerado_por)
@@ -200,6 +190,7 @@ create table feedback (
     status_feedback enum('pendente','lido','respondido') default 'pendente', 
     foreign key(usuario_id_usuario) references usuario(id_usuario) on delete cascade on update cascade
 );
+
 
 CREATE INDEX idx_partida_emid_fase 
     ON partida(edicao_modalidade_id, fase_partida);
@@ -514,3 +505,13 @@ values
 (9, 'Carolline da Silva Tinti', 'carol.pi3@email.com', '123456', 'n', 'aluno', 1),
 (9, 'Renan Oliveira Peres', 'renan@email.com', '123456', 'n', 'aluno', 1),
 (9, 'Isabelly Brito de Jesus', 'isabelly.pi3@email.com', '123456', 'n', 'aluno', 1);
+
+SET @grupo := 0;
+
+UPDATE classificacao
+SET grupo_classificacao = 
+    CASE 
+        WHEN (@grupo := @grupo + 1) % 2 = 0 THEN 'A'
+        ELSE 'B'
+    END
+ORDER BY turma_id_turma;

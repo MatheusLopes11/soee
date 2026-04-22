@@ -98,13 +98,13 @@
           Sistema de Organização de<br>
           <em>Esportes Escolares</em>
         </h1>
-
+        <br><br>
         <p>
           O <strong>SOEE</strong> é uma plataforma digital desenvolvida para
           organizar e modernizar os interclasses e eventos esportivos da
           ETEC Juscelino Kubitschek de Oliveira.
         </p>
-
+        <br><br>
         <div class="intro-acoes">
           <a href="#sobre-soee" class="botao-primario">
             <i class="fa-solid fa-arrow-down"></i>
