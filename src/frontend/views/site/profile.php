@@ -195,7 +195,7 @@ $dashboardUrl = AuthHome::getRota($userTipo);
         <div class="hero-avatar-wrap">
             <div class="hero-avatar" id="heroAvatar">
                 <?php if (!empty($user['foto_perfil_usuario'])): ?>
-                    <img src="<?= htmlspecialchars($user['foto_perfil_usuario']) ?>" alt="Foto de perfil">
+                    <img src="<?= htmlspecialchars($user['foto_perfil_usuario']) ?>">
                 <?php else: ?>
                     <?= strtoupper(substr($user['nome_usuario'], 0, 2)) ?>
                 <?php endif; ?>
@@ -433,7 +433,7 @@ $dashboardUrl = AuthHome::getRota($userTipo);
             <div class="foto-preview-wrap">
                 <div class="foto-preview" id="fotoPreview">
                     <?php if (!empty($user['foto_perfil_usuario'])): ?>
-                        <img src="<?= htmlspecialchars($user['foto_perfil_usuario']) ?>" alt="Preview">
+                        <img src="<?= htmlspecialchars($user['foto_perfil_usuario']) ?>">
                     <?php else: ?>
                         <i class="fa-solid fa-user fa-2x"></i>
                     <?php endif; ?>

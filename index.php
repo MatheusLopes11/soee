@@ -31,26 +31,16 @@ if (!empty($_SESSION['login_sucesso'])) {
 ?>
 <!-- ( HTML ) -->
 <?php include __DIR__ . '/src/frontend/views/includes/doctype.php';?>
-<head>
-    <title>SOEE | Entrar</title>
-    <link rel="stylesheet" href="/soee/src/frontend/styles/index.css">
-    <?php include __DIR__ . '/src/frontend/views/includes/head.php';?>
-</head>
-
+    <head>
+        <title>SOEE | Entrar</title>
+        <link rel="stylesheet" href="/soee/src/frontend/styles/index.css">
+        <?php include __DIR__ . '/src/frontend/views/includes/head.php';?>
+    </head>
 <body>
-<div class="cursor-dot" id="cursorDot"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-
-<div id="loader">
-    <div class="loader-inner">
-        <div class="loader-logo-text">SOEE</div>
-        <div class="loader-logo-sub">Carregando sistema</div>
-        <div class="loader-bar">
-            <div class="loader-bar-fill"></div>
-        </div>
-    </div>
-</div>
-
+    <?php
+        include __DIR__ . '/src/frontend/views/includes/cursor.php';
+        include __DIR__ . '/src/frontend/views/includes/loader.php';
+    ?>
 <div class="pagina-login">
 
     <!-- LADO ESQUERDO -->
