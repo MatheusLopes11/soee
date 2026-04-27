@@ -634,5 +634,4 @@ function avatar($nome)   { return mb_strtoupper(mb_substr($nome ?? '?', 0, 2)); 
 </button>
 
 <script src="/soee/src/frontend/scripts/classificacao.js"></script>
-</body>
-</html>
+<?php include __DIR__ . '/../includes/end.php';?>

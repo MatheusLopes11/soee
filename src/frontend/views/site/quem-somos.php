@@ -22,22 +22,25 @@
         <ul class="menu-lista">
            <li><a href="/soee/src/frontend/views/site/home.php">Início</a></li>
            <li><a href="/soee/src/frontend/views/site/modalidades.php">Modalidades</a></li>
-           <li><a href="/soee/src/frontend/views/site/sobre-etec.php">Sobre a ETEC</a></li>
-       
+           <li><a href="/soee/src/frontend/views/site/sobre-etec.php">ETEC</a></li>
            <li><a href="/soee/src/frontend/views/site/contato-redes.php">Contato & Redes</a></li>
            <li><a href="/soee/src/frontend/views/forms/feedback.php">Feedback</a></li>
         </ul>
       </nav>
 
       <div class="cabecalho-acoes">
+
         <button id="toggle-theme" class="botao-icone" aria-label="Alternar tema">
           <i class="fa-solid fa-moon"></i>
         </button>
+
         <a href="/soee/index.php" class="botao-login">
           <i class="fa-solid fa-user"></i>
           Entrar
         </a>
+
         <img src="/soee/src/frontend/assets/icons/logo-soee.png" alt="SOEE" class="logo-sistema">
+
       </div>
     </div>
   </header>
