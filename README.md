@@ -51,10 +51,6 @@ Técnico em Desenvolvimento de Sistemas
         <sub>Trello</sub>
       </td>
       <td align="center">
-        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/hackthebox.svg" height="40"/><br>
-        <sub>Hack</sub>
-      </td>
-      <td align="center">
         <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg" height="40"/><br>
         <sub>VsCode</sub>
       </td>
