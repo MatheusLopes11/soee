@@ -1,4 +1,4 @@
-#drop database if exists soee;
+drop database if exists soee;
 create database if not exists soee;
 use soee;
 -----------------------------
