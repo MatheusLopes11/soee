@@ -515,9 +515,3 @@ SET grupo_classificacao =
         ELSE 'B'
     END
 ORDER BY turma_id_turma;
-
-ALTER TABLE inscricao 
-ADD nome_camisa_inscricao VARCHAR(50) NULL;
-
-ALTER TABLE modalidade 
-ADD genero_modalidade ENUM('masculino','feminino','misto') DEFAULT 'misto';

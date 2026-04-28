@@ -156,7 +156,7 @@
         if (!data || !hora) { toast('Preencha data e hora.', 'aviso'); return; }
 
         fetchJSON(
-            '/soee/src/backend/php/actions/editar-partida.php',
+            '/soee/src/backend/actions/editar-partida.php',
             'id_partida=' + encodeURIComponent(id) +
             '&data_partida=' + encodeURIComponent(data) +
             '&hora_partida=' + encodeURIComponent(hora) +
@@ -196,7 +196,7 @@
         btnEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
         fetchJSON(
-            '/soee/src/backend/php/actions/salvar-resultado-inline.php',
+            '/soee/src/backend/actions/salvar-resultado-inline.php',
             'partida_id=' + encodeURIComponent(idPartida) +
             '&placar_time_a=' + encodeURIComponent(pA) +
             '&placar_time_b=' + encodeURIComponent(pB)

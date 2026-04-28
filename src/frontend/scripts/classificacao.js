@@ -1,131 +1,252 @@
-/* ═══════════════════════════════════════════════════════════
-   classificacao.js — SOEE · Página de Campeonato
-═══════════════════════════════════════════════════════════ */
-'use strict';
+/* ─────────────────────────────────────────
+   dash-prof.js — SOEE · Dashboard Professor
+   Depende de: adm.js (toast, abrirModal, fecharModal,
+               trocarPainel, trocarPainelById,
+               excluirRegistro, validarSumula)
+───────────────────────────────────────── */
 
-/* ── LOADER ── */
-function esconderLoader() {
-    const l = document.getElementById('loader');
-    if (l) l.classList.add('hide');
-}
-window.addEventListener('load', () => setTimeout(esconderLoader, 1500));
-setTimeout(esconderLoader, 3000);
+(function () {
+    'use strict';
 
-/* ── CURSOR ── */
-const dot  = document.getElementById('cursorDot');
-const ring = document.getElementById('cursorRing');
-let mx = 0, my = 0, rx = 0, ry = 0;
-if (dot && ring) {
-    document.addEventListener('mousemove', e => {
-        mx = e.clientX; my = e.clientY;
-        dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-    });
-    (function animRing() {
-        rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
-        ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-        requestAnimationFrame(animRing);
-    })();
-}
-
-/* ── TEMA ── */
-const html     = document.documentElement;
-const btnTema  = document.getElementById('toggleTema');
-const icoTema  = document.getElementById('iconeTema');
-
-function setTheme(t) {
-    html.setAttribute('data-theme', t);
-    localStorage.setItem('theme', t);
-    if (icoTema) icoTema.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-}
-setTheme(localStorage.getItem('theme') || 'light');
-btnTema?.addEventListener('click', () => setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
-
-/* ── TABS ── */
-function trocarTab(btn, tabId) {
-    document.querySelectorAll('.tab').forEach(b => b.classList.remove('ativo'));
-    document.querySelectorAll('.tab-conteudo').forEach(c => c.classList.remove('ativo'));
-    btn.classList.add('ativo');
-    const alvo = document.getElementById('tab-' + tabId);
-    if (alvo) {
-        alvo.classList.add('ativo');
-        setTimeout(setupReveal, 60);
-        if (tabId === 'grupos') setTimeout(animarPontos, 120);
-    }
-}
-
-/* ── REVEAL ── */
-function setupReveal() {
-    const obs = new IntersectionObserver(entries => {
-        entries.forEach(e => {
-            if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
-        });
-    }, { threshold: 0.07 });
-    document.querySelectorAll('.reveal:not(.visible)').forEach(el => obs.observe(el));
-}
-
-/* ── ANIMAÇÃO DE PONTOS ── */
-function animarPontos() {
-    document.querySelectorAll('.tab-conteudo.ativo .pts[data-target]').forEach(el => {
-        const alvo = parseInt(el.getAttribute('data-target'), 10);
-        if (isNaN(alvo)) return;
-        let atual = 0;
-        const passo = Math.max(1, Math.ceil(alvo / 16));
-        el.textContent = '0';
-        const timer = setInterval(() => {
-            atual = Math.min(atual + passo, alvo);
-            el.textContent = atual;
-            if (atual >= alvo) clearInterval(timer);
-        }, 40);
-    });
-}
-
-/* ── TOOLTIPS NAS COLUNAS ── */
-function setupTooltips() {
-    document.querySelectorAll('.grupo-tabela th[title]').forEach(th => {
-        th.style.cursor = 'help';
-        th.addEventListener('mouseenter', function () {
-            const tip = document.createElement('div');
-            tip.className = '_soee_tip';
-            tip.textContent = this.title;
-            Object.assign(tip.style, {
-                position: 'fixed', background: '#1e293b', color: '#fff',
-                fontSize: '.72rem', padding: '4px 10px', borderRadius: '6px',
-                pointerEvents: 'none', zIndex: '9999', whiteSpace: 'nowrap',
-                boxShadow: '0 4px 12px rgba(0,0,0,.2)',
+    /* ── helper: faz fetch e lida com JSON ou HTML de erro ── */
+    function fetchJSON(url, body) {
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+        })
+        .then(function (r) {
+            return r.text().then(function (txt) {
+                console.log('[SOEE fetch]', url, '→ HTTP', r.status);
+                console.log('[SOEE fetch] body:', txt);
+                try {
+                    return JSON.parse(txt);
+                } catch (e) {
+                    return {
+                        ok: false,
+                        erro: 'Resposta do servidor: ' + txt.replace(/<[^>]+>/g, ' ').trim().substring(0, 200)
+                    };
+                }
             });
-            document.body.appendChild(tip);
-            const rect = this.getBoundingClientRect();
-            tip.style.left = rect.left + rect.width / 2 - tip.offsetWidth / 2 + 'px';
-            tip.style.top  = rect.top - tip.offsetHeight - 6 + 'px';
         });
-        th.addEventListener('mouseleave', () => {
-            document.querySelectorAll('._soee_tip').forEach(t => t.remove());
+    }
+
+    /* ════════════════════════════════════════
+       ELEGER / REMOVER ADM DE SALA
+    ════════════════════════════════════════ */
+    window.elegerAdmSala = function (idAluno, nomeAluno) {
+        if (!confirm('Alterar cargo de "' + nomeAluno + '"?')) return;
+        fetchJSON('/soee/src/backend/actions/eleger-adm-sala.php', 'id_usuario=' + idAluno)
+        .then(function (d) {
+            if (d.ok) {
+                toast('Cargo de ' + nomeAluno + ' atualizado!', 'sucesso');
+                setTimeout(function () { location.reload(); }, 1400);
+            } else {
+                toast('Erro: ' + (d.erro || 'desconhecido'), 'erro');
+            }
+        })
+        .catch(function (e) { console.error('[elegerAdmSala]', e); toast('Erro de conexão.', 'erro'); });
+    };
+
+    /* ════════════════════════════════════════
+       ALTERAR STATUS DE EDIÇÃO
+    ════════════════════════════════════════ */
+    window.alterarStatusEdicao = function (id, status, selectEl) {
+        fetchJSON(
+            '/soee/src/backend/actions/atualizar-status-edicao.php',
+            'id_edicao=' + id + '&status=' + encodeURIComponent(status)
+        )
+        .then(function (d) {
+            if (d.ok) {
+                toast('Status atualizado com sucesso!', 'sucesso');
+                var badgeMap = {
+                    planejamento: '<span class="badge-status pendente">Planejamento</span>',
+                    inscricoes:   '<span class="badge-status pendente">Inscrições</span>',
+                    em_andamento: '<span class="badge-status ativo">Em Andamento</span>',
+                    encerrado:    '<span class="badge-status encerrado">Encerrado</span>'
+                };
+                var row = selectEl.closest('tr');
+                if (row) {
+                    var badgeTd = row.querySelectorAll('td')[5];
+                    if (badgeTd && badgeMap[status]) badgeTd.innerHTML = badgeMap[status];
+                }
+            } else {
+                toast('Erro: ' + (d.erro || 'desconhecido'), 'erro');
+            }
+        })
+        .catch(function (e) { console.error('[alterarStatusEdicao]', e); toast('Erro de conexão.', 'erro'); });
+    };
+
+    /* ════════════════════════════════════════
+       SORTEIO DE PARTIDAS
+    ════════════════════════════════════════ */
+    window.gerarSorteio = function (emId, nomeModalidade, btnEl) {
+        if (!confirm('Gerar sorteio para "' + nomeModalidade + '"?\n\nAs partidas serão criadas aleatoriamente. Essa ação não pode ser desfeita.')) return;
+
+        if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sorteando…'; }
+
+        var modal = document.getElementById('modal-sorteio');
+        document.getElementById('sorteio-loading').style.display  = 'block';
+        document.getElementById('sorteio-resultado').style.display = 'none';
+        document.getElementById('sorteio-footer').style.display   = 'none';
+        modal.classList.add('open');
+
+        fetchJSON('/soee/src/backend/actions/gerar-sorteio.php', 'edicao_modalidade_id=' + emId)
+        .then(function (d) {
+            document.getElementById('sorteio-loading').style.display = 'none';
+            document.getElementById('sorteio-footer').style.display  = 'block';
+            var res = document.getElementById('sorteio-resultado');
+            res.style.display = 'block';
+
+            if (!d.ok) {
+                res.innerHTML = '<div class="sorteio-alerta erro"><i class="fas fa-circle-xmark"></i> ' + (d.erro || 'Erro desconhecido') + '</div>';
+                if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '<i class="fas fa-shuffle"></i> Sortear'; }
+                return;
+            }
+
+            var html = '<div class="sorteio-alerta ok" style="margin-bottom:18px;"><i class="fas fa-check-circle"></i> ' + d.msg + '</div>';
+            var grupos = {};
+            (d.partidas || []).forEach(function (p) {
+                var key = p.grupo ? 'Grupo ' + p.grupo : p.fase;
+                if (!grupos[key]) grupos[key] = [];
+                grupos[key].push(p);
+            });
+            Object.keys(grupos).forEach(function (key) {
+                html += '<div class="sorteio-grupo-label"><i class="fas fa-layer-group"></i> ' + key + '</div>';
+                grupos[key].forEach(function (p) {
+                    html += '<div class="sorteio-partida-item"><span>' + p.time_a + '</span><span class="sorteio-vs">VS</span><span>' + p.time_b + '</span></div>';
+                });
+            });
+            res.innerHTML = html;
+            if (btnEl && btnEl.parentElement) {
+                btnEl.outerHTML = '<span class="badge-sorteado"><i class="fas fa-check"></i> Sorteado</span>';
+            }
+        })
+        .catch(function (e) {
+            console.error('[gerarSorteio]', e);
+            document.getElementById('sorteio-loading').style.display = 'none';
+            document.getElementById('sorteio-resultado').innerHTML = '<div class="sorteio-alerta erro"><i class="fas fa-circle-xmark"></i> Erro de conexão.</div>';
+            document.getElementById('sorteio-resultado').style.display = 'block';
+            document.getElementById('sorteio-footer').style.display = 'block';
+            if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '<i class="fas fa-shuffle"></i> Sortear'; }
         });
+    };
+
+    window.fecharModalSorteio = function () {
+        document.getElementById('modal-sorteio').classList.remove('open');
+    };
+
+    /* ════════════════════════════════════════
+       EDITAR PARTIDA (data / hora / local)
+    ════════════════════════════════════════ */
+    window.abrirEditarPartida = function (id, data, hora, local) {
+        console.log('[editarPartida] id='+id+' data='+data+' hora='+hora);
+        document.getElementById('edit-partida-id').value    = id;
+        document.getElementById('edit-partida-data').value  = data;
+        document.getElementById('edit-partida-hora').value  = hora;
+        document.getElementById('edit-partida-local').value = local || '';
+        abrirModal('modal-editar-partida');
+        setTimeout(function(){
+            console.log('[editarPartida] id no campo:', document.getElementById('edit-partida-id').value);
+        }, 150);
+    };
+
+    function salvarEdicaoPartida() {
+        var id    = document.getElementById('edit-partida-id').value;
+        var data  = document.getElementById('edit-partida-data').value;
+        var hora  = document.getElementById('edit-partida-hora').value;
+        var local = document.getElementById('edit-partida-local').value;
+
+        if (!data || !hora) { toast('Preencha data e hora.', 'aviso'); return; }
+
+        fetchJSON(
+            '/soee/src/backend/actions/editar-partida.php',
+            'id_partida=' + encodeURIComponent(id) +
+            '&data_partida=' + encodeURIComponent(data) +
+            '&hora_partida=' + encodeURIComponent(hora) +
+            '&local_partida=' + encodeURIComponent(local)
+        )
+        .then(function (d) {
+            if (d.ok) {
+                toast('Partida atualizada!', 'sucesso');
+                fecharModal('modal-editar-partida');
+                setTimeout(function () { location.reload(); }, 1200);
+            } else {
+                toast(d.erro || 'Erro desconhecido', 'erro');
+            }
+        })
+        .catch(function (e) { console.error('[salvarEdicaoPartida]', e); toast('Erro de conexão.', 'erro'); });
+    }
+
+    /* ════════════════════════════════════════
+       REGISTRAR RESULTADO INLINE
+    ════════════════════════════════════════ */
+    window.salvarResultadoInline = function (idPartida, nomeTimeA, nomeTimeB, btnEl) {
+        var row  = btnEl.closest('tr');
+        var inpA = row.querySelector('.placar-a');
+        var inpB = row.querySelector('.placar-b');
+
+        if (!inpA || !inpB) return;
+
+        var pA = parseInt(inpA.value, 10);
+        var pB = parseInt(inpB.value, 10);
+
+        if (isNaN(pA) || isNaN(pB) || pA < 0 || pB < 0) {
+            toast('Informe placares válidos (≥ 0).', 'aviso');
+            return;
+        }
+
+        btnEl.disabled = true;
+        btnEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        fetchJSON(
+            '/soee/src/backend/actions/salvar-resultado-inline.php',
+            'partida_id=' + encodeURIComponent(idPartida) +
+            '&placar_time_a=' + encodeURIComponent(pA) +
+            '&placar_time_b=' + encodeURIComponent(pB)
+        )
+        .then(function (d) {
+            if (d.ok) {
+                toast('Resultado salvo!', 'sucesso');
+                var vencedor = pA > pB ? nomeTimeA : (pB > pA ? nomeTimeB : 'Empate');
+                var cell = row.querySelector('.td-resultado');
+                if (cell) {
+                    cell.innerHTML =
+                        '<span class="resultado-vencedor-badge">' +
+                        '<i class="fas fa-trophy"></i> ' + vencedor +
+                        ' (' + pA + '\u2013' + pB + ')' +
+                        '</span>';
+                }
+                setTimeout(function () { location.reload(); }, 1400);
+            } else {
+                toast(d.erro || 'Erro desconhecido', 'erro');
+                btnEl.disabled = false;
+                btnEl.innerHTML = '<i class="fas fa-check"></i> Salvar';
+            }
+        })
+        .catch(function (e) {
+            console.error('[salvarResultadoInline]', e);
+            toast('Erro de conexão.', 'erro');
+            btnEl.disabled = false;
+            btnEl.innerHTML = '<i class="fas fa-check"></i> Salvar';
+        });
+    };
+
+    /* ════════════════════════════════════════
+       INICIALIZAÇÃO
+    ════════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var ms = document.getElementById('modal-sorteio');
+        if (ms) ms.addEventListener('click', function (e) { if (e.target === ms) fecharModalSorteio(); });
+
+        var btnSalvarEd = document.getElementById('btn-salvar-edicao-partida');
+        if (btnSalvarEd) btnSalvarEd.addEventListener('click', salvarEdicaoPartida);
+
+        (function () {
+            var p = new URLSearchParams(window.location.search);
+            if (p.get('ok') === '1') history.replaceState({}, '', window.location.pathname);
+        })();
     });
-}
 
-/* ── SIDEBAR MOBILE ── */
-const sidebar = document.getElementById('sidebar');
-const btnSide = document.getElementById('sidebarToggle');
-if (btnSide) btnSide.addEventListener('click', () => sidebar?.classList.toggle('aberta'));
-document.addEventListener('click', e => {
-    if (!sidebar || window.innerWidth > 960) return;
-    if (sidebar.classList.contains('aberta') && !sidebar.contains(e.target) && e.target !== btnSide)
-        sidebar.classList.remove('aberta');
-});
-document.querySelectorAll('.sidebar-item').forEach(item =>
-    item.addEventListener('click', () => { if (window.innerWidth <= 960) sidebar?.classList.remove('aberta'); })
-);
-
-/* ── SCROLL SIDEBAR AO ITEM ATIVO ── */
-(function() {
-    const item = document.querySelector('.sidebar-item.ativo');
-    if (item && sidebar) sidebar.scrollTop = item.offsetTop - sidebar.clientHeight / 2;
 })();
-
-/* ── INIT ── */
-document.addEventListener('DOMContentLoaded', () => {
-    setupReveal();
-    setupTooltips();
-    setTimeout(animarPontos, 1700);
-});
