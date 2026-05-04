@@ -2,7 +2,6 @@
    home.js — SOEE
 ───────────────────────────────────────── */
 
-
 function esconderLoader() {
   document.getElementById('loader').classList.add('hide');
 }

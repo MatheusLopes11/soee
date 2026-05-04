@@ -19,31 +19,39 @@ $erroMsg = match($erro) {
     default                => null
 };
 ?>
+<!-- ( HTML ) -->
 <?php include __DIR__ . '/../includes/doctype.php'; ?>
-<head>
-    <title>Cadastro de Modalidade — SOEE</title>
-    <link rel="stylesheet" href="/soee/src/frontend/styles/inicio.css" />
-    <link rel="stylesheet" href="/soee/src/frontend/styles/cad-esporte.css"/>
-    <?php include __DIR__ . '/../includes/head.php'; ?>
-</head>
+    <head>
+        <title>Criação de Modalidade | SOEE</title>
+        <link rel="stylesheet" href="/soee/src/frontend/styles/cad-esporte.css"/>
+        <?php include __DIR__ . '/../includes/head.php';?>
+    </head>
 <body>
-
-<?php include __DIR__ . '/../includes/cursor.php'; ?>
-
+    <?php 
+        include __DIR__ . '/../includes/cursor.php'; 
+    ?>
 <main>
 
     <section class="pagina-hero" aria-label="Cabeçalho da página">
+
+        <div class="topo-acoes">
+            <button id="toggle-theme" class="botao-icone" aria-label="Alternar tema">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </div>
+
         <div class="pagina-hero-bg"></div>
         <div class="pagina-hero-grid"></div>
+
         <div class="pagina-hero-conteudo">
-            <div class="badge"><i class="fa-solid fa-shield-halved"></i> Painel Administrativo</div>
-            <h1>Nova <em>Modalidade</em>
-                <button id="toggle-theme" class="botao-icone" aria-label="Alternar tema">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-            </h1>
-            <p>Cadastre um esporte, defina seu formato e inclua o regulamento oficial da competição.</p>
-        </div>
+            <div class="badge"><i class="fa-solid fa-shield-halved"></i>Painel Administrativo</div>
+                <h1>
+                    Nova <em>Modalidade</em>                
+                </h1>
+                <p>
+                    Cadastre um esporte, defina seu formato e inclua o regulamento oficial da competição.
+                </p>
+            </div>
         <div class="pagina-onda">
             <svg viewBox="0 0 1440 70" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0,35 C360,70 1080,0 1440,35 L1440,70 L0,70 Z" fill="var(--fundo-pagina)" />
@@ -70,11 +78,15 @@ $erroMsg = match($erro) {
 
                 <!-- ══ SEÇÃO 1 — IDENTIFICAÇÃO ══ -->
                 <section class="form-secao">
+
                     <div class="secao-titulo">
                         <span class="secao-numero">1</span>
                         <h2>Identificação</h2>
-                        <span class="secao-desc">Informações básicas do esporte</span>
+                        <span
+                         class="secao-desc">Informações básicas do esporte
+                        </span>
                     </div>
+
                     <div class="form-grid">
                         <div class="campo-grupo">
                             <label for="nome_modalidade">

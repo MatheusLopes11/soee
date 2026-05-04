@@ -438,13 +438,16 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
         <!-- ══════ MODALIDADES ══════ -->
         <div class="painel" id="painel-modalidades">
             <div class="secao-card">
+
                 <div class="secao-card-header">
                     <h3>Modalidades Esportivas</h3>
-                    <span class="secao-tag-mini"><?= count($modalidades) ?> registros</span>
-                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-modalidade')">
-                        <i class="fas fa-plus"></i> Nova Modalidade
-                    </button>
+                      <span class="secao-tag-mini"><?= count($modalidades) ?> registros</span>
+
+                        <a href="/soee/src/frontend/views/forms/criacao-esporte.php" class="btn btn-primario btn-sm">
+                          <i class="fas fa-plus"></i> Nova Modalidade
+                      </a>
                 </div>
+                
                 <div class="tabela-wrap">
                     <table>
                         <thead>

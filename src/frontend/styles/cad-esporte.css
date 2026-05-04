@@ -539,3 +539,26 @@ input[type="number"] { -moz-appearance: textfield; }
     background: rgba(255,77,18,.06);
     color: #ff4d12;
 }
+
+/* Botão Tema */
+.topo-acoes {
+    position: fixed; 
+    top: 20px;
+    right: 30px;
+    z-index: 10;
+}
+
+.botao-icone {
+    background: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #000;
+    backdrop-filter: blur(6px);
+    transition: 0.3s;
+}
+
+.botao-icone:hover {
+    transform: scale(1.1);
+}
