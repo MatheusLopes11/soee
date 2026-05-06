@@ -1,19 +1,46 @@
 <?php
 session_start();
-require_once __DIR__ . '/../includes/conexao.php';
-header('Content-Type: application/json; charset=utf-8');
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/includes/conexao.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
 
-$userId = $_SESSION['user_id'] ?? 0;
-if (!$userId) { echo json_encode(['ok' => false, 'erro' => 'Não autenticado']); exit; }
+header('Content-Type: application/json');
 
-$id = intval($_POST['id_inscricao'] ?? 0);
-if (!$id) { echo json_encode(['ok' => false, 'erro' => 'ID inválido']); exit; }
+// ── Aceita aluno E adm_sala ───────────────────────────────────────
+AuthHome::exigirTipo(['aluno', 'adm_sala']);
 
+$userId      = AuthHome::getId();
+$idInscricao = (int) ($_POST['id_inscricao'] ?? 0);
+
+if (!$idInscricao) {
+    echo json_encode(['ok' => false, 'erro' => 'ID de inscrição inválido.']);
+    exit;
+}
+
+// ── Verifica se a inscrição pertence ao usuário logado ────────────
+$stmtCheck = $conn->prepare("
+    SELECT id_inscricao FROM inscricao
+    WHERE id_inscricao        = :id
+      AND usuario_id_usuario  = :uid
+      AND status_inscricao    = 'ativa'
+    LIMIT 1
+");
+$stmtCheck->execute([':id' => $idInscricao, ':uid' => $userId]);
+
+if (!$stmtCheck->fetch()) {
+    echo json_encode(['ok' => false, 'erro' => 'Inscrição não encontrada ou já cancelada.']);
+    exit;
+}
+
+// ── Cancela ───────────────────────────────────────────────────────
 try {
-    // Garante que só cancela inscrição do próprio usuário
-    $stmt = $conn->prepare("UPDATE inscricao SET status_inscricao = 'cancelada' WHERE id_inscricao = :id AND usuario_id_usuario = :u");
-    $stmt->execute([':id' => $id, ':u' => $userId]);
+    $stmtUp = $conn->prepare("
+        UPDATE inscricao
+        SET status_inscricao = 'cancelada'
+        WHERE id_inscricao = :id
+    ");
+    $stmtUp->execute([':id' => $idInscricao]);
+
     echo json_encode(['ok' => true]);
 } catch (PDOException $e) {
-    echo json_encode(['ok' => false, 'erro' => $e->getMessage()]);
+    echo json_encode(['ok' => false, 'erro' => 'Erro ao cancelar inscrição. Tente novamente.']);
 }

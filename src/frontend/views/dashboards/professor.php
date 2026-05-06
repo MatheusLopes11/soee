@@ -1037,6 +1037,6 @@ $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas',
 
 <!-- Scripts: base primeiro, depois específico da página -->
 <script src="/soee/src/frontend/scripts/adm.js"></script>
-<script src="/soee/src/frontend/scripts/dash-prof.js>"></script>
+<script src="/soee/src/frontend/scripts/dash-prof.js"></script>
                                 
 <?php include __DIR__ . '/../includes/end.php'; ?>

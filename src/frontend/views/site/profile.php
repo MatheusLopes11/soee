@@ -65,8 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
     $novoNome   = trim($_POST['nome_usuario']  ?? '');
     $novoEmail  = trim($_POST['email_usuario'] ?? '');
     $novoGenero = $_POST['genero_usuario']     ?? '';
-    $numCamisa  = trim($_POST['numero_camisa'] ?? '');
-    $nomeCamisa = strtoupper(trim($_POST['nome_camisa'] ?? '')); // força maiúsculas no servidor
 
     $generosValidos = ['m', 'f', 'n'];
     $erros = [];
@@ -75,8 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
     if (empty($novoEmail)) $erros[] = 'E-mail é obrigatório.';
     elseif (!filter_var($novoEmail, FILTER_VALIDATE_EMAIL)) $erros[] = 'E-mail inválido.';
     if (!in_array($novoGenero, $generosValidos)) $erros[] = 'Gênero inválido.';
-    if ($numCamisa !== '' && (!ctype_digit($numCamisa) || (int)$numCamisa < 1 || (int)$numCamisa > 999))
-        $erros[] = 'Número de camisa inválido (1 a 999).';
 
     if (empty($erros)) {
         $chk = $conn->prepare("SELECT id_usuario FROM usuario WHERE email_usuario = :email AND id_usuario != :id");
@@ -88,7 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
         $msgEdit  = implode(' ', $erros);
         $tipoEdit = 'erro';
     } else {
-        // Atualiza dados do usuário (SEM turma — somente leitura)
         $conn->prepare("
             UPDATE usuario
             SET nome_usuario   = :nome,
@@ -100,21 +95,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
             ':email'  => $novoEmail,
             ':genero' => $novoGenero,
             ':id'     => $userId,
-        ]);
-
-        // Atualiza camisa na inscrição ativa mais recente
-        $conn->prepare("
-            UPDATE inscricao
-            SET numero_camisa_inscricao = :num,
-                nome_camisa_inscricao   = :nome_camisa
-            WHERE usuario_id_usuario = :uid
-              AND status_inscricao   = 'ativa'
-            ORDER BY data_inscricao DESC
-            LIMIT 1
-        ")->execute([
-            ':num'         => $numCamisa !== '' ? (int)$numCamisa : null,
-            ':nome_camisa' => $nomeCamisa !== '' ? $nomeCamisa : null,
-            ':uid'         => $userId,
         ]);
 
         $msgEdit  = 'Perfil atualizado com sucesso!';
@@ -139,7 +119,7 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // ─── Inscrições ───────────────────────────────────────────────────────────────
 $stmtIns = $conn->prepare("
-    SELECT i.numero_camisa_inscricao, i.nome_camisa_inscricao,
+    SELECT i.id_inscricao, i.numero_camisa_inscricao, i.nome_camisa_inscricao,
            i.posicao_inscricao, i.capitao_inscricao,
            m.nome_modalidade, e.nome_edicao, i.status_inscricao
     FROM inscricao i
@@ -152,12 +132,6 @@ $stmtIns = $conn->prepare("
 ");
 $stmtIns->execute([':id' => $userId]);
 $inscricoes = $stmtIns->fetchAll(PDO::FETCH_ASSOC);
-
-// Dados de camisa da inscrição ativa mais recente
-$camisaAtual = null;
-foreach ($inscricoes as $ins) {
-    if ($ins['status_inscricao'] === 'ativa') { $camisaAtual = $ins; break; }
-}
 
 $tipoLabel   = ['adm_geral' => 'Administrador Geral', 'adm_sala' => 'ADM de Sala', 'professor' => 'Professor', 'aluno' => 'Aluno'];
 $generoLabel = ['m' => 'Masculino', 'f' => 'Feminino', 'n' => 'Não informado'];
@@ -327,48 +301,6 @@ $dashboardUrl = AuthHome::getRota($userTipo);
                 </div>
                 <?php endif; ?>
 
-                <!-- Número da camisa (sempre visível) -->
-                <div class="info-item">
-                    <span class="info-label">
-                        <i class="fa-solid fa-shirt"></i> Número da camisa
-                        <span class="hint-opt">(opcional)</span>
-                    </span>
-                    <div class="info-valor">
-                        <span class="val-texto">
-                            <?php if (!empty($camisaAtual['numero_camisa_inscricao'])): ?>
-                                #<?= htmlspecialchars($camisaAtual['numero_camisa_inscricao']) ?>
-                            <?php else: ?>
-                                <span class="valor-vazio">Não informado</span>
-                            <?php endif; ?>
-                        </span>
-                        <input class="val-input" type="number" name="numero_camisa"
-                               min="1" max="999"
-                               value="<?= htmlspecialchars($camisaAtual['numero_camisa_inscricao'] ?? '') ?>"
-                               placeholder="Ex: 10">
-                    </div>
-                </div>
-
-                <!-- Nome na camisa (sempre visível) -->
-                <div class="info-item">
-                    <span class="info-label">
-                        <i class="fa-solid fa-tag"></i> Nome na camisa
-                        <span class="hint-opt">(opcional)</span>
-                    </span>
-                    <div class="info-valor">
-                        <span class="val-texto">
-                            <?php if (!empty($camisaAtual['nome_camisa_inscricao'])): ?>
-                                <span class="camisa-nome-destaque"><?= htmlspecialchars(strtoupper($camisaAtual['nome_camisa_inscricao'])) ?></span>
-                            <?php else: ?>
-                                <span class="valor-vazio">Não informado</span>
-                            <?php endif; ?>
-                        </span>
-                        <input class="val-input val-input-camisa" type="text" name="nome_camisa"
-                               maxlength="20"
-                               value="<?= htmlspecialchars(strtoupper($camisaAtual['nome_camisa_inscricao'] ?? '')) ?>"
-                               placeholder="Ex: SILVA">
-                    </div>
-                </div>
-
             </div><!-- /info-grid -->
 
             <div class="secao-acoes">
@@ -509,29 +441,6 @@ btnCancelar.addEventListener('click', () => {
     });
     secao.classList.remove('secao-editando');
 });
-
-/* ── Nome na camisa: só aceita letras maiúsculas e espaço ─────────── */
-const inputNomeCamisa = document.querySelector('input[name="nome_camisa"]');
-if (inputNomeCamisa) {
-    inputNomeCamisa.addEventListener('keypress', function (e) {
-        const char = String.fromCharCode(e.which);
-        // Permite apenas letras (qualquer língua) e espaço
-        if (!/[\p{L} ]/u.test(char)) {
-            e.preventDefault();
-        }
-    });
-    inputNomeCamisa.addEventListener('input', function () {
-        const pos = this.selectionStart;
-        this.value = this.value.toUpperCase().replace(/[^A-ZÁÉÍÓÚÀÂÊÔÃÕÜÇ ]/g, '');
-        this.setSelectionRange(pos, pos);
-    });
-    inputNomeCamisa.addEventListener('paste', function (e) {
-        e.preventDefault();
-        const text = (e.clipboardData || window.clipboardData).getData('text');
-        const clean = text.toUpperCase().replace(/[^A-ZÁÉÍÓÚÀÂÊÔÃÕÜÇ ]/g, '');
-        document.execCommand('insertText', false, clean);
-    });
-}
 
 /* ── Auto-dismiss dos toasts após 4 s ────────────────────────────── */
 ['toastFoto', 'toastEdit'].forEach(id => {

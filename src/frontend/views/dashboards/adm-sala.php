@@ -720,7 +720,7 @@ unset($_SESSION['flash_msg'], $_SESSION['flash_tipo']);
             <div class="card" style="margin-bottom:24px;">
                 <div class="card-header">
                     <div class="card-titulo"><i class="fa-solid fa-futbol"></i> Todas as Modalidades</div>
-                    <a href="/soee/src/frontend/views/forms/esporte.php" class="btn-nova-modalidade">
+                    <a href="/soee/src/frontend/views/forms/criacao-esporte.php" class="btn-nova-modalidade">
                         <i class="fa-solid fa-plus"></i> Nova Modalidade
                     </a>
                 </div>

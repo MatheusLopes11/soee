@@ -5,7 +5,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php
 
 header('Content-Type: application/json');
 
-AuthHome::exigirTipo(['aluno']);
+// ── Aceita aluno E adm_sala ───────────────────────────────────────
+AuthHome::exigirTipo(['aluno', 'adm_sala']);
 
 $userId             = AuthHome::getId();
 $edicaoModalidadeId = (int) ($_POST['edicao_modalidade_id'] ?? 0);
@@ -17,6 +18,7 @@ if (!$edicaoModalidadeId) {
     exit;
 }
 
+// ── Dados do usuário ──────────────────────────────────────────────
 $stmtU = $conn->prepare("SELECT genero_usuario FROM usuario WHERE id_usuario = :id LIMIT 1");
 $stmtU->execute([':id' => $userId]);
 $usuario = $stmtU->fetch(PDO::FETCH_ASSOC);
@@ -28,6 +30,7 @@ if (!$usuario) {
 
 $generoUsuario = $usuario['genero_usuario'];
 
+// ── Valida modalidade ─────────────────────────────────────────────
 $stmtMod = $conn->prepare("
     SELECT m.genero_modalidade, em.status_edicao_modalidade, e.status_edicao
     FROM edicao_modalidade em
@@ -48,11 +51,13 @@ if ($modalidade['status_edicao_modalidade'] !== 'inscricoes') {
     echo json_encode(['ok' => false, 'erro' => 'As inscrições para esta modalidade estão encerradas.']);
     exit;
 }
+
 if ($modalidade['status_edicao'] === 'encerrado') {
     echo json_encode(['ok' => false, 'erro' => 'Esta edição está encerrada.']);
     exit;
 }
 
+// ── Valida gênero ─────────────────────────────────────────────────
 $generoModalidade = $modalidade['genero_modalidade'];
 
 if ($generoModalidade !== 'misto') {
@@ -67,11 +72,12 @@ if ($generoModalidade !== 'misto') {
     }
 }
 
+// ── Evita duplicata ───────────────────────────────────────────────
 $stmtDup = $conn->prepare("
     SELECT id_inscricao FROM inscricao
-    WHERE usuario_id_usuario = :uid
+    WHERE usuario_id_usuario  = :uid
       AND edicao_modalidade_id = :emid
-      AND status_inscricao = 'ativa'
+      AND status_inscricao     = 'ativa'
     LIMIT 1
 ");
 $stmtDup->execute([':uid' => $userId, ':emid' => $edicaoModalidadeId]);
@@ -80,6 +86,7 @@ if ($stmtDup->fetch()) {
     exit;
 }
 
+// ── Insere ────────────────────────────────────────────────────────
 try {
     $stmtIns = $conn->prepare("
         INSERT INTO inscricao
