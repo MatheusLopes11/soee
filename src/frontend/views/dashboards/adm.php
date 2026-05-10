@@ -1,18 +1,22 @@
 <?php
 /* ═══════════════════════════════════════════════════════════
    dash-adm.php — SOEE · Dashboard Administrativo Geral
-   Correções:
-     - session_start() adicionado
-     - tag </a> solta removida da sidebar
-     - AuthHome::exigirTipo usado corretamente
+   CORREÇÕES v2:
+     - Edição de modalidade funcional (carrega dados no modal)
+     - Edição de partida funcional (carrega dados no modal)
+     - Edição de resultado funcional (carrega dados no modal)
+     - Edição de edição funcional (carrega dados no modal)
+     - Label "action" corrigido para "Partida" no modal resultado
+     - CSS do input[type=file] de súmula corrigido
+     - caminho_arquivo_sumula adicionado à query de súmulas
+     - AuthHome::exigirTipo duplicado removido
 ═══════════════════════════════════════════════════════════ */
 ob_start();
 session_start();
 require_once __DIR__ . '/../../../backend/includes/conexao.php';
 require_once __DIR__ . '/../../../backend/controllers/home.php';
 
-AuthHome::exigirTipo(['adm_geral']);
-AuthHome::exigirTipo(['adm_geral']);
+AuthHome::exigirTipo(['adm_geral']); // Removido duplicado
 
 $usuario_logado = AuthHome::getNome();
 $tipo_usuario   = AuthHome::getTipo();
@@ -35,7 +39,7 @@ $kpi_modalidades = $conn->query("SELECT COUNT(*) FROM modalidade WHERE ativo_mod
 
 // ── USUÁRIOS ───────────────────────────────────────────────
 $usuarios = $conn->query("
-            SELECT u.id_usuario, u.nome_usuario, u.email_usuario,
+    SELECT u.id_usuario, u.nome_usuario, u.email_usuario,
            t.nome_turma, u.tipo_usuario, u.genero_usuario, u.ativo_usuario
     FROM usuario u
     LEFT JOIN turma t ON t.id_turma = u.turma_id_turma
@@ -55,7 +59,8 @@ $turmas = $conn->query("
 $modalidades = $conn->query("
     SELECT id_modalidade, nome_modalidade, tipo_modalidade,
            formato_modalidade, tipo_participacao,
-           qtd_min_jogadores, qtd_max_jogadores, ativo_modalidade
+           qtd_min_jogadores, qtd_max_jogadores, ativo_modalidade,
+           descricao_modalidade
     FROM modalidade
     ORDER BY id_modalidade
 ")->fetchAll(PDO::FETCH_ASSOC);
@@ -63,7 +68,8 @@ $modalidades = $conn->query("
 // ── EDIÇÕES ────────────────────────────────────────────────
 $edicoes = $conn->query("
     SELECT id_edicao, nome_edicao, ano_edicao,
-           data_inicio_edicao, data_fim_edicao, status_edicao
+           data_inicio_edicao, data_fim_edicao, status_edicao,
+           descricao_edicao
     FROM edicao
     ORDER BY id_edicao DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
@@ -72,8 +78,10 @@ $edicoes = $conn->query("
 $partidas = $conn->query("
     SELECT p.id_partida, m.nome_modalidade,
            ta.nome_turma AS time_a, tb.nome_turma AS time_b,
+           p.turma_id_time_a, p.turma_id_time_b,
+           p.edicao_modalidade_id,
            p.data_partida, p.hora_partida, p.local_partida,
-           p.fase_partida, p.status_partida
+           p.fase_partida, p.status_partida, p.observacoes_partida
     FROM partida p
     JOIN edicao_modalidade em ON em.id_edicao_modalidade = p.edicao_modalidade_id
     JOIN modalidade m ON m.id_modalidade = em.modalidade_id_modalidade
@@ -87,8 +95,11 @@ $resultados = $conn->query("
     SELECT r.id_resultado,
            ta.nome_turma AS time_a, tb.nome_turma AS time_b,
            m.nome_modalidade,
+           r.partida_id_partida,
            r.placar_time_a, r.placar_time_b,
-           tv.nome_turma AS vencedor
+           r.turma_id_vencedor,
+           tv.nome_turma AS vencedor,
+           r.observacoes_resultado
     FROM resultado r
     JOIN partida p ON p.id_partida = r.partida_id_partida
     JOIN edicao_modalidade em ON em.id_edicao_modalidade = p.edicao_modalidade_id
@@ -99,13 +110,14 @@ $resultados = $conn->query("
     ORDER BY r.id_resultado DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// ── SÚMULAS ────────────────────────────────────────────────
+// ── SÚMULAS — CORRIGIDO: caminho_arquivo_sumula incluído ───
 $sumulas = $conn->query("
     SELECT s.id_sumula,
            ta.nome_turma AS time_a, tb.nome_turma AS time_b,
            m.nome_modalidade,
            u.nome_usuario AS enviado_por,
-           s.nome_arquivo_sumula, s.tipo_arquivo_sumula,
+           s.nome_arquivo_sumula, s.caminho_arquivo_sumula,
+           s.tipo_arquivo_sumula,
            s.data_envio_sumula, s.status_sumula
     FROM sumula s
     JOIN partida p ON p.id_partida = s.partida_id_partida
@@ -178,19 +190,83 @@ function badgeStatus($s) {
 }
 function fmtData($d) { return $d ? date('d/m/Y', strtotime($d)) : '—'; }
 function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
+
+// ── JSON para JS (dados de edição nos modais) ──────────────
+$modalidades_json = json_encode($modalidades, JSON_UNESCAPED_UNICODE);
+$partidas_json    = json_encode($partidas,    JSON_UNESCAPED_UNICODE);
+$resultados_json  = json_encode($resultados,  JSON_UNESCAPED_UNICODE);
+$edicoes_json     = json_encode($edicoes,     JSON_UNESCAPED_UNICODE);
 ?>
 
-<!-- ( HTML ) -->
 <?php include __DIR__ . '/../includes/doctype.php';?>
   <head>
       <title>SOEE | Dashboard Administrativo</title>
       <link rel="stylesheet" href="/soee/src/frontend/styles/dash-adm.css">
       <?php include __DIR__ . '/../includes/head.php';?>
+
+      <!-- ══ CSS EXTRA: Input File Súmula + correções ══ -->
+      <style>
+        /* ── Input[type=file] — botão de ficheiro súmula ── */
+        .input-file-wrap {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px 14px;
+          border: 2px dashed var(--borda, #334155);
+          border-radius: var(--raio-medio, 8px);
+          background: var(--fundo-input, rgba(255,255,255,0.04));
+          cursor: pointer;
+          transition: border-color .2s, background .2s;
+        }
+        .input-file-wrap:hover {
+          border-color: var(--azul-secundario, #3b82f6);
+          background: rgba(59,130,246,0.07);
+        }
+        .input-file-wrap input[type="file"] {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          cursor: pointer;
+          width: 100%;
+          height: 100%;
+        }
+        .input-file-icon {
+          font-size: 1.5rem;
+          color: var(--azul-secundario, #3b82f6);
+          flex-shrink: 0;
+        }
+        .input-file-label {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .input-file-label strong {
+          font-size: .875rem;
+          color: var(--texto-primario, #f1f5f9);
+        }
+        .input-file-label span {
+          font-size: .75rem;
+          color: var(--texto-secundario, #94a3b8);
+        }
+        #nome-arquivo-selecionado {
+          font-size: .8rem;
+          color: var(--verde-ok, #22c55e);
+          margin-top: 6px;
+          min-height: 1rem;
+        }
+
+        /* ── Modal título dinâmico ── */
+        .modal-header h4 { margin: 0; }
+
+        /* ── Hora no input — garante formato correto ── */
+        input[type="time"] { min-width: 120px; }
+      </style>
   </head>
 
 <body>
 <!-- ══════════════════════════════════════
-     SIDEBAR  — SEM TAGS SOLTAS
+     SIDEBAR
 ══════════════════════════════════════ -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
@@ -251,7 +327,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
               <?php else: ?>
               <?= strtoupper(substr($usuario_logado, 0, 2)) ?>
             <?php endif; ?>
-      </div>
+            </div>
             <div class="user-info">
                 <strong><?= htmlspecialchars($usuario_logado) ?></strong>
                 <span>Adm. Geral</span>
@@ -380,11 +456,14 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                 <div class="secao-card-header">
                     <h3>Usuários &amp; Alunos</h3>
                     <span class="secao-tag-mini"><?= count($usuarios) ?> registros</span>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModalNovo('modal-usuario')">
+                        <i class="fas fa-plus"></i> Novo Usuário
+                    </button>
                 </div>
                 <div class="tabela-wrap">
                     <table id="tabela-usuarios">
                         <thead>
-                            <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Turma</th><th>Tipo</th><th>Gênero</th><th>Status</th></tr>
+                            <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Turma</th><th>Tipo</th><th>Gênero</th><th>Status</th><th>Ações</th></tr>
                         </thead>
                         <tbody>
                             <?php foreach ($usuarios as $u): ?>
@@ -396,7 +475,16 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><?= htmlspecialchars($u['tipo_usuario']) ?></td>
                                 <td><?= strtoupper($u['genero_usuario']) ?></td>
                                 <td><?= $u['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
-                              
+                                <td class="td-acoes">
+                                    <button class="btn btn-secundario btn-sm"
+                                        onclick="editarUsuario(<?= htmlspecialchars(json_encode($u)) ?>)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-perigo btn-sm"
+                                        onclick="excluirRegistro('usuario', <?= $u['id_usuario'] ?>)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -411,6 +499,9 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                 <div class="secao-card-header">
                     <h3>Turmas</h3>
                     <span class="secao-tag-mini"><?= count($turmas) ?> registros</span>
+                    <button class="btn btn-primario btn-sm" onclick="abrirModalNovo('modal-turma')">
+                        <i class="fas fa-plus"></i> Nova Turma
+                    </button>
                 </div>
                 <div class="tabela-wrap">
                     <table>
@@ -426,7 +517,6 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><?= $t['ano_serie_turma'] ?>º</td>
                                 <td><?= $t['ano_letivo_turma'] ?></td>
                                 <td><span class="badge-status ativo"><?= ucfirst($t['periodo_turma']) ?></span></td>
-                              
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -438,16 +528,13 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
         <!-- ══════ MODALIDADES ══════ -->
         <div class="painel" id="painel-modalidades">
             <div class="secao-card">
-
                 <div class="secao-card-header">
                     <h3>Modalidades Esportivas</h3>
-                      <span class="secao-tag-mini"><?= count($modalidades) ?> registros</span>
-
-                        <a href="/soee/src/frontend/views/forms/criacao-esporte.php" class="btn btn-primario btn-sm">
-                          <i class="fas fa-plus"></i> Nova Modalidade
-                      </a>
+                    <span class="secao-tag-mini"><?= count($modalidades) ?> registros</span>
+                    <a href="/soee/src/frontend/views/forms/criacao-esporte.php" class="btn btn-primario btn-sm">
+                        <i class="fas fa-plus"></i> Nova Modalidade
+                    </a>
                 </div>
-                
                 <div class="tabela-wrap">
                     <table>
                         <thead>
@@ -466,8 +553,15 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><?= $m['qtd_min_jogadores'] ?> / <?= $m['qtd_max_jogadores'] ?></td>
                                 <td><?= $m['ativo_modalidade'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
                                 <td class="td-acoes">
-                                    <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-modalidade')"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('modalidade', <?= $m['id_modalidade'] ?>)"><i class="fas fa-trash"></i></button>
+                                    <!-- CORRIGIDO: passa dados da modalidade para o modal de edição -->
+                                    <button class="btn btn-secundario btn-sm"
+                                        onclick="editarModalidade(<?= htmlspecialchars(json_encode($m)) ?>)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-perigo btn-sm"
+                                        onclick="excluirRegistro('modalidade', <?= $m['id_modalidade'] ?>)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                             <?php endforeach; endif; ?>
@@ -483,12 +577,12 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                 <div class="secao-card-header">
                     <h3>Edições / Eventos</h3>
                     <span class="secao-tag-mini"><?= count($edicoes) ?> registros</span>
-                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-edicao')">
+                    <button class="btn btn-primario btn-sm" onclick="abrirModalNovo('modal-edicao')">
                         <i class="fas fa-plus"></i> Nova Edição
                     </button>
                     <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-edicao-modalidade')">
-    <i class="fas fa-link"></i> Vincular Modalidade
-</button>
+                        <i class="fas fa-link"></i> Vincular Modalidade
+                    </button>
                 </div>
                 <div class="tabela-wrap">
                     <table>
@@ -507,8 +601,15 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><?= fmtData($e['data_fim_edicao']) ?></td>
                                 <td><?= badgeStatus($e['status_edicao']) ?></td>
                                 <td class="td-acoes">
-                                    <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-edicao')"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('edicao', <?= $e['id_edicao'] ?>)"><i class="fas fa-trash"></i></button>
+                                    <!-- CORRIGIDO: passa dados da edição para o modal -->
+                                    <button class="btn btn-secundario btn-sm"
+                                        onclick="editarEdicao(<?= htmlspecialchars(json_encode($e)) ?>)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-perigo btn-sm"
+                                        onclick="excluirRegistro('edicao', <?= $e['id_edicao'] ?>)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                             <?php endforeach; endif; ?>
@@ -524,7 +625,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                 <div class="secao-card-header">
                     <h3>Partidas</h3>
                     <span class="secao-tag-mini"><?= count($partidas) ?> registros</span>
-                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-partida')">
+                    <button class="btn btn-primario btn-sm" onclick="abrirModalNovo('modal-partida')">
                         <i class="fas fa-plus"></i> Agendar Partida
                     </button>
                 </div>
@@ -548,8 +649,15 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><span class="badge-status pendente"><?= ucfirst($p['fase_partida']) ?></span></td>
                                 <td><?= badgeStatus($p['status_partida']) ?></td>
                                 <td class="td-acoes">
-                                    <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-partida')"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('partida', <?= $p['id_partida'] ?>)"><i class="fas fa-trash"></i></button>
+                                    <!-- CORRIGIDO: passa dados da partida para o modal (data, hora, etc.) -->
+                                    <button class="btn btn-secundario btn-sm"
+                                        onclick="editarPartida(<?= htmlspecialchars(json_encode($p)) ?>)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-perigo btn-sm"
+                                        onclick="excluirRegistro('partida', <?= $p['id_partida'] ?>)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                             <?php endforeach; endif; ?>
@@ -565,7 +673,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                 <div class="secao-card-header">
                     <h3>Resultados</h3>
                     <span class="secao-tag-mini"><?= count($resultados) ?> registros</span>
-                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-resultado')">
+                    <button class="btn btn-primario btn-sm" onclick="abrirModalNovo('modal-resultado')">
                         <i class="fas fa-plus"></i> Registrar Resultado
                     </button>
                 </div>
@@ -585,8 +693,15 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td style="font-weight:800;<?= $r['placar_time_b'] > $r['placar_time_a'] ? 'color:var(--verde-ok)' : '' ?>"><?= $r['placar_time_b'] ?></td>
                                 <td><strong><?= htmlspecialchars($r['vencedor'] ?? '—') ?></strong></td>
                                 <td class="td-acoes">
-                                    <button class="btn btn-secundario btn-sm" onclick="abrirModal('modal-resultado')"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('resultado', <?= $r['id_resultado'] ?>)"><i class="fas fa-trash"></i></button>
+                                    <!-- CORRIGIDO: passa dados do resultado para o modal -->
+                                    <button class="btn btn-secundario btn-sm"
+                                        onclick="editarResultado(<?= htmlspecialchars(json_encode($r)) ?>)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-perigo btn-sm"
+                                        onclick="excluirRegistro('resultado', <?= $r['id_resultado'] ?>)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                             <?php endforeach; endif; ?>
@@ -619,10 +734,12 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
                                 <td><?= $s['id_sumula'] ?></td>
                                 <td><?= htmlspecialchars($s['nome_modalidade'] . ' — ' . $s['time_a'] . ' vs ' . $s['time_b']) ?></td>
                                 <td><?= htmlspecialchars($s['enviado_por']) ?></td>
-                                <td><a href="<?= $s['caminho_arquivo_sumula'] ?>" style="color:var(--azul-secundario)">
-                                    <i class="fas fa-file-<?= strtolower($s['tipo_arquivo_sumula']) === 'pdf' ? 'pdf' : 'image' ?>"></i>
-                                    <?= htmlspecialchars($s['nome_arquivo_sumula']) ?>
-                                </a></td>
+                                <td>
+                                    <a href="<?= htmlspecialchars($s['caminho_arquivo_sumula']) ?>" target="_blank" style="color:var(--azul-secundario)">
+                                        <i class="fas fa-file-<?= strtolower($s['tipo_arquivo_sumula']) === 'pdf' ? 'pdf' : 'image' ?>"></i>
+                                        <?= htmlspecialchars($s['nome_arquivo_sumula']) ?>
+                                    </a>
+                                </td>
                                 <td><?= strtoupper($s['tipo_arquivo_sumula']) ?></td>
                                 <td><?= date('d/m/Y H:i', strtotime($s['data_envio_sumula'])) ?></td>
                                 <td><?= badgeStatus($s['status_sumula']) ?></td>
@@ -647,7 +764,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
             <div class="secao-card">
                 <div class="secao-card-header">
                     <h3>Agenda Completa de Partidas</h3>
-                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-partida')">
+                    <button class="btn btn-primario btn-sm" onclick="abrirModalNovo('modal-partida')">
                         <i class="fas fa-plus"></i> Agendar
                     </button>
                 </div>
@@ -719,7 +836,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
             <input class="form-input" type="email" name="email_usuario" id="u-email" placeholder="email@exemplo.com" required />
           </div>
           <div class="form-grupo">
-            <label class="form-label">Senha</label>
+            <label class="form-label">Senha <small style="opacity:.6">(deixe vazio para manter)</small></label>
             <input class="form-input" type="password" name="senha_usuario" id="u-senha" placeholder="••••••••" />
           </div>
           <div class="form-grupo">
@@ -813,30 +930,33 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
   </div>
 </div>
 
-<!-- Modal Modalidade -->
+<!-- Modal Modalidade — CORRIGIDO: hidden id + action dinâmico -->
 <div class="modal-overlay" id="modal-modalidade">
   <div class="modal">
     <div class="modal-header">
-      <h4>Nova Modalidade</h4>
+      <h4 id="modal-modalidade-titulo">Nova Modalidade</h4>
       <button class="modal-close" onclick="fecharModal('modal-modalidade')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
       <form action="/soee/src/backend/actions/salvar-modalidade.php" method="POST" id="form-modalidade">
+        <input type="hidden" name="id_modalidade" id="mod-id" value="">
         <div class="form-grid">
           <div class="form-grupo span2">
             <label class="form-label">Nome da Modalidade</label>
-            <input class="form-input" type="text" name="nome_modalidade" placeholder="Ex.: Futsal Masculino" required />
+            <input class="form-input" type="text" name="nome_modalidade" id="mod-nome" placeholder="Ex.: Futsal Masculino" required />
           </div>
           <div class="form-grupo">
             <label class="form-label">Tipo</label>
-            <select class="form-select" name="tipo_modalidade">
-              <option value="quadra">Quadra</option><option value="mesa">Mesa</option>
-              <option value="campo">Campo</option><option value="outro">Outro</option>
+            <select class="form-select" name="tipo_modalidade" id="mod-tipo">
+              <option value="quadra">Quadra</option>
+              <option value="mesa">Mesa</option>
+              <option value="campo">Campo</option>
+              <option value="outro">Outro</option>
             </select>
           </div>
           <div class="form-grupo">
             <label class="form-label">Formato</label>
-            <select class="form-select" name="formato_modalidade">
+            <select class="form-select" name="formato_modalidade" id="mod-formato">
               <option value="mata_mata">Mata-Mata</option>
               <option value="grupos">Grupos</option>
               <option value="grupos_mata_mata">Grupos + Mata-Mata</option>
@@ -845,22 +965,31 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
           </div>
           <div class="form-grupo">
             <label class="form-label">Tipo de Participação</label>
-            <select class="form-select" name="tipo_participacao">
-              <option value="solo">Solo</option><option value="dupla">Dupla</option>
-              <option value="trio">Trio</option><option value="time">Time</option>
+            <select class="form-select" name="tipo_participacao" id="mod-participacao">
+              <option value="solo">Solo</option>
+              <option value="dupla">Dupla</option>
+              <option value="trio">Trio</option>
+              <option value="time">Time</option>
+            </select>
+          </div>
+          <div class="form-grupo">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="ativo_modalidade" id="mod-ativo">
+              <option value="1">Ativa</option>
+              <option value="0">Inativa</option>
             </select>
           </div>
           <div class="form-grupo">
             <label class="form-label">Mín. Jogadores</label>
-            <input class="form-input" type="number" name="qtd_min_jogadores" placeholder="5" min="1" required />
+            <input class="form-input" type="number" name="qtd_min_jogadores" id="mod-min" placeholder="5" min="1" required />
           </div>
           <div class="form-grupo">
             <label class="form-label">Máx. Jogadores</label>
-            <input class="form-input" type="number" name="qtd_max_jogadores" placeholder="10" min="1" required />
+            <input class="form-input" type="number" name="qtd_max_jogadores" id="mod-max" placeholder="10" min="1" required />
           </div>
           <div class="form-grupo span2">
             <label class="form-label">Descrição / Regulamento</label>
-            <textarea class="form-textarea" name="descricao_modalidade" placeholder="Descreva as regras básicas…"></textarea>
+            <textarea class="form-textarea" name="descricao_modalidade" id="mod-desc" placeholder="Descreva as regras básicas…"></textarea>
           </div>
         </div>
       </form>
@@ -872,27 +1001,28 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
   </div>
 </div>
 
-<!-- Modal Edição -->
+<!-- Modal Edição — CORRIGIDO: campos com id + hidden id -->
 <div class="modal-overlay" id="modal-edicao">
   <div class="modal">
     <div class="modal-header">
-      <h4>Nova Edição / Evento</h4>
+      <h4 id="modal-edicao-titulo">Nova Edição / Evento</h4>
       <button class="modal-close" onclick="fecharModal('modal-edicao')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
       <form action="/soee/src/backend/actions/salvar-edicao.php" method="POST" id="form-edicao">
+        <input type="hidden" name="id_edicao" id="edicao-id" value="">
         <div class="form-grid">
           <div class="form-grupo span2">
             <label class="form-label">Nome do Evento</label>
-            <input class="form-input" type="text" name="nome_edicao" placeholder="Ex.: Interclasse ETEC JK 2026" required />
+            <input class="form-input" type="text" name="nome_edicao" id="edicao-nome" placeholder="Ex.: Interclasse ETEC JK 2026" required />
           </div>
           <div class="form-grupo">
             <label class="form-label">Ano</label>
-            <input class="form-input" type="number" name="ano_edicao" placeholder="2026" required />
+            <input class="form-input" type="number" name="ano_edicao" id="edicao-ano" placeholder="2026" required />
           </div>
           <div class="form-grupo">
             <label class="form-label">Status</label>
-            <select class="form-select" name="status_edicao">
+            <select class="form-select" name="status_edicao" id="edicao-status">
               <option value="planejamento">Planejamento</option>
               <option value="inscricoes">Inscrições</option>
               <option value="em_andamento">Em Andamento</option>
@@ -901,15 +1031,15 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
           </div>
           <div class="form-grupo">
             <label class="form-label">Data de Início</label>
-            <input class="form-input" type="date" name="data_inicio_edicao" required />
+            <input class="form-input" type="date" name="data_inicio_edicao" id="edicao-inicio" required />
           </div>
           <div class="form-grupo">
             <label class="form-label">Data de Fim</label>
-            <input class="form-input" type="date" name="data_fim_edicao" />
+            <input class="form-input" type="date" name="data_fim_edicao" id="edicao-fim" />
           </div>
           <div class="form-grupo span2">
             <label class="form-label">Descrição</label>
-            <textarea class="form-textarea" name="descricao_edicao" placeholder="Detalhes do evento…"></textarea>
+            <textarea class="form-textarea" name="descricao_edicao" id="edicao-desc" placeholder="Detalhes do evento…"></textarea>
           </div>
         </div>
       </form>
@@ -921,36 +1051,31 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
   </div>
 </div>
 
-<!-- Modal Partida -->
+<!-- Modal Partida — CORRIGIDO: ids em todos campos + hidden id -->
 <div class="modal-overlay" id="modal-partida">
   <div class="modal">
     <div class="modal-header">
-      <h4>Agendar Partida</h4>
+      <h4 id="modal-partida-titulo">Agendar Partida</h4>
       <button class="modal-close" onclick="fecharModal('modal-partida')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
       <form action="/soee/src/backend/actions/salvar-partida.php" method="POST" id="form-partida">
+        <input type="hidden" name="id_partida" id="partida-id" value="">
         <div class="form-grid">
           <div class="form-grupo span2">
             <label class="form-label">Edição / Modalidade</label>
-
-
-
-<select name="edicao_modalidade_id" class="form-select" required>
-    <option value="">Selecionar…</option>
-
-    <?php foreach ($edicoes_modal_select as $row): ?>
-        <option value="<?= $row['id_edicao_modalidade'] ?>">
-            <?= htmlspecialchars($row['label']) ?>
-        </option>
-    <?php endforeach; ?>
-</select>
-
-
+            <select name="edicao_modalidade_id" id="partida-edicao-modal" class="form-select" required>
+              <option value="">Selecionar…</option>
+              <?php foreach ($edicoes_modal_select as $row): ?>
+              <option value="<?= $row['id_edicao_modalidade'] ?>">
+                <?= htmlspecialchars($row['label']) ?>
+              </option>
+              <?php endforeach; ?>
+            </select>
           </div>
           <div class="form-grupo">
             <label class="form-label">Time A</label>
-            <select class="form-select" name="turma_id_time_a" required>
+            <select class="form-select" name="turma_id_time_a" id="partida-time-a" required>
               <?php foreach ($turmas_select as $t): ?>
               <option value="<?= $t['id_turma'] ?>"><?= htmlspecialchars($t['nome_turma']) ?></option>
               <?php endforeach; ?>
@@ -958,35 +1083,48 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
           </div>
           <div class="form-grupo">
             <label class="form-label">Time B</label>
-            <select class="form-select" name="turma_id_time_b" required>
+            <select class="form-select" name="turma_id_time_b" id="partida-time-b" required>
               <?php foreach ($turmas_select as $t): ?>
               <option value="<?= $t['id_turma'] ?>"><?= htmlspecialchars($t['nome_turma']) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
+          <!-- CORRIGIDO: data e hora com ids explícitos -->
           <div class="form-grupo">
             <label class="form-label">Data</label>
-            <input class="form-input" type="date" name="data_partida" required />
+            <input class="form-input" type="date" name="data_partida" id="partida-data" required />
           </div>
           <div class="form-grupo">
             <label class="form-label">Hora</label>
-            <input class="form-input" type="time" name="hora_partida" required />
+            <input class="form-input" type="time" name="hora_partida" id="partida-hora" required />
           </div>
           <div class="form-grupo">
             <label class="form-label">Local</label>
-            <input class="form-input" type="text" name="local_partida" placeholder="Ex.: Quadra A" />
+            <input class="form-input" type="text" name="local_partida" id="partida-local" placeholder="Ex.: Quadra A" />
           </div>
           <div class="form-grupo">
             <label class="form-label">Fase</label>
-            <select class="form-select" name="fase_partida" required>
-              <option value="grupos">Grupos</option><option value="oitavas">Oitavas</option>
-              <option value="quartas">Quartas</option><option value="semi">Semifinal</option>
-              <option value="final">Final</option><option value="terceiro_lugar">3º Lugar</option>
+            <select class="form-select" name="fase_partida" id="partida-fase" required>
+              <option value="grupos">Grupos</option>
+              <option value="oitavas">Oitavas</option>
+              <option value="quartas">Quartas</option>
+              <option value="semi">Semifinal</option>
+              <option value="final">Final</option>
+              <option value="terceiro_lugar">3º Lugar</option>
+            </select>
+          </div>
+          <div class="form-grupo">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="status_partida" id="partida-status">
+              <option value="agendada">Agendada</option>
+              <option value="realizada">Realizada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="wo">W.O.</option>
             </select>
           </div>
           <div class="form-grupo span2">
             <label class="form-label">Observações</label>
-            <textarea class="form-textarea" name="observacoes_partida" placeholder="Notas adicionais…"></textarea>
+            <textarea class="form-textarea" name="observacoes_partida" id="partida-obs" placeholder="Notas adicionais…"></textarea>
           </div>
         </div>
       </form>
@@ -998,19 +1136,21 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
   </div>
 </div>
 
-<!-- Modal Resultado -->
+<!-- Modal Resultado — CORRIGIDO: label "Partida" (era "action") + ids + hidden id -->
 <div class="modal-overlay" id="modal-resultado">
   <div class="modal">
     <div class="modal-header">
-      <h4>Registrar Resultado</h4>
+      <h4 id="modal-resultado-titulo">Registrar Resultado</h4>
       <button class="modal-close" onclick="fecharModal('modal-resultado')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
       <form action="/soee/src/backend/actions/salvar-resultado.php" method="POST" id="form-resultado">
+        <input type="hidden" name="id_resultado" id="resultado-id" value="">
         <div class="form-grid">
           <div class="form-grupo span2">
-            <label class="form-label">action</label>
-            <select class="form-select" name="partida_id_partida" required>
+            <!-- CORRIGIDO: era label "action", agora "Partida" -->
+            <label class="form-label">Partida</label>
+            <select class="form-select" name="partida_id_partida" id="resultado-partida" required>
               <option value="">Selecionar…</option>
               <?php foreach ($partidas_select as $ps): ?>
               <option value="<?= $ps['id_partida'] ?>"><?= htmlspecialchars($ps['label']) ?></option>
@@ -1019,15 +1159,15 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
           </div>
           <div class="form-grupo">
             <label class="form-label">Placar Time A</label>
-            <input class="form-input" type="number" name="placar_time_a" placeholder="0" min="0" required />
+            <input class="form-input" type="number" name="placar_time_a" id="resultado-placar-a" placeholder="0" min="0" required />
           </div>
           <div class="form-grupo">
             <label class="form-label">Placar Time B</label>
-            <input class="form-input" type="number" name="placar_time_b" placeholder="0" min="0" required />
+            <input class="form-input" type="number" name="placar_time_b" id="resultado-placar-b" placeholder="0" min="0" required />
           </div>
           <div class="form-grupo span2">
             <label class="form-label">Vencedor (automático ou W.O.)</label>
-            <select class="form-select" name="turma_id_vencedor">
+            <select class="form-select" name="turma_id_vencedor" id="resultado-vencedor">
               <option value="">Calcular automaticamente</option>
               <?php foreach ($turmas_select as $t): ?>
               <option value="<?= $t['id_turma'] ?>"><?= htmlspecialchars($t['nome_turma']) ?> — W.O.</option>
@@ -1036,7 +1176,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
           </div>
           <div class="form-grupo span2">
             <label class="form-label">Observações</label>
-            <textarea class="form-textarea" name="observacoes_resultado" placeholder="Cartões, faltas, ocorrências…"></textarea>
+            <textarea class="form-textarea" name="observacoes_resultado" id="resultado-obs" placeholder="Cartões, faltas, ocorrências…"></textarea>
           </div>
         </div>
       </form>
@@ -1048,6 +1188,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
   </div>
 </div>
 
+<!-- Modal Vincular Edição-Modalidade -->
 <div class="modal-overlay" id="modal-edicao-modalidade">
   <div class="modal">
     <div class="modal-header">
@@ -1056,57 +1197,38 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
         <i class="fas fa-times"></i>
       </button>
     </div>
-
     <div class="modal-body">
       <form action="/soee/src/backend/actions/salvar-edicao-modalidade.php" method="POST" id="form-edicao-modalidade">
-        
         <div class="form-grid">
-
-          <!-- EDIÇÃO -->
           <div class="form-grupo">
             <label class="form-label">Edição</label>
             <select name="edicao_id_edicao" class="form-select" required>
               <?php foreach ($edicoes as $e): ?>
-                <option value="<?= $e['id_edicao'] ?>">
-                  <?= htmlspecialchars($e['nome_edicao']) ?>
-                </option>
+              <option value="<?= $e['id_edicao'] ?>"><?= htmlspecialchars($e['nome_edicao']) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
-
-          <!-- MODALIDADE -->
           <div class="form-grupo">
             <label class="form-label">Modalidade</label>
             <select name="modalidade_id_modalidade" class="form-select" required>
               <?php foreach ($modalidades as $m): ?>
-                <option value="<?= $m['id_modalidade'] ?>">
-                  <?= htmlspecialchars($m['nome_modalidade']) ?>
-                </option>
+              <option value="<?= $m['id_modalidade'] ?>"><?= htmlspecialchars($m['nome_modalidade']) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
-
-          <!-- DATA INICIO -->
           <div class="form-grupo">
             <label class="form-label">Início das Inscrições</label>
             <input type="date" name="data_inicio_inscricao" class="form-input" required>
           </div>
-
-          <!-- DATA FIM -->
           <div class="form-grupo">
             <label class="form-label">Fim das Inscrições</label>
             <input type="date" name="data_fim_inscricao" class="form-input" required>
           </div>
-
         </div>
-
       </form>
     </div>
-
     <div class="modal-footer">
-      <button class="btn btn-secundario" onclick="fecharModal('modal-edicao-modalidade')">
-        Cancelar
-      </button>
+      <button class="btn btn-secundario" onclick="fecharModal('modal-edicao-modalidade')">Cancelar</button>
       <button class="btn btn-primario" onclick="document.getElementById('form-edicao-modalidade').submit()">
         <i class="fas fa-save"></i> Salvar
       </button>
@@ -1114,7 +1236,7 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
   </div>
 </div>
 
-<!-- Modal Súmula -->
+<!-- Modal Súmula — CORRIGIDO: input file com estilo próprio -->
 <div class="modal-overlay" id="modal-sumula">
   <div class="modal">
     <div class="modal-header">
@@ -1134,15 +1256,31 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
             </select>
           </div>
           <div class="form-grupo span2">
-            <label class="form-label">Arquivo da Súmula (PDF / JPG / PNG)</label>
-            <input class="form-input" type="file" name="arquivo_sumula" accept=".pdf,.jpg,.jpeg,.png" required />
+            <label class="form-label">Arquivo da Súmula</label>
+            <!-- CORRIGIDO: wrapper estilizado para o input file -->
+            <div class="input-file-wrap" onclick="document.getElementById('arquivo-sumula-input').click()">
+              <span class="input-file-icon"><i class="fas fa-file-upload"></i></span>
+              <div class="input-file-label">
+                <strong>Clique para selecionar o arquivo</strong>
+                <span>PDF, JPG ou PNG — máx. 5 MB</span>
+              </div>
+              <input type="file"
+                     id="arquivo-sumula-input"
+                     name="arquivo_sumula"
+                     accept=".pdf,.jpg,.jpeg,.png"
+                     required
+                     onchange="mostrarNomeArquivo(this)" />
+            </div>
+            <div id="nome-arquivo-selecionado"></div>
           </div>
         </div>
       </form>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secundario" onclick="fecharModal('modal-sumula')">Cancelar</button>
-      <button class="btn btn-primario" onclick="document.getElementById('form-sumula').submit()"><i class="fas fa-upload"></i> Enviar</button>
+      <button class="btn btn-primario" onclick="document.getElementById('form-sumula').submit()">
+        <i class="fas fa-upload"></i> Enviar
+      </button>
     </div>
   </div>
 </div>
@@ -1150,6 +1288,140 @@ function fmtHora($h) { return $h ? substr($h, 0, 5) : '—'; }
 <!-- Toast Container -->
 <div class="toast-container" id="toast-container"></div>
 
-  <script src="/soee/src/frontend/scripts/adm.js"></script>
+<!-- ══════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════ -->
+<script src="/soee/src/frontend/scripts/adm.js"></script>
+<script>
+/* ══════════════════════════════════════
+   FUNÇÕES DE EDIÇÃO DOS MODAIS
+   Carregam os dados do registro clicado
+   nos campos do modal antes de abrir.
+══════════════════════════════════════ */
+
+// ── Helpers genéricos ──────────────────
+function setVal(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = val ?? '';
+}
+function setSelect(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    for (let i = 0; i < el.options.length; i++) {
+        if (String(el.options[i].value) === String(val)) {
+            el.selectedIndex = i;
+            break;
+        }
+    }
+}
+
+// ── abrirModalNovo: limpa o form antes de abrir ──────────
+function abrirModalNovo(id) {
+    const overlay = document.getElementById(id);
+    if (!overlay) return;
+    const form = overlay.querySelector('form');
+    if (form) form.reset();
+    // Limpa hidden ids
+    const hidden = overlay.querySelector('input[type=hidden]');
+    if (hidden) hidden.value = '';
+    // Restaura títulos padrão
+    const tituloMap = {
+        'modal-modalidade': 'Nova Modalidade',
+        'modal-partida':    'Agendar Partida',
+        'modal-resultado':  'Registrar Resultado',
+        'modal-edicao':     'Nova Edição / Evento',
+        'modal-usuario':    'Novo Usuário',
+    };
+    const titulo = overlay.querySelector('[id$="-titulo"]');
+    if (titulo && tituloMap[id]) titulo.textContent = tituloMap[id];
+    abrirModal(id);
+}
+
+// ── EDITAR MODALIDADE ─────────────────────────────────────
+function editarModalidade(m) {
+    document.getElementById('modal-modalidade-titulo').textContent = 'Editar Modalidade';
+    setVal('mod-id',           m.id_modalidade);
+    setVal('mod-nome',         m.nome_modalidade);
+    setSelect('mod-tipo',      m.tipo_modalidade);
+    setSelect('mod-formato',   m.formato_modalidade);
+    setSelect('mod-participacao', m.tipo_participacao);
+    setSelect('mod-ativo',     m.ativo_modalidade);
+    setVal('mod-min',          m.qtd_min_jogadores);
+    setVal('mod-max',          m.qtd_max_jogadores);
+    setVal('mod-desc',         m.descricao_modalidade);
+    abrirModal('modal-modalidade');
+}
+
+// ── EDITAR EDIÇÃO ─────────────────────────────────────────
+function editarEdicao(e) {
+    document.getElementById('modal-edicao-titulo').textContent = 'Editar Edição / Evento';
+    setVal('edicao-id',        e.id_edicao);
+    setVal('edicao-nome',      e.nome_edicao);
+    setVal('edicao-ano',       e.ano_edicao);
+    setSelect('edicao-status', e.status_edicao);
+    setVal('edicao-inicio',    e.data_inicio_edicao); // formato YYYY-MM-DD vindo do BD
+    setVal('edicao-fim',       e.data_fim_edicao);
+    setVal('edicao-desc',      e.descricao_edicao);
+    abrirModal('modal-edicao');
+}
+
+// ── EDITAR PARTIDA ────────────────────────────────────────
+// CORRIGIDO: popula data, hora, local, fase, status, times
+function editarPartida(p) {
+    document.getElementById('modal-partida-titulo').textContent = 'Editar Partida';
+    setVal('partida-id',              p.id_partida);
+    setSelect('partida-edicao-modal', p.edicao_modalidade_id);
+    setSelect('partida-time-a',       p.turma_id_time_a);
+    setSelect('partida-time-b',       p.turma_id_time_b);
+    // data_partida vem como "YYYY-MM-DD" do BD — compatível com input[type=date]
+    setVal('partida-data',            p.data_partida);
+    // hora_partida vem como "HH:MM:SS" — input[type=time] aceita "HH:MM"
+    setVal('partida-hora',            p.hora_partida ? p.hora_partida.substring(0, 5) : '');
+    setVal('partida-local',           p.local_partida);
+    setSelect('partida-fase',         p.fase_partida);
+    setSelect('partida-status',       p.status_partida);
+    setVal('partida-obs',             p.observacoes_partida);
+    abrirModal('modal-partida');
+}
+
+// ── EDITAR RESULTADO ──────────────────────────────────────
+// CORRIGIDO: popula partida, placares, vencedor, obs
+function editarResultado(r) {
+    document.getElementById('modal-resultado-titulo').textContent = 'Editar Resultado';
+    setVal('resultado-id',              r.id_resultado);
+    setSelect('resultado-partida',      r.partida_id_partida);
+    setVal('resultado-placar-a',        r.placar_time_a);
+    setVal('resultado-placar-b',        r.placar_time_b);
+    setSelect('resultado-vencedor',     r.turma_id_vencedor ?? '');
+    setVal('resultado-obs',             r.observacoes_resultado);
+    abrirModal('modal-resultado');
+}
+
+// ── EDITAR USUÁRIO ────────────────────────────────────────
+function editarUsuario(u) {
+    document.getElementById('modal-usuario-titulo').textContent = 'Editar Usuário';
+    setVal('u-id',        u.id_usuario);
+    setVal('u-nome',      u.nome_usuario);
+    setVal('u-email',     u.email_usuario);
+    setVal('u-senha',     ''); // nunca preenche senha por segurança
+    setSelect('u-turma',  u.turma_id_turma ?? '');
+    setSelect('u-tipo',   u.tipo_usuario);
+    setSelect('u-genero', u.genero_usuario);
+    setSelect('u-ativo',  u.ativo_usuario);
+    abrirModal('modal-usuario');
+}
+
+// ── Input file: mostra nome do arquivo selecionado ────────
+function mostrarNomeArquivo(input) {
+    const el = document.getElementById('nome-arquivo-selecionado');
+    if (!el) return;
+    if (input.files && input.files.length > 0) {
+        el.innerHTML = '<i class="fas fa-check-circle"></i> ' + input.files[0].name;
+    } else {
+        el.textContent = '';
+    }
+}
+</script>
 
 <?php include __DIR__ . '/../includes/end.php';?>
