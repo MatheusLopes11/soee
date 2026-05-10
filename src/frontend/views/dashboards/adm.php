@@ -456,9 +456,6 @@ $edicoes_json     = json_encode($edicoes,     JSON_UNESCAPED_UNICODE);
                 <div class="secao-card-header">
                     <h3>Usuários &amp; Alunos</h3>
                     <span class="secao-tag-mini"><?= count($usuarios) ?> registros</span>
-                    <button class="btn btn-primario btn-sm" onclick="abrirModalNovo('modal-usuario')">
-                        <i class="fas fa-plus"></i> Novo Usuário
-                    </button>
                 </div>
                 <div class="tabela-wrap">
                     <table id="tabela-usuarios">
@@ -476,14 +473,8 @@ $edicoes_json     = json_encode($edicoes,     JSON_UNESCAPED_UNICODE);
                                 <td><?= strtoupper($u['genero_usuario']) ?></td>
                                 <td><?= $u['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
                                 <td class="td-acoes">
-                                    <button class="btn btn-secundario btn-sm"
-                                        onclick="editarUsuario(<?= htmlspecialchars(json_encode($u)) ?>)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-perigo btn-sm"
-                                        onclick="excluirRegistro('usuario', <?= $u['id_usuario'] ?>)">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    
+                                    
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -499,9 +490,7 @@ $edicoes_json     = json_encode($edicoes,     JSON_UNESCAPED_UNICODE);
                 <div class="secao-card-header">
                     <h3>Turmas</h3>
                     <span class="secao-tag-mini"><?= count($turmas) ?> registros</span>
-                    <button class="btn btn-primario btn-sm" onclick="abrirModalNovo('modal-turma')">
-                        <i class="fas fa-plus"></i> Nova Turma
-                    </button>
+                    
                 </div>
                 <div class="tabela-wrap">
                     <table>
@@ -711,53 +700,88 @@ $edicoes_json     = json_encode($edicoes,     JSON_UNESCAPED_UNICODE);
             </div>
         </div>
 
-        <!-- ══════ SÚMULAS ══════ -->
-        <div class="painel" id="painel-sumulas">
-            <div class="secao-card">
-                <div class="secao-card-header">
-                    <h3>Súmulas</h3>
-                    <span class="secao-tag-mini"><?= count($sumulas) ?> registros</span>
-                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-sumula')">
-                        <i class="fas fa-upload"></i> Enviar Súmula
-                    </button>
-                </div>
-                <div class="tabela-wrap">
-                    <table>
-                        <thead>
-                            <tr><th>#</th><th>Partida</th><th>Enviado por</th><th>Arquivo</th><th>Tipo</th><th>Data Envio</th><th>Status</th><th>Ações</th></tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($sumulas)): ?>
-                            <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhuma súmula enviada.</td></tr>
-                            <?php else: foreach ($sumulas as $s): ?>
-                            <tr>
-                                <td><?= $s['id_sumula'] ?></td>
-                                <td><?= htmlspecialchars($s['nome_modalidade'] . ' — ' . $s['time_a'] . ' vs ' . $s['time_b']) ?></td>
-                                <td><?= htmlspecialchars($s['enviado_por']) ?></td>
-                                <td>
-                                    <a href="<?= htmlspecialchars($s['caminho_arquivo_sumula']) ?>" target="_blank" style="color:var(--azul-secundario)">
-                                        <i class="fas fa-file-<?= strtolower($s['tipo_arquivo_sumula']) === 'pdf' ? 'pdf' : 'image' ?>"></i>
-                                        <?= htmlspecialchars($s['nome_arquivo_sumula']) ?>
-                                    </a>
-                                </td>
-                                <td><?= strtoupper($s['tipo_arquivo_sumula']) ?></td>
-                                <td><?= date('d/m/Y H:i', strtotime($s['data_envio_sumula'])) ?></td>
-                                <td><?= badgeStatus($s['status_sumula']) ?></td>
-                                <td class="td-acoes">
-                                    <?php if ($s['status_sumula'] === 'pendente'): ?>
-                                    <button class="btn btn-ok btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'validada')"><i class="fas fa-check"></i> Validar</button>
-                                    <button class="btn btn-perigo btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'rejeitada')"><i class="fas fa-times"></i></button>
-                                    <?php else: ?>
-                                    <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('sumula', <?= $s['id_sumula'] ?>)"><i class="fas fa-trash"></i></button>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                            <?php endforeach; endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+       <!-- ══════ SÚMULAS ══════ -->
+<div class="painel" id="painel-sumulas">
+    <div class="secao-card">
+        <div class="secao-card-header">
+            <h3>Súmulas</h3>
+            <span class="secao-tag-mini"><?= count($sumulas) ?> registros</span>
+            <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-sumula')">
+                <i class="fas fa-upload"></i> Enviar Súmula
+            </button>
         </div>
+
+        <div class="tabela-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Partida</th>
+                        <th>Enviado por</th>
+                        <th>Arquivo</th>
+                        <th>Tipo</th>
+                        <th>Data Envio</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <?php if (empty($sumulas)): ?>
+                    <tr>
+                        <td colspan="8" style="text-align:center;opacity:.6;padding:20px;">
+                            Nenhuma súmula enviada.
+                        </td>
+                    </tr>
+
+                    <?php else: foreach ($sumulas as $s): ?>
+                    <tr>
+                        <td><?= $s['id_sumula'] ?></td>
+
+                        <td>
+                            <?= htmlspecialchars($s['nome_modalidade'] . ' — ' . $s['time_a'] . ' vs ' . $s['time_b']) ?>
+                        </td>
+
+                        <!-- NOME FIXO -->
+                        <td>Matheus Ferreira Lopes</td>
+
+                        <td>
+                            <a href="<?= htmlspecialchars($s['caminho_arquivo_sumula']) ?>"
+                               target="_blank"
+                               style="color:var(--azul-secundario)">
+
+                                <i class="fas fa-file-<?= strtolower($s['tipo_arquivo_sumula']) === 'pdf' ? 'pdf' : 'image' ?>"></i>
+
+                                <?= htmlspecialchars($s['nome_arquivo_sumula']) ?>
+                            </a>
+                        </td>
+
+                        <td><?= strtoupper($s['tipo_arquivo_sumula']) ?></td>
+
+                        <td>
+                            <?= date('d/m/Y H:i', strtotime($s['data_envio_sumula'])) ?>
+                        </td>
+
+                        <td>
+                            <?= badgeStatus($s['status_sumula']) ?>
+                        </td>
+
+                        <td class="td-acoes">
+                            <?php if ($s['status_sumula'] === 'pendente'): ?>
+
+                            <?php else: ?>
+                            <button class="btn btn-perigo btn-sm"
+                                    onclick="excluirRegistro('sumula', <?= $s['id_sumula'] ?>)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
         <!-- ══════ AGENDA ══════ -->
         <div class="painel" id="painel-agenda">
