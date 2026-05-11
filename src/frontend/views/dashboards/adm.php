@@ -434,7 +434,7 @@ $edicoes_json     = json_encode($edicoes,     JSON_UNESCAPED_UNICODE);
                                 <?php foreach (array_slice(array_values($sumulas_pendentes), 0, 3) as $s): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($s['nome_modalidade'] . ' — ' . $s['time_a'] . ' vs ' . $s['time_b']) ?></td>
-                                    <td><?= htmlspecialchars($s['enviado_por']) ?></td>
+                                    <td>Matheus Ferreira Lopes</td>
                                     <td><?= badgeStatus($s['status_sumula']) ?></td>
                                     <td class="td-acoes">
                                         <button class="btn btn-ok btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'validada')"><i class="fas fa-check"></i></button>
@@ -460,7 +460,7 @@ $edicoes_json     = json_encode($edicoes,     JSON_UNESCAPED_UNICODE);
                 <div class="tabela-wrap">
                     <table id="tabela-usuarios">
                         <thead>
-                            <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Turma</th><th>Tipo</th><th>Gênero</th><th>Status</th><th>Ações</th></tr>
+                            <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Turma</th><th>Tipo</th><th>Gênero</th><th>Status</th></tr>
                         </thead>
                         <tbody>
                             <?php foreach ($usuarios as $u): ?>
@@ -543,10 +543,7 @@ $edicoes_json     = json_encode($edicoes,     JSON_UNESCAPED_UNICODE);
                                 <td><?= $m['ativo_modalidade'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
                                 <td class="td-acoes">
                                     <!-- CORRIGIDO: passa dados da modalidade para o modal de edição -->
-                                    <button class="btn btn-secundario btn-sm"
-                                        onclick="editarModalidade(<?= htmlspecialchars(json_encode($m)) ?>)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
+                                    
                                     <button class="btn btn-perigo btn-sm"
                                         onclick="excluirRegistro('modalidade', <?= $m['id_modalidade'] ?>)">
                                         <i class="fas fa-trash"></i>

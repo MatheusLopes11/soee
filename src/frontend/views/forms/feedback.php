@@ -16,7 +16,7 @@
 
   <div class="cabecalho-container">
     <div class="cabecalho-logos">
-      <a href="index.php" class="logo-texto">S<span>O</span>EE</a>
+      <a href="/soee/src/frontend/views/site/home.php" class="logo-texto">S<span>O</span>EE</a>
     </div>
 
     <nav class="menu-principal">
