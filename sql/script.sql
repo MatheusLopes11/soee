@@ -233,7 +233,7 @@ insert into usuario (turma_id_turma, nome_usuario, email_usuario, senha_usuario,
 values 
 -- ADM --
 (NULL, 'Henrique Batista Orlovas', 'batista.henriqui@gmail.com', '12345hbo', 'm', 'adm_geral', 1),
-(NULL, 'Carlos Henrique Valentim', 'rikcar22@gmail.com', '12345chv', 'm', 'adm_geral', 1),
+(NULL, 'Carlos Henrique Valentim', 'rikcar22@gmail.com', 'Carlosrik@22', 'm', 'adm_geral', 1),
 (NULL, 'Miguel Lopes Aquinez da Silva', 'miguelaquinez17@gmail.com', '12345mlas', 'm', 'adm_geral', 1),
 (NULL, 'Matheus Ferreira Lopes', 'matheusflopes167@gmail.com', '12345mfl', 'm', 'adm_geral', 1),
 (NULL, 'Isabelly Barbosa Santos', 'isabellybarbosantos1357@gmail.com', '12345ibs', 'f', 'adm_geral', 1),
