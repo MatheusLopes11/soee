@@ -11,33 +11,47 @@
   include __DIR__ . '/../includes/loader.php';
 ?>
 
-<!-- HEADER -->
-<header class="cabecalho">
+<!-- ─── HEADER ─── -->
+  <header class="cabecalho">
+    <div class="cabecalho-container">
 
-  <div class="cabecalho-container">
-    <div class="cabecalho-logos">
-      <a href="/soee/src/frontend/views/site/home.php" class="logo-texto">S<span>O</span>EE</a>
+      <!-- Esquerda: logos institucionais -->
+      <div class="cabecalho-logos">
+        <img src="/soee/src/frontend/assets/icons/logo-jk.png"  alt="ETEC Juscelino Kubitschek de Oliveira">
+        <img src="/soee/src/frontend/assets/icons/logo-cps.png" alt="Centro Paula Souza">
+      </div>
+
+      <!-- Centro: nav (desktop) -->
+      <nav class="menu-principal" aria-label="Menu principal">
+        <ul class="menu-lista">
+          <li><a href="/soee/src/frontend/views/site/home.php">Inicio</a></li>
+          <li><a href="/soee/src/frontend/views/site/modalidades.php">Modalidades</a></li>
+          <li><a href="/soee/src/frontend/views/site/quem-somos.php">Quem Somos</a></li>
+          <li><a href="/soee/src/frontend/views/site/sobre-etec.php">ETEC</a></li>
+          <li><a href="/soee/src/frontend/views/site/contato-redes.php">Contato Redes</a></li>
+        </ul>
+      </nav>
+
+      <!-- Direita: ações -->
+      <div class="cabecalho-acoes">
+        <button id="toggle-theme" class="botao-icone" aria-label="Alternar tema">
+          <i class="fa-solid fa-moon" id="icone-tema"></i>
+        </button>
+
+        <a href="/soee/index.php" class="botao-login">
+          <i class="fa-solid fa-user"></i>
+          <span>Entrar</span>
+        </a>
+
+        <img
+          src="/soee/src/frontend/assets/icons/logo-soee.png"
+          alt="SOEE"
+          class="logo-sistema"
+        >
+      </div>
+
     </div>
-
-    <nav class="menu-principal">
-      <ul class="menu-lista">
-        <li><a href="/soee/src/frontend/views/site/home.php">Início</a></li>
-        <li><a href="/soee/src/frontend/views/site/modalidades.php">Modalidades</a></li>
-        <li><a href="/soee/src/frontend/views/site/sobre-etec.php">ETEC</a></li>
-        <li><a href="/soee/src/frontend/views/site/quem-somos.php">Quem Somos</a></li>
-        <li><a href="/soee/src/frontend/views/site/contato-redes.php">Contato & Redes</a></li>
-      </ul>
-    </nav>
-
-    <div class="cabecalho-acoes">
-      <button class="botao-icone" id="toggleTema" title="Alternar tema" aria-label="Alternar tema">
-        <i class="fa-solid fa-moon"></i>
-      </button>
-
-    </div>
-  </div>
-
-</header>
+  </header>
 
 <!-- HERO -->
 <section class="hero-feedback">
@@ -207,6 +221,11 @@
   </div>
 </main>
 
-<script src="/soee/src/frontend/scripts/form-feedback.js"></script>
+  <!-- ( JavaScript ) -->
+  <script src="/soee/src/frontend/scripts/inicio.js"></script>
+  <script>
+    const _t = localStorage.getItem('theme');
+    if (_t) document.documentElement.setAttribute('data-theme', _t);
+  </script>
 
 <?php include __DIR__ . '/../includes/end.php';?>

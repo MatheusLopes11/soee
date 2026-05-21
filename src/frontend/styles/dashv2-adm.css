@@ -1,0 +1,56 @@
+
+        /* ── Input[type=file] — botão de ficheiro súmula ── */
+        .input-file-wrap {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px 14px;
+          border: 2px dashed var(--borda, #334155);
+          border-radius: var(--raio-medio, 8px);
+          background: var(--fundo-input, rgba(255,255,255,0.04));
+          cursor: pointer;
+          transition: border-color .2s, background .2s;
+        }
+        .input-file-wrap:hover {
+          border-color: var(--azul-secundario, #3b82f6);
+          background: rgba(59,130,246,0.07);
+        }
+        .input-file-wrap input[type="file"] {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          cursor: pointer;
+          width: 100%;
+          height: 100%;
+        }
+        .input-file-icon {
+          font-size: 1.5rem;
+          color: var(--azul-secundario, #3b82f6);
+          flex-shrink: 0;
+        }
+        .input-file-label {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .input-file-label strong {
+          font-size: .875rem;
+          color: var(--texto-primario, #f1f5f9);
+        }
+        .input-file-label span {
+          font-size: .75rem;
+          color: var(--texto-secundario, #94a3b8);
+        }
+        #nome-arquivo-selecionado {
+          font-size: .8rem;
+          color: var(--verde-ok, #22c55e);
+          margin-top: 6px;
+          min-height: 1rem;
+        }
+
+        /* ── Modal título dinâmico ── */
+        .modal-header h4 { margin: 0; }
+
+        /* ── Hora no input — garante formato correto ── */
+        input[type="time"] { min-width: 120px; }

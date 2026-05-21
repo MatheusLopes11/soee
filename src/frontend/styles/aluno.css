@@ -1,0 +1,128 @@
+.painel { display: none; }
+        .painel.active { display: block; }
+
+        .stat-resumo {
+            display: grid; grid-template-columns: repeat(4,1fr);
+            gap: 16px; margin-bottom: 28px;
+        }
+        .stat-resumo-card {
+            background: var(--bloco,#fff); border: 1px solid var(--borda,#e2e8f0);
+            border-radius: 16px; padding: 20px; text-align: center;
+        }
+        .stat-resumo-card strong {
+            display: block; font-size: 1.8rem; font-weight: 800;
+            font-family: 'Playfair Display',serif;
+        }
+        .stat-resumo-card span { font-size: .75rem; color: var(--texto-2,#64748b); text-transform: uppercase; }
+
+        .proxima-card {
+            background: linear-gradient(135deg,#0f2d3d,#2c7da3);
+            border-radius: 16px; padding: 24px; margin-bottom: 28px; color: white;
+        }
+        .proxima-card .pp-label { font-size:.75rem; text-transform:uppercase; letter-spacing:.1em; opacity:.7; margin-bottom:12px; }
+        .proxima-card .pp-times { display:flex; align-items:center; gap:16px; font-size:1.2rem; font-weight:800; margin-bottom:12px; }
+        .proxima-card .pp-vs { opacity:.5; font-size:.9rem; }
+        .proxima-card .pp-mine { color:#fbbf24; }
+        .proxima-card .pp-meta { display:flex; gap:16px; font-size:.82rem; opacity:.75; flex-wrap:wrap; }
+        .proxima-card .pp-meta span { display:flex; align-items:center; gap:6px; }
+
+        .inscricao-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(34,197,94,.12); color: #15803d;
+            border: 1px solid rgba(34,197,94,.25);
+            border-radius: 999px; padding: 4px 12px;
+            font-size: .75rem; font-weight: 700;
+        }
+        [data-theme="dark"] .inscricao-badge { color: #4ade80; }
+
+        .genero-bloqueado {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(239,68,68,.08); color: #ef4444;
+            border: 1px solid rgba(239,68,68,.2);
+            border-radius: 999px; padding: 4px 12px;
+            font-size: .75rem; font-weight: 600;
+        }
+
+        .modal-card {
+            background: var(--bloco,#fff); border: 1px solid var(--borda,#e2e8f0);
+            border-radius: 16px; padding: 20px; margin-bottom: 16px;
+        }
+        .modal-card h4 { margin-bottom: 12px; font-size: 1rem; }
+
+        .player-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 0; border-bottom: 1px solid var(--borda,#e2e8f0);
+        }
+        .player-item:last-child { border-bottom: none; }
+        .player-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--fundo,#f0f4f8);
+            display: flex; align-items: center; justify-content: center;
+            font-size: .85rem; overflow: hidden; flex-shrink: 0;
+        }
+        .player-avatar img { width:100%; height:100%; object-fit:cover; }
+
+        .time-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 0; border-bottom: 1px solid var(--borda,#e2e8f0);
+        }
+        .time-item:last-child { border-bottom: none; }
+        .time-mine { font-weight: 800; color: var(--laranja,#f97316); }
+
+        .ranking-table { width:100%; border-collapse:collapse; }
+        .ranking-table th, .ranking-table td {
+            padding: 10px 12px; text-align: center;
+            border-bottom: 1px solid var(--borda,#e2e8f0); font-size: .82rem;
+        }
+        .ranking-table th { font-weight:700; color:var(--texto-2,#64748b); text-transform:uppercase; font-size:.7rem; }
+        .ranking-table tr.minha-turma td { background: rgba(255,77,18,.07); font-weight:700; }
+
+        .partida-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 0; border-bottom: 1px solid var(--borda,#e2e8f0);
+        }
+        .partida-row:last-child { border-bottom: none; }
+        .partida-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+        .partida-dot.agendada  { background:#f59e0b; }
+        .partida-dot.realizada { background:#22c55e; }
+        .partida-dot.cancelada, .partida-dot.wo { background:#ef4444; }
+        .partida-info { flex:1; }
+        .partida-times { font-weight:700; font-size:.9rem; }
+        .partida-meta  { font-size:.75rem; color:var(--texto-2,#64748b); margin-top:2px; }
+        .partida-placar {
+            font-weight:800; font-size:.9rem;
+            background:var(--fundo,#f0f4f8);
+            padding:4px 10px; border-radius:8px; white-space:nowrap;
+        }
+
+        .btn-inscrever {
+            background:#22c55e; color:white; border:none;
+            padding:10px 20px; border-radius:10px;
+            font-weight:700; cursor:pointer; font-size:.88rem; transition:background .2s;
+        }
+        .btn-inscrever:hover { background:#16a34a; }
+        .btn-cancelar-insc {
+            background:rgba(239,68,68,.1); color:#ef4444;
+            border:1px solid rgba(239,68,68,.25);
+            padding:8px 16px; border-radius:10px;
+            font-weight:700; cursor:pointer; font-size:.82rem; transition:background .2s;
+        }
+        .btn-cancelar-insc:hover { background:#ef4444; color:white; }
+
+        .insc-input {
+            width:100%; padding:8px 10px;
+            border:1px solid var(--borda,#e2e8f0);
+            border-radius:8px; background:var(--fundo,#f0f4f8);
+            color:var(--texto,#1e293b); font-family:inherit; font-size:.85rem;
+        }
+        .insc-label {
+            font-size:.75rem; font-weight:600;
+            display:block; margin-bottom:4px;
+        }
+
+        .empty { padding:32px; text-align:center; color:var(--texto-2,#64748b); }
+        .empty i { font-size:2rem; opacity:.3; display:block; margin-bottom:8px; }
+
+        @media (max-width:768px) {
+            .stat-resumo { grid-template-columns: repeat(2,1fr); }
+        }
