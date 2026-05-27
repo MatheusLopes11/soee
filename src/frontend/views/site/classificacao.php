@@ -219,7 +219,7 @@ $destDash = match($tipo) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SOEE | <?= htmlspecialchars($esporte['nome_modalidade'] ?? 'Campeonato') ?></title>
-    <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
+    <link rel="icon" type="image/png" href="/soee/src/frontend/assets/icons/logo-soee.png">
 
     <!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -288,7 +288,7 @@ $destDash = match($tipo) {
                 </a>
             <?php else: ?>
                 <a href="/soee/index.php" class="btn-dash-top">
-                    <i class="fa-solid fa-right-to-bracket"></i> Entrar
+                    <i class="fa-solid fa-right-to-bracket"></i> Voltar
                 </a>
             <?php endif; ?>
         </div>

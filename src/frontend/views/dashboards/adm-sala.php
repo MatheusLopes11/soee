@@ -81,14 +81,20 @@ include __DIR__ . '/../../../backend/helpers/adm-sala.php';
         <a href="javascript:void(0)" class="nav-item" data-painel="partidas" onclick="trocarPainel(this)">
             <i class="fa-solid fa-calendar-days"></i> Partidas
         </a>
-        <a href="javascript:void(0)" class="nav-item" data-painel="classificacao" onclick="trocarPainel(this)">
-            <i class="fa-solid fa-ranking-star"></i> Classificação
+
+        <a class="nav-item" href="/soee/src/frontend/views/site/classificacao.php">
+          <i class="fas fa-trophy"></i> Classificação
         </a>
 
         <div class="nav-secao">Outros</div>
+
         <a href="javascript:void(0)" class="nav-item" data-painel="modalidades" onclick="trocarPainel(this)">
             <i class="fa-solid fa-futbol"></i> Modalidades
             <span class="nav-badge"><?= count($todasModalidades) ?></span>
+        </a>
+
+        <a class="nav-item" href="/soee/src/frontend/views/site/classificacao.php">
+          <i class="fas fa-trophy"></i> Classificação
         </a>
 
         <a href="javascript:void(0)" class="nav-item" data-painel="minhas-inscricoes" onclick="trocarPainel(this)">

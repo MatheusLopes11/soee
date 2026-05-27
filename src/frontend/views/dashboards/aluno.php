@@ -29,32 +29,42 @@ include __DIR__ . '/../includes/doctype.php'; ?>
             <span class="sidebar-logo-text">SOEE</span>
         </div>
         <nav class="sidebar-nav">
+
             <div class="nav-section-label">Principal</div>
+            
             <a class="nav-item active" href="javascript:void(0)" data-painel="overview" onclick="trocarPainel(this)">
                 <i class="fa-solid fa-house"></i> Visão Geral
             </a>
+
             <a class="nav-item" href="javascript:void(0)" data-painel="partidas" onclick="trocarPainel(this)">
                 <i class="fa-solid fa-calendar-days"></i> Partidas
             </a>
+
             <a class="nav-item" href="javascript:void(0)" data-painel="times" onclick="trocarPainel(this)">
                 <i class="fa-solid fa-shield-halved"></i> Times
             </a>
-            <a class="nav-item" href="javascript:void(0)" data-painel="classificacao" onclick="trocarPainel(this)">
-                <i class="fa-solid fa-ranking-star"></i> Classificação
+
+            <a class="nav-item" href="/soee/src/frontend/views/site/classificacao.php">
+                <i class="fas fa-trophy"></i> Classificação
             </a>
+
             <a class="nav-item" href="javascript:void(0)" data-painel="meutime" onclick="trocarPainel(this)">
                 <i class="fa-solid fa-people-group"></i> Meu Time
             </a>
+                                                                                                                           
             <a class="nav-item" href="javascript:void(0)" data-painel="inscricoes" onclick="trocarPainel(this)">
                 <i class="fa-solid fa-clipboard-list"></i> Inscrições
                 <?php if(count($modalidades) > 0): ?>
                 <span class="nav-badge"><?= count($modalidades) ?></span>
                 <?php endif; ?>
             </a>
+
             <div class="nav-section-label" style="margin-top:16px">Conta</div>
+
             <a class="nav-item" href="/soee/src/frontend/views/site/profile.php">
                 <i class="fa-solid fa-user"></i> Perfil
             </a>
+
         </nav>
         <div class="sidebar-user">
             <a href="/soee/src/frontend/views/site/profile.php"

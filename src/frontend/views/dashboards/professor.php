@@ -56,27 +56,37 @@ include __DIR__ . '/../includes/doctype.php'; ?>
         </a>
 
         <div class="nav-group-label">Competições</div>
+
         <a class="nav-item" href="javascript:void(0)" data-painel="edicoes" onclick="trocarPainel(this)">
             <i class="fas fa-trophy"></i> Edições / Eventos
             <span class="nav-badge"><?= count($edicoes) ?></span>
         </a>
+        
         <a class="nav-item" href="javascript:void(0)" data-painel="partidas" onclick="trocarPainel(this)">
             <i class="fas fa-calendar-days"></i> Partidas
         </a>
+
         <a class="nav-item" href="javascript:void(0)" data-painel="resultados" onclick="trocarPainel(this)">
             <i class="fas fa-flag-checkered"></i> Resultados
         </a>
 
+        <a class="nav-item" href="/soee/src/frontend/views/site/classificacao.php">
+          <i class="fas fa-trophy"></i> Classificação
+        </a>
+
         <div class="nav-group-label">Gestão</div>
+
         <a class="nav-item" href="javascript:void(0)" data-painel="sumulas" onclick="trocarPainel(this)">
             <i class="fas fa-file-alt"></i> Súmulas
             <?php if (count($sumulas_pendentes)): ?>
                 <span class="nav-badge"><?= count($sumulas_pendentes) ?></span>
             <?php endif; ?>
         </a>
+
         <a class="nav-item" href="javascript:void(0)" data-painel="alunos" onclick="trocarPainel(this)">
             <i class="fas fa-users"></i> Alunos
         </a>
+
         <a class="nav-item" href="/soee/src/frontend/views/forms/feedback.php">
             <i class="fas fa-comment-dots"></i> Feedback
         </a>

@@ -66,14 +66,21 @@ include __DIR__ . '/../../../backend/helpers/adm.php';
         </a>
 
         <div class="nav-group-label">Competições</div>
+
         <a class="nav-item" href="javascript:void(0)" data-painel="edicoes" onclick="trocarPainel(this)">
             <i class="fas fa-trophy"></i> Edições / Eventos
         </a>
+
         <a class="nav-item" href="javascript:void(0)" data-painel="partidas" onclick="trocarPainel(this)">
             <i class="fas fa-calendar-days"></i> Partidas
         </a>
+
         <a class="nav-item" href="javascript:void(0)" data-painel="resultados" onclick="trocarPainel(this)">
             <i class="fas fa-flag-checkered"></i> Resultados
+        </a>
+
+        <a class="nav-item" href="/soee/src/frontend/views/site/classificacao.php">
+          <i class="fas fa-trophy"></i> Classificação
         </a>
 
         <div class="nav-group-label">Documentos</div>
