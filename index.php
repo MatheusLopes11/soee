@@ -162,4 +162,6 @@ if (theme) {
 }
 </script>
 
-<?php include __DIR__ . '/src/frontend/views/includes/end.php'; ?>
+<?php 
+    include __DIR__ . '/src/frontend/views/includes/end.php'; 
+?>

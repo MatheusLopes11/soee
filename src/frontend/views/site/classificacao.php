@@ -1,238 +1,18 @@
 <?php
-// ═══════════════════════════════════════════════════════════
-//  classificacao.php — SOEE · Página de Campeonato
-//  URL: classificacao.php?id={id_modalidade}
-// ═══════════════════════════════════════════════════════════
-session_start();
-require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/includes/conexao.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
-
-// ── ID da modalidade via GET ──────────────────────────────
-$modalidadeId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-
-// ── MODALIDADES EM ANDAMENTO (sidebar) ───────────────────
-$stmtEsportes = $conn->query("
-    SELECT DISTINCT
-        m.id_modalidade,
-        m.nome_modalidade,
-        m.tipo_modalidade,
-        m.formato_modalidade,
-        em.status_edicao_modalidade
-    FROM modalidade m
-    INNER JOIN edicao_modalidade em ON em.modalidade_id_modalidade = m.id_modalidade
-    INNER JOIN edicao e            ON e.id_edicao = em.edicao_id_edicao
-    WHERE m.ativo_modalidade = 1
-      AND e.status_edicao = 'em_andamento'
-    ORDER BY m.nome_modalidade ASC
-");
-$esportes = $stmtEsportes->fetchAll(PDO::FETCH_ASSOC);
-
-// Se não veio ID, usa o primeiro disponível
-if (!$modalidadeId && !empty($esportes)) {
-    $modalidadeId = (int) $esportes[0]['id_modalidade'];
-}
-
-// ── DADOS DA MODALIDADE SELECIONADA ──────────────────────
-$esporte = null;
-$emId    = null;
-$formato = null;
-
-if ($modalidadeId) {
-    $stmtEsporte = $conn->prepare("
-        SELECT
-            m.id_modalidade,
-            m.nome_modalidade,
-            m.descricao_modalidade,
-            m.tipo_modalidade,
-            m.formato_modalidade,
-            m.tipo_participacao,
-            m.qtd_min_jogadores,
-            m.qtd_max_jogadores,
-            em.id_edicao_modalidade,
-            em.status_edicao_modalidade,
-            em.data_inicio_inscricao,
-            em.data_fim_inscricao,
-            e.nome_edicao,
-            e.ano_edicao
-        FROM modalidade m
-        INNER JOIN edicao_modalidade em ON em.modalidade_id_modalidade = m.id_modalidade
-        INNER JOIN edicao e            ON e.id_edicao = em.edicao_id_edicao
-        WHERE m.id_modalidade = :id
-          AND e.status_edicao = 'em_andamento'
-        ORDER BY em.id_edicao_modalidade DESC
-        LIMIT 1
-    ");
-    $stmtEsporte->execute([':id' => $modalidadeId]);
-    $esporte = $stmtEsporte->fetch(PDO::FETCH_ASSOC);
-
-    if ($esporte) {
-        $emId         = (int) $esporte['id_edicao_modalidade'];
-        $formato      = $esporte['formato_modalidade'];
-        $participacao = $esporte['tipo_participacao'];
-    }
-}
-
-// ── CLASSIFICAÇÃO POR GRUPOS ─────────────────────────────
-$grupos   = [];
-$temGrupos = $formato && in_array($formato, ['grupos', 'grupos_mata_mata', 'todos_contra_todos']);
-
-if ($emId && $temGrupos) {
-    $stmtCl = $conn->prepare("
-        SELECT
-            cl.pontos,
-            cl.vitorias,
-            cl.derrotas,
-            cl.empates,
-            cl.jogos,
-            cl.saldo,
-            cl.pontos_pro,
-            cl.pontos_contra,
-            cl.grupo_classificacao,
-            t.nome_turma,
-            t.id_turma
-        FROM classificacao cl
-        INNER JOIN turma t ON t.id_turma = cl.turma_id_turma
-        WHERE cl.edicao_modalidade_id = :emid
-        ORDER BY
-            cl.grupo_classificacao ASC,
-            cl.pontos DESC,
-            cl.saldo DESC,
-            cl.vitorias DESC,
-            cl.pontos_pro DESC
-    ");
-    $stmtCl->execute([':emid' => $emId]);
-    foreach ($stmtCl->fetchAll(PDO::FETCH_ASSOC) as $row) {
-        $g = $row['grupo_classificacao'] ?: 'A';
-        $grupos[$g][] = $row;
-    }
-}
-
-// ── PARTIDAS POR FASE ────────────────────────────────────
-$partidas_fase = [];
-$todasPartidas = [];
-
-if ($emId) {
-    $stmtP = $conn->prepare("
-        SELECT
-            p.id_partida,
-            p.data_partida,
-            p.hora_partida,
-            p.local_partida,
-            p.fase_partida,
-            p.status_partida,
-            p.grupo_partida,
-            p.turma_id_time_a,
-            p.turma_id_time_b,
-            ta.nome_turma  AS time_a,
-            tb.nome_turma  AS time_b,
-            r.placar_time_a,
-            r.placar_time_b,
-            tv.nome_turma  AS vencedor
-        FROM partida p
-        INNER JOIN turma ta ON ta.id_turma = p.turma_id_time_a
-        INNER JOIN turma tb ON tb.id_turma = p.turma_id_time_b
-        LEFT  JOIN resultado r  ON r.partida_id_partida = p.id_partida
-        LEFT  JOIN turma tv     ON tv.id_turma = r.turma_id_vencedor
-        WHERE p.edicao_modalidade_id = :emid
-        ORDER BY
-            FIELD(p.fase_partida,'grupos','oitavas','quartas','semi','terceiro_lugar','final'),
-            p.data_partida ASC,
-            p.hora_partida ASC
-    ");
-    $stmtP->execute([':emid' => $emId]);
-    $todasPartidas = $stmtP->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($todasPartidas as $p) {
-        $partidas_fase[$p['fase_partida']][] = $p;
-    }
-}
-
-// ── SORTEIO JÁ GERADO? ───────────────────────────────────
-$sorteioGerado = false;
-if ($emId) {
-    $stmtSg = $conn->prepare("
-        SELECT id FROM sorteio_gerado
-        WHERE edicao_modalidade_id = :emid
-        LIMIT 1
-    ");
-    $stmtSg->execute([':emid' => $emId]);
-    $sorteioGerado = (bool) $stmtSg->fetchColumn();
-}
-
-// ── HELPERS ──────────────────────────────────────────────
-$tipoIcons = [
-    'quadra' => 'fa-basketball',
-    'mesa'   => 'fa-table-tennis-paddle-ball',
-    'campo'  => 'fa-futbol',
-    'outro'  => 'fa-medal',
-];
-
-$faseLabel = [
-    'grupos'         => 'Fase de Grupos',
-    'oitavas'        => 'Oitavas de Final',
-    'quartas'        => 'Quartas de Final',
-    'semi'           => 'Semifinais',
-    'terceiro_lugar' => '3º Lugar',
-    'final'          => 'Grande Final',
-];
-
-$formatoLabel = [
-    'grupos'             => 'Somente Grupos',
-    'mata_mata'          => 'Somente Mata-Mata',
-    'grupos_mata_mata'   => 'Grupos + Mata-Mata',
-    'todos_contra_todos' => 'Todos Contra Todos',
-];
-
-$participacaoLabel = [
-    'solo'  => 'Individual',
-    'dupla' => 'Dupla',
-    'trio'  => 'Trio',
-    'time'  => 'Times por Turma',
-];
-
-$faseOrdemMata    = ['oitavas', 'quartas', 'semi', 'terceiro_lugar', 'final'];
-$temMataMata      = $formato && in_array($formato, ['mata_mata', 'grupos_mata_mata']);
-$icone            = $tipoIcons[$esporte['tipo_modalidade'] ?? 'outro'] ?? 'fa-medal';
-$participacao     = $esporte['tipo_participacao'] ?? 'time';
-$ehIndividual     = in_array($participacao, ['solo', 'dupla', 'trio']);
-
-// Quantos classificam por grupo para mata-mata
-$classificamPorGrupo = 2;
-
-function fmtData($d)     { return $d ? date('d/m', strtotime($d)) : '—'; }
-function fmtDataLong($d) { return $d ? date('d/m/Y', strtotime($d)) : '—'; }
-function fmtHora($h)     { return $h ? substr($h, 0, 5) : ''; }
-function avatar($nome)   { return mb_strtoupper(mb_substr(trim($nome ?? '?'), 0, 2)); }
-
-// ── AUTH ─────────────────────────────────────────────────
-$logado = !empty($_SESSION['usuario_id']);
-$tipo   = $_SESSION['usuario_tipo'] ?? '';
-$destDash = match($tipo) {
-    'professor' => '/soee/src/frontend/views/dashboards/professor.php',
-    'adm_sala'  => '/soee/src/frontend/views/dashboards/adm-sala.php',
-    'adm_geral' => '/soee/src/frontend/views/dashboards/adm.php',
-    default     => '/soee/src/frontend/views/dashboards/aluno.php',
-};
+    include __DIR__ . '/../../../backend/model/selects/classificacao.php';
+    include __DIR__ . '/../../../backend/helpers/classificacao.php';
+    include __DIR__ . '/../includes/doctype.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SOEE | <?= htmlspecialchars($esporte['nome_modalidade'] ?? 'Campeonato') ?></title>
     <link rel="icon" type="image/png" href="/soee/src/frontend/assets/icons/logo-soee.png">
-
-    <!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
-
-    <!-- Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <!-- CSS principal -->
     <link rel="stylesheet" href="/soee/src/frontend/styles/classificacao.css">
-
-    <!-- Tema imediato (sem flash) -->
     <script>
         (function () {
             const t = localStorage.getItem('theme');
@@ -828,6 +608,6 @@ $destDash = match($tipo) {
 <!-- ── SCRIPTS ── -->
 <script src="/soee/src/frontend/scripts/classificacao.js"></script>
 
-<?php include __DIR__ . '/../includes/end.php'; ?>
-</body>
-</html>
+<?php 
+    include __DIR__ . '/../includes/end.php'; 
+?>
