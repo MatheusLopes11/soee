@@ -2,17 +2,17 @@
 // ── FOTO DE PERFIL ─────────────────────────────────────────
 $stmtFoto = $conn->prepare("
     SELECT caminho_foto FROM foto_perfil
-    WHERE usuario_id_usuario = :id AND atual_foto = 1
+    WHERE usuario_id_usuario = :id AND atual_foto = TRUE
     LIMIT 1
 ");
 $stmtFoto->execute([':id' => $userId]);
 $fotoPerfil = $stmtFoto->fetchColumn();
 
 // ── KPIs ──────────────────────────────────────────────────
-$kpi_alunos      = $conn->query("SELECT COUNT(*) FROM usuario WHERE tipo_usuario = 'aluno' AND ativo_usuario = 1")->fetchColumn();
+$kpi_alunos      = $conn->query("SELECT COUNT(*) FROM usuario WHERE tipo_usuario = 'aluno' AND ativo_usuario = TRUE")->fetchColumn();
 $kpi_partidas    = $conn->query("SELECT COUNT(*) FROM partida WHERE status_partida = 'agendada'")->fetchColumn();
 $kpi_realizadas  = $conn->query("SELECT COUNT(*) FROM partida WHERE status_partida = 'realizada'")->fetchColumn();
-$kpi_modalidades = $conn->query("SELECT COUNT(*) FROM modalidade WHERE ativo_modalidade = 1")->fetchColumn();
+$kpi_modalidades = $conn->query("SELECT COUNT(*) FROM modalidade WHERE ativo_modalidade = TRUE")->fetchColumn();
 
 // ── USUÁRIOS ───────────────────────────────────────────────
 $usuarios = $conn->query("
@@ -126,8 +126,10 @@ $agenda = $conn->query("
 $turmas_select   = $conn->query("SELECT id_turma, nome_turma FROM turma ORDER BY nome_turma")->fetchAll(PDO::FETCH_ASSOC);
 $partidas_select = $conn->query("
     SELECT p.id_partida,
-           CONCAT(m.nome_modalidade,' — ',ta.nome_turma,' vs ',tb.nome_turma,
-                  ' (',DATE_FORMAT(p.data_partida,'%d/%m'),')') AS label
+           m.nome_modalidade || ' — ' ||
+           ta.nome_turma || ' vs ' ||
+           tb.nome_turma || ' (' ||
+           TO_CHAR(p.data_partida, 'DD/MM') || ')' AS label
     FROM partida p
     JOIN edicao_modalidade em ON em.id_edicao_modalidade = p.edicao_modalidade_id
     JOIN modalidade m ON m.id_modalidade = em.modalidade_id_modalidade
@@ -137,7 +139,7 @@ $partidas_select = $conn->query("
 ")->fetchAll(PDO::FETCH_ASSOC);
 $edicoes_modal_select = $conn->query("
     SELECT em.id_edicao_modalidade,
-           CONCAT(e.nome_edicao,' — ',m.nome_modalidade) AS label
+           e.nome_edicao || ' — ' || m.nome_modalidade AS label
     FROM edicao_modalidade em
     JOIN edicao e ON e.id_edicao = em.edicao_id_edicao
     JOIN modalidade m ON m.id_modalidade = em.modalidade_id_modalidade
