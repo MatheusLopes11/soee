@@ -30,7 +30,6 @@ $qtdMax         = (int) $_POST['qtd_max_jogadores'];
 $tipoDuracao    = $_POST['tipo_duracao'];
 $regulamento    = trim($_POST['regulamento_modalidade']);
 $genero         = $_POST['genero_modalidade'];
-$ativo          = isset($_POST['ativo_modalidade']) ? 1 : 1; // novo cadastro sempre ativo
 
 /* ── Duração ── */
 $duracaoMinutos = null;
@@ -77,16 +76,16 @@ if ($idModalidade === 0) {
     }
 }
 
-/* ── Verificar se coluna genero_modalidade existe, senão adicionar ── */
-try {
-    $conn->query("SELECT genero_modalidade FROM modalidade LIMIT 1");
-} catch (PDOException $e) {
-    $conn->exec("ALTER TABLE modalidade ADD COLUMN genero_modalidade ENUM('masculino','feminino','misto') NOT NULL DEFAULT 'misto' AFTER ativo_modalidade");
-}
+// REMOVIDO: bloco ALTER TABLE com ENUM inline — incompatível com PostgreSQL.
+// No PostgreSQL, colunas ENUM são definidas na criação da tabela via CREATE TYPE.
+// O schema Supabase já possui a coluna genero_modalidade corretamente tipada.
 
 try {
     if ($idModalidade > 0) {
         /* ── UPDATE ── */
+        // PostgreSQL: ativo_modalidade é BOOLEAN, recebe TRUE/FALSE
+        $ativoValue = (bool) ($_POST['ativo_modalidade'] ?? false) ? 'TRUE' : 'FALSE';
+
         $sql = "UPDATE modalidade SET
                     nome_modalidade        = :nome,
                     descricao_modalidade   = :desc,
@@ -103,17 +102,25 @@ try {
                     regulamento_modalidade = :regul
                     " . ($fotoFinal ? ', foto_modalidade = :foto' : '') . "
                 WHERE id_modalidade = :id";
+
         $params = [
-            ':nome' => $nome, ':desc' => $descricao, ':tipo' => $tipo,
-            ':formato' => $formato, ':participacao' => $participacao,
-            ':min' => $qtdMin, ':max' => $qtdMax,
-            ':ativo' => (int)($_POST['ativo_modalidade'] ?? 0),
-            ':genero' => $genero,
-            ':tipoDur' => $tipoDuracao, ':durMin' => $duracaoMinutos,
-            ':durPts' => $duracaoPontos, ':regul' => $regulamento,
-            ':id' => $idModalidade,
+            ':nome'         => $nome,
+            ':desc'         => $descricao,
+            ':tipo'         => $tipo,
+            ':formato'      => $formato,
+            ':participacao' => $participacao,
+            ':min'          => $qtdMin,
+            ':max'          => $qtdMax,
+            ':ativo'        => isset($_POST['ativo_modalidade']) && $_POST['ativo_modalidade'] ? true : false,
+            ':genero'       => $genero,
+            ':tipoDur'      => $tipoDuracao,
+            ':durMin'       => $duracaoMinutos,
+            ':durPts'       => $duracaoPontos,
+            ':regul'        => $regulamento,
+            ':id'           => $idModalidade,
         ];
         if ($fotoFinal) $params[':foto'] = $fotoFinal;
+
         $stmt = $conn->prepare($sql);
         $stmt->execute($params);
 
@@ -124,6 +131,7 @@ try {
 
     } else {
         /* ── INSERT ── */
+        // PostgreSQL: ativo_modalidade é BOOLEAN → TRUE, não 1
         $stmt = $conn->prepare("
             INSERT INTO modalidade
                 (nome_modalidade, descricao_modalidade, tipo_modalidade,
@@ -133,7 +141,7 @@ try {
                  duracao_pontos, regulamento_modalidade)
             VALUES
                 (:nome, :desc, :tipo, :formato, :participacao, :min, :max,
-                 1, :genero, :foto, :tipoDur, :durMin, :durPts, :regul)
+                 TRUE, :genero, :foto, :tipoDur, :durMin, :durPts, :regul)
         ");
         $stmt->execute([
             ':nome'         => $nome,
@@ -154,7 +162,6 @@ try {
         $_SESSION['flash_msg']  = 'Modalidade cadastrada com sucesso!';
         $_SESSION['flash_tipo'] = 'sucesso';
 
-        /* Redireciona para o dashboard de origem */
         $tipo_user = AuthHome::getTipo();
         if ($tipo_user === 'professor') {
             header('Location: /soee/src/frontend/views/dashboards/professor.php?ok=1');

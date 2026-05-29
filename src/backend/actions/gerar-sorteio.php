@@ -50,18 +50,8 @@ $ehIndividual = in_array($participacao, ['solo', 'dupla', 'trio']);
 $dataStr = (new DateTime('+7 days'))->format('Y-m-d');
 $horaStr = '08:00:00';
 
-// ════════════════════════════════════════════════════════════
-//  BUSCA DE PARTICIPANTES
-//
-//  individual (solo/dupla/trio):
-//    participante = aluno, "time" no banco = sua turma
-//    pode cair 2 alunos da mesma sala — é totalmente aleatório
-//
-//  time:
-//    participante = turma
-// ════════════════════════════════════════════════════════════
+// ── Busca participantes ──────────────────────────────────
 if ($ehIndividual) {
-    // Cada aluno inscrito é um participante
     $stmtP = $conn->prepare("
         SELECT i.usuario_id_usuario AS id,
                u.nome_usuario       AS nome,
@@ -76,7 +66,6 @@ if ($ehIndividual) {
     $stmtP->execute([':emid' => $emId]);
     $participantes = $stmtP->fetchAll(PDO::FETCH_ASSOC);
 } else {
-    // Cada turma com pelo menos 1 aluno é um participante
     $stmtP = $conn->prepare("
         SELECT DISTINCT t.id_turma AS id, t.nome_turma AS nome,
                         t.id_turma AS turma_id, t.nome_turma
@@ -97,12 +86,9 @@ if ($total < 2) {
     exit;
 }
 
-// Embaralha — completamente aleatório
 shuffle($participantes);
 
-// ════════════════════════════════════════════════════════════
-//  HELPERS
-// ════════════════════════════════════════════════════════════
+// ── Helpers ──────────────────────────────────────────────
 function proximaPotencia2(int $n): int {
     $p = 1; while ($p < $n) $p *= 2; return $p;
 }
@@ -123,9 +109,7 @@ function calcNumGrupos(int $n): int {
     return 4;
 }
 
-// ════════════════════════════════════════════════════════════
-//  TRANSAÇÃO
-// ════════════════════════════════════════════════════════════
+// ── Transação ─────────────────────────────────────────────
 $conn->beginTransaction();
 try {
     $stmtInsert = $conn->prepare("
@@ -135,18 +119,21 @@ try {
         VALUES (:emid, :ta, :tb, :data, :hora, :fase, :grupo, 'agendada')
     ");
 
+    // PostgreSQL não tem INSERT IGNORE.
+    // Usamos ON CONFLICT (edicao_modalidade_id, turma_id_turma) DO NOTHING
+    // baseado na constraint UNIQUE do schema.
     $stmtClassif = $conn->prepare("
-        INSERT IGNORE INTO classificacao
+        INSERT INTO classificacao
             (edicao_modalidade_id, turma_id_turma, grupo_classificacao,
              pontos, vitorias, derrotas, empates, jogos, pontos_pro, pontos_contra, saldo)
         VALUES (:emid, :turma, :grupo, 0,0,0,0,0,0,0,0)
+        ON CONFLICT (edicao_modalidade_id, turma_id_turma) DO NOTHING
     ");
 
     $letras          = ['A','B','C','D','E','F','G','H'];
     $partidasGeradas = [];
     $byesGerados     = [];
 
-    // ── Helper: insere partida e adiciona ao log ──────────
     $inserir = function(array $a, array $b, string $fase, ?string $grupo)
         use ($stmtInsert, $emId, $dataStr, $horaStr, &$partidasGeradas) {
         $stmtInsert->execute([
@@ -168,7 +155,6 @@ try {
         ];
     };
 
-    // ── Helper: registra turmas únicas na classificacao ───
     $registrarClassif = function(array $grupo, string $letra)
         use ($stmtClassif, $emId) {
         $turmasVistas = [];
@@ -181,9 +167,7 @@ try {
         }
     };
 
-    // ══════════════════════════════════════════════════════
-    //  TODOS CONTRA TODOS
-    // ══════════════════════════════════════════════════════
+    // ── Todos contra todos ────────────────────────────────
     if ($formato === 'todos_contra_todos') {
         $registrarClassif($participantes, 'A');
         for ($i = 0; $i < $total; $i++)
@@ -191,9 +175,7 @@ try {
                 $inserir($participantes[$i], $participantes[$j], 'grupos', 'A');
     }
 
-    // ══════════════════════════════════════════════════════
-    //  SÓ GRUPOS
-    // ══════════════════════════════════════════════════════
+    // ── Só grupos ─────────────────────────────────────────
     elseif ($formato === 'grupos') {
         $numG   = calcNumGrupos($total);
         $grupos = dividirEmGrupos($participantes, $numG);
@@ -207,42 +189,20 @@ try {
         }
     }
 
-    // ══════════════════════════════════════════════════════
-    //  SÓ MATA-MATA
-    //
-    //  Número ímpar → BYE real
-    //  Exemplo com 3 participantes (A, B, C):
-    //    Potência de 2 mais próxima = 4 → 1 bye
-    //    A recebe BYE (primeiro após shuffle)
-    //    B vs C jogam na fase inicial
-    //    Próxima fase: A vs vencedor(B×C)
-    //
-    //  Exemplo com 5 participantes (A,B,C,D,E):
-    //    Potência = 8 → 3 byes
-    //    A, B, C recebem BYE
-    //    D vs E jogam
-    //    Próxima fase: A, B, C e vencedor(D×E)
-    //
-    //  Para individuais (94 alunos):
-    //    Potência = 128 → 34 byes
-    //    34 alunos avançam direto, 60 jogam entre si (30 partidas)
-    // ══════════════════════════════════════════════════════
+    // ── Mata-mata ─────────────────────────────────────────
     elseif ($formato === 'mata_mata') {
         $potencia = proximaPotencia2($total);
         $numByes  = $potencia - $total;
-        $fase     = faseInicial($potencia); // fase baseada no bracket completo
+        $fase     = faseInicial($potencia);
 
-        // Participantes com BYE (primeiros após shuffle)
         $comBye = array_slice($participantes, 0, $numByes);
         $semBye = array_slice($participantes, $numByes);
 
-        // Gera partidas para quem não tem BYE
         $nSem = count($semBye);
         for ($i = 0; $i + 1 < $nSem; $i += 2) {
             $inserir($semBye[$i], $semBye[$i + 1], $fase, null);
         }
 
-        // Registra BYEs no log (sem criar partida no banco)
         foreach ($comBye as $b) {
             $byesGerados[] = [
                 'participante' => $b['nome'],
@@ -260,9 +220,7 @@ try {
         }
     }
 
-    // ══════════════════════════════════════════════════════
-    //  GRUPOS + MATA-MATA
-    // ══════════════════════════════════════════════════════
+    // ── Grupos + Mata-mata ────────────────────────────────
     elseif ($formato === 'grupos_mata_mata') {
         $numG   = calcNumGrupos($total);
         $grupos = dividirEmGrupos($participantes, $numG);
@@ -274,10 +232,9 @@ try {
                 for ($j = $i + 1; $j < $n; $j++)
                     $inserir($grupo[$i], $grupo[$j], 'grupos', $letra);
         }
-        // Fase eliminatória gerada pelo professor após os grupos
     }
 
-    // ── Finaliza ─────────────────────────────────────────
+    // ── Finaliza ──────────────────────────────────────────
     $conn->prepare("INSERT INTO sorteio_gerado (edicao_modalidade_id, gerado_por) VALUES (:emid, :uid)")
          ->execute([':emid' => $emId, ':uid' => $userId]);
 

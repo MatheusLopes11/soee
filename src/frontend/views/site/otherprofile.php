@@ -9,7 +9,6 @@ AuthHome::exigirLogin();
 $userTipo    = AuthHome::getTipo();
 $dashboardUrl = AuthHome::getRota($userTipo);
 
-// ID do perfil a visualizar
 $perfilId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($perfilId <= 0) {
@@ -18,6 +17,7 @@ if ($perfilId <= 0) {
 }
 
 // ─── Busca dados públicos do usuário ─────────────────────────────────────────
+// PostgreSQL: ativo_usuario é BOOLEAN → comparar com TRUE (não com 1)
 $stmt = $conn->prepare("
     SELECT u.id_usuario, u.nome_usuario, u.genero_usuario,
            u.tipo_usuario, u.ativo_usuario, u.foto_perfil_usuario,
@@ -26,7 +26,7 @@ $stmt = $conn->prepare("
     FROM usuario u
     LEFT JOIN turma t ON t.id_turma = u.turma_id_turma
     LEFT JOIN curso c ON c.id_curso = t.curso_id_curso
-    WHERE u.id_usuario = :id AND u.ativo_usuario = 1
+    WHERE u.id_usuario = :id AND u.ativo_usuario = TRUE
 ");
 $stmt->execute([':id' => $perfilId]);
 $perfil = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -35,7 +35,6 @@ if (!$perfil) {
     header('Location: ' . $dashboardUrl);
     exit;
 }
-
 // ─── Inscrições ativas (esportes + camisa) ────────────────────────────────────
 $stmtIns = $conn->prepare("
     SELECT i.numero_camisa_inscricao,

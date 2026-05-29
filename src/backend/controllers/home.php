@@ -86,7 +86,9 @@ class AuthHome
         $stmt->execute([':token' => $token]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && (int)$user['ativo_usuario'] === 1) {
+        // PostgreSQL retorna ativo_usuario como boolean (true/false),
+        // não como inteiro. Usamos comparação loose para suportar ambos.
+        if ($user && filter_var($user['ativo_usuario'], FILTER_VALIDATE_BOOLEAN)) {
 
             session_regenerate_id(true);
 
@@ -136,7 +138,9 @@ class AuthHome
             return ['sucesso' => false, 'erro' => 'Credenciais inválidas.'];
         }
 
-        if ((int)$user['ativo_usuario'] === 0) {
+        // PostgreSQL retorna BOOLEAN como true/false (string 't'/'f' via PDO pgsql
+        // ou bool nativo). filter_var lida com ambos os casos.
+        if (!filter_var($user['ativo_usuario'], FILTER_VALIDATE_BOOLEAN)) {
             return ['sucesso' => false, 'erro' => 'Conta desativada.'];
         }
 

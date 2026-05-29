@@ -1,14 +1,22 @@
 <?php
-$host = "localhost"; 
-$port = "3306"; 
-$dbname = "soee"; 
-$user = "root"; 
-$password = "root";
+
+$host = "aws-1-sa-east-1.pooler.supabase.com";
+$port = "6543";
+$dbname = "postgres";
+$user = "postgres.xxejjfxpzucchmvvpicv";
+$password = "65cjZSkbIzKLgSnF";
 
 try {
-    $conn = new PDO("mysql:host=$host;port=$port;dbname=$dbname", $user, $password);
+    $conn = new PDO(
+        "pgsql:host=$host;port=$port;dbname=$dbname",
+        $user,
+        $password
+    );
+
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    
 } catch (PDOException $e) {
-    die("ERRO conexão: " . $e->getMessage());
+    echo "Erro: " . $e->getMessage();
 }
 ?>

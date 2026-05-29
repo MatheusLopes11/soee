@@ -10,9 +10,8 @@ $userTipo     = AuthHome::getTipo();
 $userId       = AuthHome::getId();
 $dashboardUrl = AuthHome::getRota($userTipo);
 
-// Parâmetros obrigatórios
-$turmaId = isset($_GET['turma'])   ? (int)$_GET['turma']   : 0;
-$emId    = isset($_GET['em'])      ? (int)$_GET['em']       : 0;
+$turmaId = isset($_GET['turma']) ? (int)$_GET['turma'] : 0;
+$emId    = isset($_GET['em'])    ? (int)$_GET['em']    : 0;
 
 if ($turmaId <= 0 || $emId <= 0) {
     header('Location: ' . $dashboardUrl);
@@ -92,10 +91,11 @@ $stmtProx = $conn->prepare("
     WHERE p.edicao_modalidade_id = :emid
       AND (p.turma_id_time_a = :t1 OR p.turma_id_time_b = :t2)
       AND p.status_partida = 'agendada'
-      AND p.data_partida >= CURDATE()
+      AND p.data_partida >= CURRENT_DATE
     ORDER BY p.data_partida ASC, p.hora_partida ASC
     LIMIT 1
 ");
+// CURDATE() → CURRENT_DATE  (padrão SQL, funciona no PostgreSQL)
 $stmtProx->execute([':emid' => $emId, ':t1' => $turmaId, ':t2' => $turmaId]);
 $proximaPartida = $stmtProx->fetch(PDO::FETCH_ASSOC);
 

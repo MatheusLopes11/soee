@@ -1,12 +1,12 @@
 <?php
 // actions/excluir-registro.php
-require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/php/include/conexao.php";
+// CAMINHO CORRIGIDO: era /soee/src/backend/php/include/ → /soee/src/backend/includes/
+require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/includes/conexao.php";
 header('Content-Type: application/json');
 
 $entidade = $_POST['entidade'] ?? '';
 $id       = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
-// Mapa entidade → tabela e coluna PK
 $mapa = [
     'usuario'    => ['tabela' => 'usuario',    'pk' => 'id_usuario'],
     'turma'      => ['tabela' => 'turma',       'pk' => 'id_turma'],
@@ -25,7 +25,8 @@ if (!$id || !isset($mapa[$entidade])) {
 $tabela = $mapa[$entidade]['tabela'];
 $pk     = $mapa[$entidade]['pk'];
 
-$stmt = $conn->prepare("DELETE FROM `$tabela` WHERE `$pk` = ?");
+// BACKTICKS REMOVIDOS: PostgreSQL não usa backtick (`) para identificadores
+$stmt = $conn->prepare("DELETE FROM $tabela WHERE $pk = ?");
 $ok   = $stmt->execute([$id]);
 
 echo json_encode(['ok' => $ok, 'erro' => $ok ? null : 'Falha ao excluir.']);
