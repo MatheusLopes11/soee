@@ -2,22 +2,23 @@
 /**
  * api-dashboard.php — SOEE
  * Endpoint JSON consumido pelo dash-user.js
- * Ações: classificacao | times | partidas | jogadores
+ * Ações: classificacao | times | partidas | jogadores | esportes
  */
 session_start();
-require_once __DIR__ . '/../include/conexao.php';
-require_once __DIR__ . '/../auth/auth-home.php';
+// CAMINHO CORRIGIDO: era '/../include/conexao.php' e '/../auth/auth-home.php'
+// A estrutura real é: includes/conexao.php e controllers/home.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/includes/conexao.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
 
-// Só alunos (e adms) podem chamar esta API
 AuthHome::exigirTipo(['aluno','adm_sala','adm_geral','professor']);
 
 header('Content-Type: application/json; charset=utf-8');
 
-$acao  = trim($_GET['acao']  ?? '');
-$emId  = (int)($_GET['em_id'] ?? 0);   // id_edicao_modalidade
+$acao    = trim($_GET['acao']    ?? '');
+$emId    = (int)($_GET['em_id']    ?? 0);
 $turmaId = (int)($_GET['turma_id'] ?? 0);
 
-/* ── helper de saída ── */
+/* ── helpers ── */
 function responder(array $dados): void {
     echo json_encode(['dados' => $dados], JSON_UNESCAPED_UNICODE);
     exit;
@@ -31,13 +32,11 @@ if (!$emId && $acao !== 'esportes') {
     erro('em_id ausente');
 }
 
-/* ══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    AÇÃO: esportes
-   Retorna todas as modalidades ativas com edição aberta
-   (usado para montar o seletor de esportes sem precisar
-    de inscrição do usuário)
-══════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════════ */
 if ($acao === 'esportes') {
+    // PostgreSQL: ativo_modalidade é BOOLEAN → TRUE (não 1)
     $rows = $conn->query("
         SELECT m.id_modalidade, m.nome_modalidade, m.tipo_modalidade,
                m.tipo_participacao, em.id_edicao_modalidade,
@@ -45,17 +44,16 @@ if ($acao === 'esportes') {
         FROM modalidade m
         INNER JOIN edicao_modalidade em ON em.modalidade_id_modalidade = m.id_modalidade
         INNER JOIN edicao e ON e.id_edicao = em.edicao_id_edicao
-        WHERE m.ativo_modalidade = 1
+        WHERE m.ativo_modalidade = TRUE
           AND e.status_edicao IN ('inscricoes','em_andamento')
         ORDER BY m.nome_modalidade
     ")->fetchAll(PDO::FETCH_ASSOC);
     responder($rows);
 }
 
-/* ══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    AÇÃO: classificacao
-   Retorna a tabela de classificação ordenada por pontos
-══════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════════ */
 if ($acao === 'classificacao') {
     $stmt = $conn->prepare("
         SELECT cl.turma_id_turma, t.nome_turma,
@@ -70,11 +68,9 @@ if ($acao === 'classificacao') {
     responder($stmt->fetchAll(PDO::FETCH_ASSOC));
 }
 
-/* ══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    AÇÃO: times
-   Retorna todas as turmas inscritas na modalidade
-   (exclui a turma de Professores — ano_serie = 4)
-══════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════════ */
 if ($acao === 'times') {
     $stmt = $conn->prepare("
         SELECT DISTINCT t.id_turma, t.nome_turma,
@@ -84,7 +80,7 @@ if ($acao === 'times') {
         INNER JOIN turma t   ON t.id_turma   = u.turma_id_turma
         WHERE i.edicao_modalidade_id = :emid
           AND i.status_inscricao     = 'ativa'
-          AND t.ano_serie_turma      < 4          -- exclui professores
+          AND t.ano_serie_turma      < 4
         GROUP BY t.id_turma, t.nome_turma
         ORDER BY t.nome_turma
     ");
@@ -92,10 +88,9 @@ if ($acao === 'times') {
     responder($stmt->fetchAll(PDO::FETCH_ASSOC));
 }
 
-/* ══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    AÇÃO: partidas
-   Retorna todas as partidas da modalidade com placar
-══════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════════ */
 if ($acao === 'partidas') {
     $stmt = $conn->prepare("
         SELECT p.id_partida,
@@ -116,10 +111,9 @@ if ($acao === 'partidas') {
     responder($stmt->fetchAll(PDO::FETCH_ASSOC));
 }
 
-/* ══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    AÇÃO: jogadores
-   Retorna os inscritos de uma turma na modalidade
-══════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════════ */
 if ($acao === 'jogadores') {
     if (!$turmaId) erro('turma_id ausente');
     $stmt = $conn->prepare("

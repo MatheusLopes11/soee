@@ -4,17 +4,20 @@ $stmtFoto = $conn->prepare("
     SELECT fp.caminho_foto
     FROM foto_perfil fp
     WHERE fp.usuario_id_usuario = :id
-      AND fp.atual_foto = 1
+      AND fp.atual_foto = TRUE
     LIMIT 1
 ");
 $stmtFoto->execute([':id' => $userId]);
 $fotoPerfil = $stmtFoto->fetchColumn();
 
 /* ── KPIs ────────────────────────────────────────── */
-$kpi_alunos      = $conn->query("SELECT COUNT(*) FROM usuario WHERE tipo_usuario = 'aluno' AND ativo_usuario = 1")->fetchColumn();
+$kpi_alunos      = $conn->query("SELECT COUNT(*) FROM usuario WHERE tipo_usuario = 'aluno' AND ativo_usuario = TRUE")->fetchColumn();
+
 $kpi_partidas    = $conn->query("SELECT COUNT(*) FROM partida WHERE status_partida = 'agendada'")->fetchColumn();
+
 $kpi_realizadas  = $conn->query("SELECT COUNT(*) FROM partida WHERE status_partida = 'realizada'")->fetchColumn();
-$kpi_modalidades = $conn->query("SELECT COUNT(*) FROM modalidade WHERE ativo_modalidade = 1")->fetchColumn();
+
+$kpi_modalidades = $conn->query("SELECT COUNT(*) FROM modalidade WHERE ativo_modalidade = TRUE")->fetchColumn();
 
 /* ── AGENDA ──────────────────────────────────────── */
 $agenda = $conn->query("

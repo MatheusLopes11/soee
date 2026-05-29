@@ -21,7 +21,7 @@ $stmtEsportes = $conn->query("
     FROM modalidade m
     INNER JOIN edicao_modalidade em ON em.modalidade_id_modalidade = m.id_modalidade
     INNER JOIN edicao e            ON e.id_edicao = em.edicao_id_edicao
-    WHERE m.ativo_modalidade = 1
+    WHERE m.ativo_modalidade = true
       AND e.status_edicao = 'em_andamento'
     ORDER BY m.nome_modalidade ASC
 ");
@@ -135,9 +135,17 @@ if ($emId) {
         LEFT  JOIN turma tv     ON tv.id_turma = r.turma_id_vencedor
         WHERE p.edicao_modalidade_id = :emid
         ORDER BY
-            FIELD(p.fase_partida,'grupos','oitavas','quartas','semi','terceiro_lugar','final'),
-            p.data_partida ASC,
-            p.hora_partida ASC
+        CASE p.fase_partida
+            WHEN 'grupos' THEN 1
+            WHEN 'oitavas' THEN 2
+            WHEN 'quartas' THEN 3
+            WHEN 'semi' THEN 4
+            WHEN 'terceiro_lugar' THEN 5
+            WHEN 'final' THEN 6
+            ELSE 99
+        END,
+        p.data_partida ASC,
+        p.hora_partida ASC
     ");
     $stmtP->execute([':emid' => $emId]);
     $todasPartidas = $stmtP->fetchAll(PDO::FETCH_ASSOC);

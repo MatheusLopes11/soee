@@ -8,7 +8,7 @@ $stmtUser = $conn->prepare("
     FROM usuario u
     LEFT JOIN turma t ON t.id_turma = u.turma_id_turma
     LEFT JOIN curso c ON c.id_curso = t.curso_id_curso
-    LEFT JOIN foto_perfil fp ON fp.usuario_id_usuario = u.id_usuario AND fp.atual_foto = 1
+    LEFT JOIN foto_perfil fp ON fp.usuario_id_usuario = u.id_usuario AND fp.atual_foto = true
     WHERE u.id_usuario = :id
     LIMIT 1
 ");
@@ -62,7 +62,7 @@ $stmtMod = $conn->query("
     FROM modalidade m
     INNER JOIN edicao_modalidade em ON em.modalidade_id_modalidade = m.id_modalidade
     INNER JOIN edicao e ON e.id_edicao = em.edicao_id_edicao
-    WHERE m.ativo_modalidade = 1
+    WHERE m.ativo_modalidade = true
       AND em.status_edicao_modalidade = 'inscricoes'
       AND e.status_edicao != 'encerrado'
     ORDER BY m.nome_modalidade
@@ -83,7 +83,7 @@ if ($turmaId) {
         INNER JOIN turma tb ON tb.id_turma = p.turma_id_time_b
         WHERE (p.turma_id_time_a = :t1 OR p.turma_id_time_b = :t2)
           AND p.status_partida = 'agendada'
-          AND p.data_partida >= CURDATE()
+          AND p.data_partida >= CURRENT_DATE
         ORDER BY p.data_partida ASC, p.hora_partida ASC
         LIMIT 1
     ");
@@ -162,7 +162,7 @@ if ($turmaId && !empty($inscricoes)) {
     foreach ($inscricoes as $insc) {
         $emId = $insc['edicao_modalidade_id'];
         $stmtEl = $conn->prepare("
-            SELECT u.id_usuario, u.nome_usuario, u.foto_perfil_usuario,
+            SELECT u.id_usuario, u.nome_usuario,
                    i.numero_camisa_inscricao, i.nome_camisa_inscricao,
                    i.posicao_inscricao, i.capitao_inscricao
             FROM inscricao i

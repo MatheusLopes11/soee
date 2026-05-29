@@ -103,11 +103,12 @@ try {
     }
 
     /* ── INSERÇÃO USUÁRIO ── */
+    // PostgreSQL: ativo_usuario usa TRUE (boolean), não 1
     $insert = $conn->prepare("
         INSERT INTO usuario
         (turma_id_turma, nome_usuario, email_usuario, senha_usuario, genero_usuario, tipo_usuario, ativo_usuario)
         VALUES
-        (:turma, :nome, :email, :senha, :genero, 'aluno', 1)
+        (:turma, :nome, :email, :senha, :genero, 'aluno', TRUE)
     ");
 
     $insert->execute([
@@ -122,6 +123,7 @@ try {
     exit();
 
 } catch (PDOException $e) {
-    echo "ERRO NO CADASTRO: " . $e->getMessage();
+    error_log("Erro no cadastro: " . $e->getMessage());
+    header('Location: /soee/src/frontend/views/forms/cadastrar.php?erro=erro_db');
     exit();
 }

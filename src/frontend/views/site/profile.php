@@ -39,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['foto_perfil'])) {
         if (!is_dir(dirname($destino))) mkdir(dirname($destino), 0755, true);
 
         if (move_uploaded_file($file['tmp_name'], $destino)) {
-            $conn->prepare("UPDATE foto_perfil SET atual_foto = 0 WHERE usuario_id_usuario = :id")
+            // PostgreSQL: atual_foto é BOOLEAN → FALSE (não 0)
+            $conn->prepare("UPDATE foto_perfil SET atual_foto = FALSE WHERE usuario_id_usuario = :id")
                  ->execute([':id' => $userId]);
 
             $conn->prepare("

@@ -25,13 +25,16 @@ try {
 
     $conn->beginTransaction();
 
+    // PostgreSQL não tem ON DUPLICATE KEY UPDATE.
+    // Usamos ON CONFLICT (coluna_unique) DO UPDATE SET ...
+    // A coluna partida_id_partida tem UNIQUE no schema Supabase.
     $conn->prepare("
         INSERT INTO resultado (partida_id_partida, placar_time_a, placar_time_b, turma_id_vencedor)
         VALUES (:pid, :pA, :pB, :venc)
-        ON DUPLICATE KEY UPDATE
-            placar_time_a     = VALUES(placar_time_a),
-            placar_time_b     = VALUES(placar_time_b),
-            turma_id_vencedor = VALUES(turma_id_vencedor)
+        ON CONFLICT (partida_id_partida) DO UPDATE SET
+            placar_time_a     = EXCLUDED.placar_time_a,
+            placar_time_b     = EXCLUDED.placar_time_b,
+            turma_id_vencedor = EXCLUDED.turma_id_vencedor
     ")->execute([':pid'=>$idPartida, ':pA'=>$pA, ':pB'=>$pB, ':venc'=>$idVencedor]);
 
     $conn->prepare("UPDATE partida SET status_partida = 'realizada' WHERE id_partida = :id")

@@ -1,10 +1,13 @@
 <?php
 session_start();
 
+// CAMINHO CORRIGIDO: feedback.php fica em /soee/src/backend/actions/
+// '/../includes/conexao.php' → conexao está em /soee/src/backend/includes/
+// O __DIR__ de actions/ sobe um nível para backend/ e entra em includes/
 try {
-    include __DIR__ . '/../includes/conexao.php';
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/includes/conexao.php';
 
-    $usuario_id = $_SESSION['usuario_id'] ?? null;
+    $usuario_id = $_SESSION['user_id'] ?? null;
 
     if (
         empty($_POST['nome_feedback'])  ||
@@ -53,5 +56,6 @@ try {
     exit;
 
 } catch (PDOException $erro) {
-    echo "Erro: " . $erro->getMessage();
+    error_log("Erro feedback: " . $erro->getMessage());
+    echo "Erro ao enviar feedback. Tente novamente.";
 }
