@@ -113,11 +113,15 @@ $turmas_select = $conn->query("SELECT id_turma, nome_turma FROM turma ORDER BY n
 
 $partidas_select = $conn->query("
     SELECT p.id_partida,
-           CONCAT(m.nome_modalidade,' — ',ta.nome_turma,' vs ',tb.nome_turma,
-                  ' (',DATE_FORMAT(p.data_partida,'%d/%m'),')') AS label
+           CONCAT(
+               m.nome_modalidade,' — ',
+               ta.nome_turma,' vs ',
+               tb.nome_turma,
+               ' (',TO_CHAR(p.data_partida,'DD/MM'),')'
+           ) AS label
     FROM partida p
     JOIN edicao_modalidade em ON em.id_edicao_modalidade = p.edicao_modalidade_id
-    JOIN modalidade m  ON m.id_modalidade  = em.modalidade_id_modalidade
+    JOIN modalidade m ON m.id_modalidade = em.modalidade_id_modalidade
     JOIN turma ta ON ta.id_turma = p.turma_id_time_a
     JOIN turma tb ON tb.id_turma = p.turma_id_time_b
     ORDER BY p.data_partida DESC
@@ -143,17 +147,25 @@ try {
 /* ── MODALIDADES POR EDIÇÃO ──────────────────────── */
 $modalidadesPorEdicao = [];
 $stmtMpe = $conn->query("
-    SELECT em.id_edicao_modalidade, em.edicao_id_edicao,
-           em.status_edicao_modalidade,
-           m.nome_modalidade,
-           COUNT(DISTINCT u.turma_id_turma) AS turmas_inscritas
-    FROM edicao_modalidade em
-    INNER JOIN modalidade m ON m.id_modalidade = em.modalidade_id_modalidade
-    LEFT JOIN inscricao i ON i.edicao_modalidade_id = em.id_edicao_modalidade
-        AND i.status_inscricao = 'ativa'
-    LEFT JOIN usuario u ON u.id_usuario = i.usuario_id_usuario
-    GROUP BY em.id_edicao_modalidade
-    ORDER BY m.nome_modalidade ASC
+    SELECT em.id_edicao_modalidade,
+       em.edicao_id_edicao,
+       em.status_edicao_modalidade,
+       m.nome_modalidade,
+       COUNT(DISTINCT u.turma_id_turma) AS turmas_inscritas
+FROM edicao_modalidade em
+INNER JOIN modalidade m
+    ON m.id_modalidade = em.modalidade_id_modalidade
+LEFT JOIN inscricao i
+    ON i.edicao_modalidade_id = em.id_edicao_modalidade
+    AND i.status_inscricao = 'ativa'
+LEFT JOIN usuario u
+    ON u.id_usuario = i.usuario_id_usuario
+GROUP BY
+    em.id_edicao_modalidade,
+    em.edicao_id_edicao,
+    em.status_edicao_modalidade,
+    m.nome_modalidade
+ORDER BY m.nome_modalidade ASC
 ");
 foreach ($stmtMpe->fetchAll(PDO::FETCH_ASSOC) as $row) {
     $modalidadesPorEdicao[$row['edicao_id_edicao']][] = $row;

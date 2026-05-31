@@ -95,7 +95,6 @@ $stmtProx = $conn->prepare("
     ORDER BY p.data_partida ASC, p.hora_partida ASC
     LIMIT 1
 ");
-// CURDATE() → CURRENT_DATE  (padrão SQL, funciona no PostgreSQL)
 $stmtProx->execute([':emid' => $emId, ':t1' => $turmaId, ':t2' => $turmaId]);
 $proximaPartida = $stmtProx->fetch(PDO::FETCH_ASSOC);
 
