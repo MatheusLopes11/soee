@@ -1,9 +1,7 @@
+cat > /mnt/user-data/outputs/gerar-sorteio.php << 'PHPEOF'
 <?php
 // ═══════════════════════════════════════════════════════════
 //  gerar-sorteio.php — SOEE
-//  Suporta: turmas (time) e individuais (solo/dupla/trio)
-//  Suporta: número ímpar com BYE real (ninguém é eliminado)
-//  Suporta: todos os formatos de campeonato
 // ═══════════════════════════════════════════════════════════
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/includes/conexao.php';
@@ -53,25 +51,30 @@ $horaStr = '08:00:00';
 // ── Busca participantes ──────────────────────────────────
 if ($ehIndividual) {
     $stmtP = $conn->prepare("
-        SELECT i.usuario_id_usuario AS id,
-               u.nome_usuario       AS nome,
-               u.turma_id_turma     AS turma_id,
-               t.nome_turma
+        SELECT
+            i.usuario_id_usuario  AS id,
+            u.nome_usuario        AS nome,
+            u.turma_id_turma      AS turma_id,
+            t.nome_turma
         FROM inscricao i
-        INNER JOIN usuario u ON u.id_usuario = i.usuario_id_usuario
-        INNER JOIN turma t ON t.id_turma = u.turma_id_turma
+        INNER JOIN usuario u ON u.id_usuario  = i.usuario_id_usuario
+        INNER JOIN turma  t ON t.id_turma     = u.turma_id_turma
         WHERE i.edicao_modalidade_id = :emid
           AND i.status_inscricao = 'ativa'
+        ORDER BY u.nome_usuario
     ");
     $stmtP->execute([':emid' => $emId]);
     $participantes = $stmtP->fetchAll(PDO::FETCH_ASSOC);
 } else {
     $stmtP = $conn->prepare("
-        SELECT DISTINCT t.id_turma AS id, t.nome_turma AS nome,
-                        t.id_turma AS turma_id, t.nome_turma
+        SELECT DISTINCT
+            t.id_turma   AS id,
+            t.nome_turma AS nome,
+            t.id_turma   AS turma_id,
+            t.nome_turma
         FROM inscricao i
         INNER JOIN usuario u ON u.id_usuario = i.usuario_id_usuario
-        INNER JOIN turma t ON t.id_turma = u.turma_id_turma
+        INNER JOIN turma  t ON t.id_turma    = u.turma_id_turma
         WHERE i.edicao_modalidade_id = :emid
           AND i.status_inscricao = 'ativa'
     ");
@@ -93,9 +96,9 @@ function proximaPotencia2(int $n): int {
     $p = 1; while ($p < $n) $p *= 2; return $p;
 }
 function faseInicial(int $n): string {
-    if ($n <= 2)  return 'final';
-    if ($n <= 4)  return 'semi';
-    if ($n <= 8)  return 'quartas';
+    if ($n <= 2) return 'final';
+    if ($n <= 4) return 'semi';
+    if ($n <= 8) return 'quartas';
     return 'oitavas';
 }
 function dividirEmGrupos(array $lista, int $num): array {
@@ -112,39 +115,87 @@ function calcNumGrupos(int $n): int {
 // ── Transação ─────────────────────────────────────────────
 $conn->beginTransaction();
 try {
-    $stmtInsert = $conn->prepare("
-        INSERT INTO partida
-            (edicao_modalidade_id, turma_id_time_a, turma_id_time_b,
-             data_partida, hora_partida, fase_partida, grupo_partida, status_partida)
-        VALUES (:emid, :ta, :tb, :data, :hora, :fase, :grupo, 'agendada')
-    ");
 
-    // PostgreSQL não tem INSERT IGNORE.
-    // Usamos ON CONFLICT (edicao_modalidade_id, turma_id_turma) DO NOTHING
-    // baseado na constraint UNIQUE do schema.
-    $stmtClassif = $conn->prepare("
-        INSERT INTO classificacao
-            (edicao_modalidade_id, turma_id_turma, grupo_classificacao,
-             pontos, vitorias, derrotas, empates, jogos, pontos_pro, pontos_contra, saldo)
-        VALUES (:emid, :turma, :grupo, 0,0,0,0,0,0,0,0)
-        ON CONFLICT (edicao_modalidade_id, turma_id_turma) DO NOTHING
-    ");
+    // ── INSERT partida ────────────────────────────────────
+    if ($ehIndividual) {
+        $stmtInsert = $conn->prepare("
+            INSERT INTO partida
+                (edicao_modalidade_id,
+                 turma_id_time_a, turma_id_time_b,
+                 usuario_id_time_a, usuario_id_time_b,
+                 data_partida, hora_partida, fase_partida, grupo_partida, status_partida)
+            VALUES
+                (:emid,
+                 :ta_turma, :tb_turma,
+                 :ta_usuario, :tb_usuario,
+                 :data, :hora, :fase, :grupo, 'agendada')
+        ");
+    } else {
+        $stmtInsert = $conn->prepare("
+            INSERT INTO partida
+                (edicao_modalidade_id,
+                 turma_id_time_a, turma_id_time_b,
+                 data_partida, hora_partida, fase_partida, grupo_partida, status_partida)
+            VALUES
+                (:emid,
+                 :ta_turma, :tb_turma,
+                 :data, :hora, :fase, :grupo, 'agendada')
+        ");
+    }
+
+    // ── INSERT classificação ──────────────────────────────
+    // Índices parciais não funcionam com ON CONFLICT ON CONSTRAINT.
+    // Usamos ON CONFLICT (colunas) WHERE condição — sintaxe correta
+    // para índices parciais únicos no PostgreSQL.
+    if ($ehIndividual) {
+        $stmtClassif = $conn->prepare("
+            INSERT INTO classificacao
+                (edicao_modalidade_id, turma_id_turma, usuario_id_participante,
+                 grupo_classificacao, pontos, vitorias, derrotas, empates,
+                 jogos, pontos_pro, pontos_contra, saldo)
+            VALUES
+                (:emid, :turma, :usuario, :grupo, 0,0,0,0,0,0,0,0)
+            ON CONFLICT (edicao_modalidade_id, usuario_id_participante)
+            WHERE usuario_id_participante IS NOT NULL
+            DO NOTHING
+        ");
+    } else {
+        $stmtClassif = $conn->prepare("
+            INSERT INTO classificacao
+                (edicao_modalidade_id, turma_id_turma,
+                 grupo_classificacao, pontos, vitorias, derrotas, empates,
+                 jogos, pontos_pro, pontos_contra, saldo)
+            VALUES
+                (:emid, :turma, :grupo, 0,0,0,0,0,0,0,0)
+            ON CONFLICT (edicao_modalidade_id, turma_id_turma)
+            WHERE usuario_id_participante IS NULL
+            DO NOTHING
+        ");
+    }
 
     $letras          = ['A','B','C','D','E','F','G','H'];
     $partidasGeradas = [];
     $byesGerados     = [];
 
+    // ── Função inserir partida ────────────────────────────
     $inserir = function(array $a, array $b, string $fase, ?string $grupo)
-        use ($stmtInsert, $emId, $dataStr, $horaStr, &$partidasGeradas) {
-        $stmtInsert->execute([
-            ':emid'  => $emId,
-            ':ta'    => (int) $a['turma_id'],
-            ':tb'    => (int) $b['turma_id'],
-            ':data'  => $dataStr,
-            ':hora'  => $horaStr,
-            ':fase'  => $fase,
-            ':grupo' => $grupo,
-        ]);
+        use ($stmtInsert, $emId, $dataStr, $horaStr, $ehIndividual, &$partidasGeradas) {
+
+        $params = [
+            ':emid'     => $emId,
+            ':ta_turma' => (int) $a['turma_id'],
+            ':tb_turma' => (int) $b['turma_id'],
+            ':data'     => $dataStr,
+            ':hora'     => $horaStr,
+            ':fase'     => $fase,
+            ':grupo'    => $grupo,
+        ];
+        if ($ehIndividual) {
+            $params[':ta_usuario'] = (int) $a['id'];
+            $params[':tb_usuario'] = (int) $b['id'];
+        }
+        $stmtInsert->execute($params);
+
         $partidasGeradas[] = [
             'time_a' => $a['nome'],
             'time_b' => $b['nome'],
@@ -155,15 +206,25 @@ try {
         ];
     };
 
+    // ── Função registrar classificação ────────────────────
     $registrarClassif = function(array $grupo, string $letra)
-        use ($stmtClassif, $emId) {
-        $turmasVistas = [];
+        use ($stmtClassif, $emId, $ehIndividual) {
+
+        $vistos = [];
         foreach ($grupo as $p) {
-            $tid = (int) $p['turma_id'];
-            if (!in_array($tid, $turmasVistas)) {
-                $stmtClassif->execute([':emid' => $emId, ':turma' => $tid, ':grupo' => $letra]);
-                $turmasVistas[] = $tid;
+            $chave = $ehIndividual ? 'u_' . $p['id'] : 't_' . $p['turma_id'];
+            if (isset($vistos[$chave])) continue;
+            $vistos[$chave] = true;
+
+            $params = [
+                ':emid'  => $emId,
+                ':turma' => (int) $p['turma_id'],
+                ':grupo' => $letra,
+            ];
+            if ($ehIndividual) {
+                $params[':usuario'] = (int) $p['id'];
             }
+            $stmtClassif->execute($params);
         }
     };
 
@@ -199,9 +260,8 @@ try {
         $semBye = array_slice($participantes, $numByes);
 
         $nSem = count($semBye);
-        for ($i = 0; $i + 1 < $nSem; $i += 2) {
+        for ($i = 0; $i + 1 < $nSem; $i += 2)
             $inserir($semBye[$i], $semBye[$i + 1], $fase, null);
-        }
 
         foreach ($comBye as $b) {
             $byesGerados[] = [
@@ -247,9 +307,8 @@ try {
     $totalByes     = count($byesGerados);
 
     $msg = "$totalPartidas partida(s) gerada(s) com sucesso!";
-    if ($totalByes > 0) {
+    if ($totalByes > 0)
         $msg .= " $totalByes participante(s) com BYE avançam direto para a próxima fase.";
-    }
     $msg .= ' Ajuste datas e horários no painel de Partidas.';
 
     echo json_encode([
