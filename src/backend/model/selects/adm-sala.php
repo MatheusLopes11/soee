@@ -24,7 +24,7 @@ $stmtAlunos = $conn->prepare("
     FROM usuario u
     WHERE u.turma_id_turma = :turma
       AND u.tipo_usuario = 'aluno'
-      AND u.ativo_usuario = 1
+      AND u.ativo_usuario
     ORDER BY u.nome_usuario ASC
 ");
 $stmtAlunos->execute([':turma' => $turmaId]);
@@ -83,17 +83,23 @@ $classificacoes = $stmtClassif->fetchAll(PDO::FETCH_ASSOC);
 $stmtStats = $conn->prepare("
     SELECT
         (SELECT COUNT(*) FROM usuario
-         WHERE turma_id_turma = :t1 AND tipo_usuario = 'aluno' AND ativo_usuario = 1) AS total_alunos,
+         WHERE turma_id_turma = :t1
+           AND tipo_usuario = 'aluno'
+           AND ativo_usuario) AS total_alunos,
+
         (SELECT COUNT(*) FROM inscricao i
          INNER JOIN usuario u ON u.id_usuario = i.usuario_id_usuario
-         WHERE u.turma_id_turma = :t2 AND i.status_inscricao = 'ativa') AS total_inscricoes,
+         WHERE u.turma_id_turma = :t2
+           AND i.status_inscricao = 'ativa') AS total_inscricoes,
+
         (SELECT COUNT(*) FROM partida
          WHERE (turma_id_time_a = :t3 OR turma_id_time_b = :t3b)
            AND status_partida = 'realizada') AS partidas_realizadas,
+
         (SELECT COUNT(*) FROM partida
          WHERE (turma_id_time_a = :t4 OR turma_id_time_b = :t4b)
            AND status_partida = 'agendada'
-           AND data_partida >= CURDATE()) AS proximas_partidas
+           AND data_partida >= CURRENT_DATE) AS proximas_partidas
 ");
 $stmtStats->execute([
     ':t1' => $turmaId, ':t2'  => $turmaId,

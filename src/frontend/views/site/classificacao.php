@@ -230,16 +230,17 @@
             <?php else: ?>
 
                 <?php if ($ehIndividual): ?>
-                <div class="aviso-individual">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <?php if ($participacao === 'solo'): ?>
-                        Modalidade individual — cada jogador representa sua turma.
-                    <?php elseif ($participacao === 'dupla'): ?>
-                        Modalidade em duplas — as duplas representam sua turma.
-                    <?php else: ?>
-                        Modalidade em trios — os trios representam sua turma.
-                    <?php endif; ?>
-                </div>
+<div class="aviso-individual">
+    <i class="fa-solid fa-circle-info"></i>
+    <?php if ($participacao === 'solo'): ?>
+        Modalidade individual — cada aluno compete por conta própria.
+    <?php elseif ($participacao === 'dupla'): ?>
+        Modalidade em duplas — cada dupla compete por conta própria.
+    <?php else: ?>
+        Modalidade em trios — cada trio compete por conta própria.
+    <?php endif; ?>
+    A turma exibida é apenas a origem do participante.
+</div>
                 <?php endif; ?>
 
                 <div class="grupos-grid">
@@ -273,7 +274,7 @@
                                 <thead>
                                     <tr>
                                         <th class="th-pos">#</th>
-                                        <th class="th-time">Time / Turma</th>
+                                        <th class="th-time"><?= $ehIndividual ? 'Participante' : 'Time / Turma' ?></th>
                                         <th title="Jogos realizados">J</th>
                                         <th title="Vitórias">V</th>
                                         <th title="Empates">E</th>
@@ -306,20 +307,27 @@
                                         </td>
 
                                         <td class="td-time">
-                                            <div class="time-col">
-                                                <div class="time-avatar">
-                                                    <?= avatar($time['nome_turma']) ?>
-                                                </div>
-                                                <span class="time-nome">
-                                                    <?= htmlspecialchars($time['nome_turma']) ?>
-                                                </span>
-                                                <?php if ($classifica): ?>
-                                                    <span class="badge-classifica" title="Classificado">
-                                                        <i class="fa-solid fa-check"></i>
-                                                    </span>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
+    <div class="time-col">
+        <div class="time-avatar">
+            <?= avatar($time['nome_exibicao']) ?>
+        </div>
+        <div class="time-info">
+            <span class="time-nome">
+                <?= htmlspecialchars($time['nome_exibicao']) ?>
+            </span>
+            <?php if ($ehIndividual && !empty($time['subtitulo'])): ?>
+                <span class="time-turma-origem">
+                    <?= htmlspecialchars($time['subtitulo']) ?>
+                </span>
+            <?php endif; ?>
+        </div>
+        <?php if ($classifica): ?>
+            <span class="badge-classifica" title="Classificado">
+                <i class="fa-solid fa-check"></i>
+            </span>
+        <?php endif; ?>
+    </div>
+</td>
 
                                         <td class="td-num"><?= (int) $time['jogos'] ?></td>
                                         <td class="td-num verde"><?= (int) $time['vitorias'] ?></td>
@@ -356,25 +364,37 @@
                                 $realizada = $jogo['status_partida'] === 'realizada';
                             ?>
                             <div class="jogo-mini <?= $realizada ? 'realizada' : '' ?>">
-                                <span class="jogo-time <?= (!empty($jogo['vencedor']) && $jogo['vencedor'] === $jogo['time_a']) ? 'vencedor' : '' ?>">
-                                    <?= htmlspecialchars($jogo['time_a']) ?>
-                                </span>
-                                <div class="jogo-placar">
-                                    <?php if ($realizada): ?>
-                                        <strong><?= $jogo['placar_time_a'] ?></strong>
-                                        <span class="jogo-x">×</span>
-                                        <strong><?= $jogo['placar_time_b'] ?></strong>
-                                    <?php else: ?>
-                                        <span class="jogo-data"><?= fmtData($jogo['data_partida']) ?></span>
-                                        <?php if ($jogo['hora_partida']): ?>
-                                            <span class="jogo-hora"><?= fmtHora($jogo['hora_partida']) ?></span>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
-                                </div>
-                                <span class="jogo-time direita <?= (!empty($jogo['vencedor']) && $jogo['vencedor'] === $jogo['time_b']) ? 'vencedor' : '' ?>">
-                                    <?= htmlspecialchars($jogo['time_b']) ?>
-                                </span>
-                            </div>
+    <div class="jogo-participante-col">
+        <span class="jogo-time <?= (!empty($jogo['vencedor']) && $jogo['vencedor'] === $jogo['time_a']) ? 'vencedor' : '' ?>">
+            <?= htmlspecialchars($jogo['time_a']) ?>
+        </span>
+        <?php if ($ehIndividual && !empty($jogo['turma_time_a'])): ?>
+            <span class="jogo-turma-label"><?= htmlspecialchars($jogo['turma_time_a']) ?></span>
+        <?php endif; ?>
+    </div>
+ 
+    <div class="jogo-placar">
+        <?php if ($realizada): ?>
+            <strong><?= $jogo['placar_time_a'] ?></strong>
+            <span class="jogo-x">×</span>
+            <strong><?= $jogo['placar_time_b'] ?></strong>
+        <?php else: ?>
+            <span class="jogo-data"><?= fmtData($jogo['data_partida']) ?></span>
+            <?php if ($jogo['hora_partida']): ?>
+                <span class="jogo-hora"><?= fmtHora($jogo['hora_partida']) ?></span>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+ 
+    <div class="jogo-participante-col direita">
+        <span class="jogo-time direita <?= (!empty($jogo['vencedor']) && $jogo['vencedor'] === $jogo['time_b']) ? 'vencedor' : '' ?>">
+            <?= htmlspecialchars($jogo['time_b']) ?>
+        </span>
+        <?php if ($ehIndividual && !empty($jogo['turma_time_b'])): ?>
+            <span class="jogo-turma-label"><?= htmlspecialchars($jogo['turma_time_b']) ?></span>
+        <?php endif; ?>
+    </div>
+</div>
                             <?php endforeach; ?>
                         </div>
                         <?php endif; ?>
