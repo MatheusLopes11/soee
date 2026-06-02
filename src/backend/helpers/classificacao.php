@@ -30,19 +30,31 @@ $participacaoLabel = [
     'time'  => 'Times por Turma',
 ];
 
-$faseOrdemMata    = ['oitavas', 'quartas', 'semi', 'terceiro_lugar', 'final'];
-$temMataMata      = $formato && in_array($formato, ['mata_mata', 'grupos_mata_mata']);
-$icone            = $tipoIcons[$esporte['tipo_modalidade'] ?? 'outro'] ?? 'fa-medal';
-$participacao     = $esporte['tipo_participacao'] ?? 'time';
-$ehIndividual     = in_array($participacao, ['solo', 'dupla', 'trio']);
+$faseOrdemMata = ['oitavas', 'quartas', 'semi', 'terceiro_lugar', 'final'];
+
+// FIX: $formato e $esporte podem ser null; usar null-coalescing seguro
+$temMataMata  = ($formato ?? null) && in_array($formato, ['mata_mata', 'grupos_mata_mata']);
+$icone        = $tipoIcons[$esporte['tipo_modalidade'] ?? 'outro'] ?? 'fa-medal';
+
+// FIX: $participacao já vem definido em classificacao.php (select), mas garantimos fallback
+$participacao = $participacao ?? ($esporte['tipo_participacao'] ?? 'time');
+$ehIndividual = in_array($participacao, ['solo', 'dupla', 'trio']);
 
 // Quantos classificam por grupo para mata-mata
 $classificamPorGrupo = 2;
 
-function fmtData($d)     { return $d ? date('d/m', strtotime($d)) : '—'; }
-function fmtDataLong($d) { return $d ? date('d/m/Y', strtotime($d)) : '—'; }
-function fmtHora($h)     { return $h ? substr($h, 0, 5) : ''; }
-function avatar($nome)   { return mb_strtoupper(mb_substr(trim($nome ?? '?'), 0, 2)); }
+if (!function_exists('fmtData')) {
+    function fmtData($d)     { return $d ? date('d/m', strtotime($d)) : '—'; }
+}
+if (!function_exists('fmtDataLong')) {
+    function fmtDataLong($d) { return $d ? date('d/m/Y', strtotime($d)) : '—'; }
+}
+if (!function_exists('fmtHora')) {
+    function fmtHora($h)     { return $h ? substr($h, 0, 5) : ''; }
+}
+if (!function_exists('avatar')) {
+    function avatar($nome)   { return mb_strtoupper(mb_substr(trim($nome ?? '?'), 0, 2)); }
+}
 
 // ── AUTH ─────────────────────────────────────────────────
 $logado = !empty($_SESSION['usuario_id']);
@@ -53,4 +65,3 @@ $destDash = match($tipo) {
     'adm_geral' => '/soee/src/frontend/views/dashboards/adm.php',
     default     => '/soee/src/frontend/views/dashboards/aluno.php',
 };
-?>

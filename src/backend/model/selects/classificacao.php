@@ -20,7 +20,7 @@ $stmtEsportes = $conn->query("
         em.status_edicao_modalidade
     FROM modalidade m
     INNER JOIN edicao_modalidade em ON em.modalidade_id_modalidade = m.id_modalidade
-    INNER JOIN edicao e            ON e.id_edicao = em.edicao_id_edicao
+    INNER JOIN edicao e             ON e.id_edicao = em.edicao_id_edicao
     WHERE m.ativo_modalidade = true
       AND e.status_edicao = 'em_andamento'
     ORDER BY m.nome_modalidade ASC
@@ -57,7 +57,7 @@ if ($modalidadeId) {
             e.ano_edicao
         FROM modalidade m
         INNER JOIN edicao_modalidade em ON em.modalidade_id_modalidade = m.id_modalidade
-        INNER JOIN edicao e            ON e.id_edicao = em.edicao_id_edicao
+        INNER JOIN edicao e             ON e.id_edicao = em.edicao_id_edicao
         WHERE m.id_modalidade = :id
           AND e.status_edicao = 'em_andamento'
         ORDER BY em.id_edicao_modalidade DESC
@@ -75,80 +75,77 @@ if ($modalidadeId) {
 
 $ehIndividual = in_array($participacao, ['solo', 'dupla', 'trio']);
 
-// ── CLASSIFICAÇÃO POR GRUPOS ──────────────────────────────
-// Para individuais: exibe nome do aluno e turma de origem.
-// Para times:       exibe nome da turma normalmente.
+// ── CLASSIFICAÇÃO POR GRUPOS (CÁLCULO DINÂMICO VIA INNER JOIN) ──
 $grupos    = [];
 $temGrupos = $formato && in_array($formato, ['grupos', 'grupos_mata_mata', 'todos_contra_todos']);
 
 if ($emId && $temGrupos) {
     if ($ehIndividual) {
-        // Classificação individual: join com usuario para pegar o nome do aluno
+        // Classificação Individual (Usa a presença do resultado em vez do ENUM status)
         $stmtCl = $conn->prepare("
             SELECT
-                cl.pontos,
-                cl.vitorias,
-                cl.derrotas,
-                cl.empates,
-                cl.jogos,
-                cl.saldo,
-                cl.pontos_pro,
-                cl.pontos_contra,
-                cl.grupo_classificacao,
-                cl.usuario_id_participante,
-                u.nome_usuario  AS nome_participante,
+                u.id_usuario AS usuario_id_participante,
+                u.nome_usuario AS nome_participante,
                 t.nome_turma,
-                t.id_turma
-            FROM classificacao cl
-            INNER JOIN usuario u ON u.id_usuario = cl.usuario_id_participante
-            INNER JOIN turma   t ON t.id_turma   = u.turma_id_turma
-            WHERE cl.edicao_modalidade_id = :emid
-              AND cl.usuario_id_participante IS NOT NULL
-            ORDER BY
-                cl.grupo_classificacao ASC,
-                cl.pontos DESC,
-                cl.saldo DESC,
-                cl.vitorias DESC,
-                cl.pontos_pro DESC
+                t.id_turma,
+                p.grupo_partida AS grupo_classificacao,
+                COUNT(r.id_resultado) AS jogos,
+                SUM(CASE WHEN r.usuario_id_vencedor = u.id_usuario THEN 1 ELSE 0 END) AS vitorias,
+                SUM(CASE WHEN r.usuario_id_vencedor IS NULL AND r.id_resultado IS NOT NULL THEN 1 ELSE 0 END) AS empates,
+                SUM(CASE WHEN r.usuario_id_vencedor != u.id_usuario AND r.usuario_id_vencedor IS NOT NULL THEN 1 ELSE 0 END) AS derrotas,
+                SUM(CASE WHEN p.usuario_id_time_a = u.id_usuario THEN r.placar_time_a ELSE r.placar_time_b END) AS pontos_pro,
+                SUM(CASE WHEN p.usuario_id_time_a = u.id_usuario THEN r.placar_time_b ELSE r.placar_time_a END) AS pontos_contra,
+                (SUM(CASE WHEN p.usuario_id_time_a = u.id_usuario THEN r.placar_time_a ELSE r.placar_time_b END) - 
+                 SUM(CASE WHEN p.usuario_id_time_a = u.id_usuario THEN r.placar_time_b ELSE r.placar_time_a END)) AS saldo,
+                SUM(CASE 
+                    WHEN r.usuario_id_vencedor = u.id_usuario THEN 3 
+                    WHEN r.usuario_id_vencedor IS NULL AND r.id_resultado IS NOT NULL THEN 1 
+                    ELSE 0 
+                END) AS pontos
+            FROM partida p
+            INNER JOIN resultado r ON r.partida_id_partida = p.id_partida
+            INNER JOIN usuario u  ON (u.id_usuario = p.usuario_id_time_a OR u.id_usuario = p.usuario_id_time_b)
+            INNER JOIN turma t    ON t.id_turma = u.turma_id_turma
+            WHERE p.edicao_modalidade_id = :emid
+            GROUP BY u.id_usuario, u.nome_usuario, t.nome_turma, t.id_turma, p.grupo_partida
+            ORDER BY p.grupo_partida ASC, pontos DESC, saldo DESC, vitorias DESC, pontos_pro DESC
         ");
     } else {
-        // Classificação por time: join com turma
+        // Classificação por Time/Turma (Usa a presença do resultado em vez do ENUM status)
         $stmtCl = $conn->prepare("
             SELECT
-                cl.pontos,
-                cl.vitorias,
-                cl.derrotas,
-                cl.empates,
-                cl.jogos,
-                cl.saldo,
-                cl.pontos_pro,
-                cl.pontos_contra,
-                cl.grupo_classificacao,
-                NULL AS usuario_id_participante,
-                t.nome_turma  AS nome_participante,
+                t.id_turma,
                 t.nome_turma,
-                t.id_turma
-            FROM classificacao cl
-            INNER JOIN turma t ON t.id_turma = cl.turma_id_turma
-            WHERE cl.edicao_modalidade_id = :emid
-              AND cl.usuario_id_participante IS NULL
-            ORDER BY
-                cl.grupo_classificacao ASC,
-                cl.pontos DESC,
-                cl.saldo DESC,
-                cl.vitorias DESC,
-                cl.pontos_pro DESC
+                t.nome_turma AS nome_participante,
+                NULL AS usuario_id_participante,
+                p.grupo_partida AS grupo_classificacao,
+                COUNT(r.id_resultado) AS jogos,
+                SUM(CASE WHEN r.turma_id_vencedor = t.id_turma THEN 1 ELSE 0 END) AS vitorias,
+                SUM(CASE WHEN r.turma_id_vencedor IS NULL AND r.id_resultado IS NOT NULL THEN 1 ELSE 0 END) AS empates,
+                SUM(CASE WHEN r.turma_id_vencedor != t.id_turma AND r.turma_id_vencedor IS NOT NULL THEN 1 ELSE 0 END) AS derrotas,
+                SUM(CASE WHEN p.turma_id_time_a = t.id_turma THEN r.placar_time_a ELSE r.placar_time_b END) AS pontos_pro,
+                SUM(CASE WHEN p.turma_id_time_a = t.id_turma THEN r.placar_time_b ELSE r.placar_time_a END) AS pontos_contra,
+                (SUM(CASE WHEN p.turma_id_time_a = t.id_turma THEN r.placar_time_a ELSE r.placar_time_b END) - 
+                 SUM(CASE WHEN p.turma_id_time_a = t.id_turma THEN r.placar_time_b ELSE r.placar_time_a END)) AS saldo,
+                SUM(CASE 
+                    WHEN r.turma_id_vencedor = t.id_turma THEN 3 
+                    WHEN r.turma_id_vencedor IS NULL AND r.id_resultado IS NOT NULL THEN 1 
+                    ELSE 0 
+                END) AS pontos
+            FROM partida p
+            INNER JOIN resultado r ON r.partida_id_partida = p.id_partida
+            INNER JOIN turma t    ON (t.id_turma = p.turma_id_time_a OR t.id_turma = p.turma_id_time_b)
+            WHERE p.edicao_modalidade_id = :emid
+            GROUP BY t.id_turma, t.nome_turma, p.grupo_partida
+            ORDER BY p.grupo_partida ASC, pontos DESC, saldo DESC, vitorias DESC, pontos_pro DESC
         ");
     }
 
     $stmtCl->execute([':emid' => $emId]);
     foreach ($stmtCl->fetchAll(PDO::FETCH_ASSOC) as $row) {
-        // Normaliza o campo exibido: para individual usa nome do aluno,
-        // para time usa nome da turma — ambos ficam em 'nome_turma' para
-        // manter compatibilidade com a view existente.
         if ($ehIndividual) {
             $row['nome_exibicao'] = $row['nome_participante'];
-            $row['subtitulo']     = $row['nome_turma']; // turma de origem do aluno
+            $row['subtitulo']     = $row['nome_turma']; 
         } else {
             $row['nome_exibicao'] = $row['nome_turma'];
             $row['subtitulo']     = null;
@@ -159,14 +156,11 @@ if ($emId && $temGrupos) {
 }
 
 // ── PARTIDAS POR FASE ─────────────────────────────────────
-// Para individuais: exibe nome do aluno (e turma de origem entre parênteses).
-// Para times:       exibe nome da turma normalmente.
 $partidas_fase = [];
 $todasPartidas = [];
 
 if ($emId) {
     if ($ehIndividual) {
-        // Partidas individuais: join com usuario para time_a e time_b
         $stmtP = $conn->prepare("
             SELECT
                 p.id_partida,
@@ -180,37 +174,36 @@ if ($emId) {
                 p.usuario_id_time_b,
                 p.turma_id_time_a,
                 p.turma_id_time_b,
-                ua.nome_usuario                         AS time_a,
-                ta.nome_turma                           AS turma_time_a,
-                ub.nome_usuario                         AS time_b,
-                tb.nome_turma                           AS turma_time_b,
+                ua.nome_usuario AS time_a,
+                ta.nome_turma   AS turma_time_a,
+                ub.nome_usuario AS time_b,
+                tb.nome_turma   AS turma_time_b,
                 r.placar_time_a,
                 r.placar_time_b,
-                uv.nome_usuario                         AS vencedor
+                uv.nome_usuario AS vencedor
             FROM partida p
             INNER JOIN usuario ua ON ua.id_usuario = p.usuario_id_time_a
-            INNER JOIN turma   ta ON ta.id_turma   = p.turma_id_time_a
+            INNER JOIN turma ta   ON ta.id_turma   = p.turma_id_time_a
             INNER JOIN usuario ub ON ub.id_usuario = p.usuario_id_time_b
-            INNER JOIN turma   tb ON tb.id_turma   = p.turma_id_time_b
-            LEFT  JOIN resultado r  ON r.partida_id_partida = p.id_partida
-            LEFT  JOIN usuario  uv  ON uv.id_usuario = r.usuario_id_vencedor
+            INNER JOIN turma tb   ON tb.id_turma   = p.turma_id_time_b
+            LEFT JOIN resultado r ON r.partida_id_partida = p.id_partida
+            LEFT JOIN usuario uv  ON uv.id_usuario = r.usuario_id_vencedor
             WHERE p.edicao_modalidade_id = :emid
               AND p.usuario_id_time_a IS NOT NULL
             ORDER BY
             CASE p.fase_partida
-                WHEN 'grupos'        THEN 1
-                WHEN 'oitavas'       THEN 2
-                WHEN 'quartas'       THEN 3
-                WHEN 'semi'          THEN 4
+                WHEN 'grupos'         THEN 1
+                WHEN 'oitavas'        THEN 2
+                WHEN 'quartas'        THEN 3
+                WHEN 'semi'           THEN 4
                 WHEN 'terceiro_lugar' THEN 5
-                WHEN 'final'         THEN 6
+                WHEN 'final'          THEN 6
                 ELSE 99
             END,
             p.data_partida ASC,
             p.hora_partida ASC
         ");
     } else {
-        // Partidas por time: join com turma (comportamento original)
         $stmtP = $conn->prepare("
             SELECT
                 p.id_partida,
@@ -234,18 +227,18 @@ if ($emId) {
             FROM partida p
             INNER JOIN turma ta ON ta.id_turma = p.turma_id_time_a
             INNER JOIN turma tb ON tb.id_turma = p.turma_id_time_b
-            LEFT  JOIN resultado r  ON r.partida_id_partida = p.id_partida
-            LEFT  JOIN turma     tv ON tv.id_turma = r.turma_id_vencedor
+            LEFT JOIN resultado r ON r.partida_id_partida = p.id_partida
+            LEFT JOIN turma tv   ON tv.id_turma = r.turma_id_vencedor
             WHERE p.edicao_modalidade_id = :emid
               AND p.usuario_id_time_a IS NULL
             ORDER BY
             CASE p.fase_partida
-                WHEN 'grupos'        THEN 1
-                WHEN 'oitavas'       THEN 2
-                WHEN 'quartas'       THEN 3
-                WHEN 'semi'          THEN 4
+                WHEN 'grupos'         THEN 1
+                WHEN 'oitavas'        THEN 2
+                WHEN 'quartas'        THEN 3
+                WHEN 'semi'           THEN 4
                 WHEN 'terceiro_lugar' THEN 5
-                WHEN 'final'         THEN 6
+                WHEN 'final'          THEN 6
                 ELSE 99
             END,
             p.data_partida ASC,
@@ -255,7 +248,13 @@ if ($emId) {
 
     $stmtP->execute([':emid' => $emId]);
     $todasPartidas = $stmtP->fetchAll(PDO::FETCH_ASSOC);
+    
     foreach ($todasPartidas as $p) {
+        // Se não houver placar registrado, exibe o traço padrão
+        if ($p['placar_time_a'] === null) {
+            $p['placar_time_a'] = '-';
+            $p['placar_time_b'] = '-';
+        }
         $partidas_fase[$p['fase_partida']][] = $p;
     }
 }
