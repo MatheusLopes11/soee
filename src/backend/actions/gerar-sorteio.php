@@ -1,4 +1,3 @@
-cat > /mnt/user-data/outputs/gerar-sorteio.php << 'PHPEOF'
 <?php
 // ═══════════════════════════════════════════════════════════
 //  gerar-sorteio.php — SOEE
@@ -116,7 +115,7 @@ function calcNumGrupos(int $n): int {
 $conn->beginTransaction();
 try {
 
-    // ── INSERT partida ────────────────────────────────────
+    // ── PREPARE partida ───────────────────────────────────
     if ($ehIndividual) {
         $stmtInsert = $conn->prepare("
             INSERT INTO partida
@@ -143,10 +142,7 @@ try {
         ");
     }
 
-    // ── INSERT classificação ──────────────────────────────
-    // Índices parciais não funcionam com ON CONFLICT ON CONSTRAINT.
-    // Usamos ON CONFLICT (colunas) WHERE condição — sintaxe correta
-    // para índices parciais únicos no PostgreSQL.
+    // ── PREPARE classificação ─────────────────────────────
     if ($ehIndividual) {
         $stmtClassif = $conn->prepare("
             INSERT INTO classificacao
@@ -231,9 +227,11 @@ try {
     // ── Todos contra todos ────────────────────────────────
     if ($formato === 'todos_contra_todos') {
         $registrarClassif($participantes, 'A');
-        for ($i = 0; $i < $total; $i++)
-            for ($j = $i + 1; $j < $total; $j++)
+        for ($i = 0; $i < $total; $i++) {
+            for ($j = $i + 1; $j < $total; $j++) {
                 $inserir($participantes[$i], $participantes[$j], 'grupos', 'A');
+            }
+        }
     }
 
     // ── Só grupos ─────────────────────────────────────────
@@ -244,9 +242,11 @@ try {
             $letra = $letras[$gi];
             $registrarClassif($grupo, $letra);
             $n = count($grupo);
-            for ($i = 0; $i < $n; $i++)
-                for ($j = $i + 1; $j < $n; $j++)
+            for ($i = 0; $i < $n; $i++) {
+                for ($j = $i + 1; $j < $n; $j++) {
                     $inserir($grupo[$i], $grupo[$j], 'grupos', $letra);
+                }
+            }
         }
     }
 
@@ -260,9 +260,11 @@ try {
         $semBye = array_slice($participantes, $numByes);
 
         $nSem = count($semBye);
-        for ($i = 0; $i + 1 < $nSem; $i += 2)
+        for ($i = 0; $i + 1 < $nSem; $i += 2) {
             $inserir($semBye[$i], $semBye[$i + 1], $fase, null);
+        }
 
+        // Armazena quem passou de fase direto pelo BYE
         foreach ($comBye as $b) {
             $byesGerados[] = [
                 'participante' => $b['nome'],
@@ -280,7 +282,7 @@ try {
         }
     }
 
-    // ── Grupos + Mata-mata ────────────────────────────────
+    // ── Grupos + Mata-mata (Misto) ────────────────────────
     elseif ($formato === 'grupos_mata_mata') {
         $numG   = calcNumGrupos($total);
         $grupos = dividirEmGrupos($participantes, $numG);
@@ -288,27 +290,33 @@ try {
             $letra = $letras[$gi];
             $registrarClassif($grupo, $letra);
             $n = count($grupo);
-            for ($i = 0; $i < $n; $i++)
-                for ($j = $i + 1; $j < $n; $j++)
+            for ($i = 0; $i < $n; $i++) {
+                for ($j = $i + 1; $j < $n; $j++) {
                     $inserir($grupo[$i], $grupo[$j], 'grupos', $letra);
+                }
+            }
         }
     }
 
-    // ── Finaliza ──────────────────────────────────────────
-    $conn->prepare("INSERT INTO sorteio_gerado (edicao_modalidade_id, gerado_por) VALUES (:emid, :uid)")
-         ->execute([':emid' => $emId, ':uid' => $userId]);
+    // ── Finaliza Gravação dos Logs ────────────────────────
+    $stmtSorteio = $conn->prepare("INSERT INTO sorteio_gerado (edicao_modalidade_id, gerado_por) VALUES (:emid, :uid)");
+    $stmtSorteio->execute([':emid' => $emId, ':uid' => $userId]);
 
-    $conn->prepare("UPDATE edicao_modalidade SET status_edicao_modalidade = 'em_andamento' WHERE id_edicao_modalidade = :emid")
-         ->execute([':emid' => $emId]);
+    $stmtUpdateEm = $conn->prepare("UPDATE edicao_modalidade SET status_edicao_modalidade = 'em_andamento' WHERE id_edicao_modalidade = :emid");
+    $stmtUpdateEm->execute([':emid' => $emId]);
 
     $conn->commit();
 
-    $totalPartidas = count(array_filter($partidasGeradas, fn($p) => $p['time_b'] !== 'BYE — avança direto'));
+    // Filtra BYEs da contagem real de jogos inseridos no banco
+    $totalPartidas = count(array_filter($partidasGeradas, function($p) {
+        return $p['time_b'] !== 'BYE — avança direto';
+    }));
     $totalByes     = count($byesGerados);
 
     $msg = "$totalPartidas partida(s) gerada(s) com sucesso!";
-    if ($totalByes > 0)
+    if ($totalByes > 0) {
         $msg .= " $totalByes participante(s) com BYE avançam direto para a próxima fase.";
+    }
     $msg .= ' Ajuste datas e horários no painel de Partidas.';
 
     echo json_encode([
@@ -317,9 +325,10 @@ try {
         'total'    => $totalPartidas,
         'byes'     => $totalByes,
         'partidas' => $partidasGeradas,
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {
     $conn->rollBack();
     echo json_encode(['ok' => false, 'erro' => 'Erro ao gerar: ' . $e->getMessage()]);
 }
+?>

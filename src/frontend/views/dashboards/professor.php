@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../../backend/controllers/home.php';
 
 AuthHome::exigirTipo(['professor']);
 
+// FIX: $userId e $usuario_logado definidos ANTES de incluir os selects
 $usuario_logado = AuthHome::getNome();
 $userId         = AuthHome::getId();
 
@@ -56,37 +57,35 @@ include __DIR__ . '/../includes/doctype.php'; ?>
         </a>
 
         <div class="nav-group-label">Competições</div>
-
         <a class="nav-item" href="javascript:void(0)" data-painel="edicoes" onclick="trocarPainel(this)">
             <i class="fas fa-trophy"></i> Edições / Eventos
             <span class="nav-badge"><?= count($edicoes) ?></span>
         </a>
-        
         <a class="nav-item" href="javascript:void(0)" data-painel="partidas" onclick="trocarPainel(this)">
             <i class="fas fa-calendar-days"></i> Partidas
         </a>
-
         <a class="nav-item" href="javascript:void(0)" data-painel="resultados" onclick="trocarPainel(this)">
             <i class="fas fa-flag-checkered"></i> Resultados
         </a>
-
         <a class="nav-item" href="/soee/src/frontend/views/site/classificacao.php">
-          <i class="fas fa-trophy"></i> Classificação
+            <i class="fas fa-trophy"></i> Classificação
         </a>
 
         <div class="nav-group-label">Gestão</div>
-
         <a class="nav-item" href="javascript:void(0)" data-painel="sumulas" onclick="trocarPainel(this)">
             <i class="fas fa-file-alt"></i> Súmulas
             <?php if (count($sumulas_pendentes)): ?>
                 <span class="nav-badge"><?= count($sumulas_pendentes) ?></span>
             <?php endif; ?>
         </a>
-
         <a class="nav-item" href="javascript:void(0)" data-painel="alunos" onclick="trocarPainel(this)">
             <i class="fas fa-users"></i> Alunos
         </a>
-
+        <!-- NOVO: painel de professores -->
+        <a class="nav-item" href="javascript:void(0)" data-painel="professores" onclick="trocarPainel(this)">
+            <i class="fas fa-chalkboard-teacher"></i> Professores
+            <span class="nav-badge"><?= count($professores) ?></span>
+        </a>
         <a class="nav-item" href="/soee/src/frontend/views/forms/feedback.php">
             <i class="fas fa-comment-dots"></i> Feedback
         </a>
@@ -138,9 +137,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
 
     <div class="content">
 
-        <!-- ════════════════════════════════════
-             PAINEL: OVERVIEW
-        ════════════════════════════════════ -->
+        <!-- ════ PAINEL: OVERVIEW ════ -->
         <div class="painel active" id="painel-overview">
             <div class="kpi-grid">
                 <div class="kpi-card azul">
@@ -232,9 +229,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
             </div>
         </div>
 
-        <!-- ════════════════════════════════════
-             PAINEL: AGENDA
-        ════════════════════════════════════ -->
+        <!-- ════ PAINEL: AGENDA ════ -->
         <div class="painel" id="painel-agenda">
             <div class="secao-card">
                 <div class="secao-card-header">
@@ -284,9 +279,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
             </div>
         </div>
 
-        <!-- ════════════════════════════════════
-             PAINEL: EDIÇÕES
-        ════════════════════════════════════ -->
+        <!-- ════ PAINEL: EDIÇÕES ════ -->
         <div class="painel" id="painel-edicoes">
             <div class="secao-card">
                 <div class="secao-card-header">
@@ -301,11 +294,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                 <div class="tabela-wrap">
                     <table>
                         <thead>
-                            <tr>
-                                <th>#</th><th>Nome</th><th>Ano</th>
-                                <th>Início</th><th>Fim</th><th>Status</th>
-                                <th>Alterar Status</th><th>Sorteio</th>
-                            </tr>
+                            <tr><th>#</th><th>Nome</th><th>Ano</th><th>Início</th><th>Fim</th><th>Status</th><th>Alterar Status</th><th>Sorteio</th></tr>
                         </thead>
                         <tbody>
                         <?php if (empty($edicoes)): ?>
@@ -321,15 +310,14 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                                 <td>
                                     <select class="status-select"
                                             onchange="alterarStatusEdicao(<?= $e['id_edicao'] ?>, this.value, this)">
-                                        <option value="planejamento" <?= $e['status_edicao']==='planejamento'  ? 'selected':'' ?>>Planejamento</option>
-                                        <option value="inscricoes"   <?= $e['status_edicao']==='inscricoes'    ? 'selected':'' ?>>Inscrições Abertas</option>
-                                        <option value="em_andamento" <?= $e['status_edicao']==='em_andamento'  ? 'selected':'' ?>>Em Andamento</option>
-                                        <option value="encerrado"    <?= $e['status_edicao']==='encerrado'     ? 'selected':'' ?>>Encerrado</option>
+                                        <option value="planejamento"  <?= $e['status_edicao']==='planejamento'  ? 'selected':'' ?>>Planejamento</option>
+                                        <option value="inscricoes"    <?= $e['status_edicao']==='inscricoes'    ? 'selected':'' ?>>Inscrições Abertas</option>
+                                        <option value="em_andamento"  <?= $e['status_edicao']==='em_andamento'  ? 'selected':'' ?>>Em Andamento</option>
+                                        <option value="encerrado"     <?= $e['status_edicao']==='encerrado'     ? 'selected':'' ?>>Encerrado</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <?php
-                                    $mods = $modalidadesPorEdicao[$e['id_edicao']] ?? [];
+                                    <?php $mods = $modalidadesPorEdicao[$e['id_edicao']] ?? [];
                                     if (empty($mods)): ?>
                                         <span class="sorteio-sem-ins">Nenhuma modalidade</span>
                                     <?php else: ?>
@@ -368,10 +356,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
             </div>
         </div>
 
-        <!-- ════════════════════════════════════
-             PAINEL: PARTIDAS
-             (com botão de editar data/hora/local)
-        ════════════════════════════════════ -->
+        <!-- ════ PAINEL: PARTIDAS ════ -->
         <div class="painel" id="painel-partidas">
             <div class="secao-card">
                 <div class="secao-card-header">
@@ -384,11 +369,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                 <div class="tabela-wrap">
                     <table>
                         <thead>
-                            <tr>
-                                <th>#</th><th>Modalidade</th><th>Time A</th><th>Time B</th>
-                                <th>Data</th><th>Hora</th><th>Local</th>
-                                <th>Fase</th><th>Status</th><th>Ações</th>
-                            </tr>
+                            <tr><th>#</th><th>Modalidade</th><th>Time A</th><th>Time B</th><th>Data</th><th>Hora</th><th>Local</th><th>Fase</th><th>Status</th><th>Ações</th></tr>
                         </thead>
                         <tbody>
                         <?php if (empty($partidas)): ?>
@@ -402,20 +383,11 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                                 <td><?= fmtData($p['data_partida']) ?></td>
                                 <td><?= fmtHora($p['hora_partida']) ?></td>
                                 <td><?= htmlspecialchars($p['local_partida'] ?? '—') ?></td>
-                                <td>
-                                    <span class="badge-status pendente">
-                                        <?= $faseLabel[$p['fase_partida']] ?? ucfirst($p['fase_partida']) ?>
-                                    </span>
-                                </td>
+                                <td><span class="badge-status pendente"><?= $faseLabel[$p['fase_partida']] ?? ucfirst($p['fase_partida']) ?></span></td>
                                 <td><?= badgeStatus($p['status_partida']) ?></td>
                                 <td class="td-acoes">
                                     <button class="btn-editar-partida"
-                                            onclick="abrirEditarPartida(
-                                                <?= $p['id_partida'] ?>,
-                                                '<?= $p['data_partida'] ?>',
-                                                '<?= substr($p['hora_partida'], 0, 5) ?>',
-                                                '<?= addslashes(htmlspecialchars($p['local_partida'] ?? '')) ?>'
-                                            )">
+                                            onclick="abrirEditarPartida(<?= $p['id_partida'] ?>,'<?= $p['data_partida'] ?>','<?= substr($p['hora_partida'],0,5) ?>','<?= addslashes(htmlspecialchars($p['local_partida'] ?? '')) ?>')">
                                         <i class="fas fa-pen"></i> Editar
                                     </button>
                                 </td>
@@ -427,10 +399,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
             </div>
         </div>
 
-        <!-- ════════════════════════════════════
-             PAINEL: RESULTADOS
-             (mostra a partida + inputs inline)
-        ════════════════════════════════════ -->
+        <!-- ════ PAINEL: RESULTADOS ════ -->
         <div class="painel" id="painel-resultados">
             <div class="secao-card">
                 <div class="secao-card-header">
@@ -440,10 +409,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                 <div class="tabela-wrap">
                     <table>
                         <thead>
-                            <tr>
-                                <th>#</th><th>Partida</th><th>Data</th>
-                                <th>Status</th><th class="td-resultado">Resultado</th>
-                            </tr>
+                            <tr><th>#</th><th>Partida</th><th>Data</th><th>Status</th><th class="td-resultado">Resultado</th></tr>
                         </thead>
                         <tbody>
                         <?php if (empty($resultados)): ?>
@@ -459,45 +425,30 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                                 <td><?= badgeStatus($r['status_partida'] ?? 'agendada') ?></td>
                                 <td class="td-resultado">
                                     <?php if (!is_null($r['id_resultado'])): ?>
-                                        <!-- Resultado já registrado -->
                                         <span class="resultado-vencedor-badge">
                                             <i class="fas fa-trophy"></i>
                                             <?php
-                                                if ($r['vencedor']) {
-                                                    echo htmlspecialchars($r['vencedor']);
-                                                } elseif ($r['placar_time_a'] == $r['placar_time_b']) {
-                                                    echo 'Empate';
-                                                } else {
-                                                    echo $r['placar_time_a'] > $r['placar_time_b']
-                                                        ? htmlspecialchars($r['time_a'])
-                                                        : htmlspecialchars($r['time_b']);
-                                                }
+                                                if ($r['vencedor']) echo htmlspecialchars($r['vencedor']);
+                                                elseif ($r['placar_time_a'] == $r['placar_time_b']) echo 'Empate';
+                                                else echo $r['placar_time_a'] > $r['placar_time_b']
+                                                    ? htmlspecialchars($r['time_a'])
+                                                    : htmlspecialchars($r['time_b']);
                                             ?>
                                             (<?= $r['placar_time_a'] ?>–<?= $r['placar_time_b'] ?>)
                                         </span>
                                     <?php else: ?>
-                                        <!-- Formulário inline para registrar -->
                                         <div class="resultado-inline-form">
                                             <span style="font-size:.78rem;font-weight:600;color:var(--texto-secundario);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<?= htmlspecialchars($r['time_a']) ?>">
                                                 <?= htmlspecialchars($r['time_a']) ?>
                                             </span>
-                                            <input type="number" class="placar-input placar-a"
-                                                   min="0" max="99" placeholder="0"
-                                                   aria-label="Placar <?= htmlspecialchars($r['time_a']) ?>">
+                                            <input type="number" class="placar-input placar-a" min="0" max="99" placeholder="0">
                                             <span class="placar-x">×</span>
-                                            <input type="number" class="placar-input placar-b"
-                                                   min="0" max="99" placeholder="0"
-                                                   aria-label="Placar <?= htmlspecialchars($r['time_b']) ?>">
+                                            <input type="number" class="placar-input placar-b" min="0" max="99" placeholder="0">
                                             <span style="font-size:.78rem;font-weight:600;color:var(--texto-secundario);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<?= htmlspecialchars($r['time_b']) ?>">
                                                 <?= htmlspecialchars($r['time_b']) ?>
                                             </span>
                                             <button class="btn-salvar-placar"
-                                                    onclick="salvarResultadoInline(
-                                                        <?= $r['id_partida'] ?>,
-                                                        '<?= addslashes(htmlspecialchars($r['time_a'])) ?>',
-                                                        '<?= addslashes(htmlspecialchars($r['time_b'])) ?>',
-                                                        this
-                                                    )">
+                                                    onclick="salvarResultadoInline(<?= $r['id_partida'] ?>,'<?= addslashes(htmlspecialchars($r['time_a'])) ?>','<?= addslashes(htmlspecialchars($r['time_b'])) ?>',this)">
                                                 <i class="fas fa-check"></i> Salvar
                                             </button>
                                         </div>
@@ -511,9 +462,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
             </div>
         </div>
 
-        <!-- ════════════════════════════════════
-             PAINEL: SÚMULAS
-        ════════════════════════════════════ -->
+        <!-- ════ PAINEL: SÚMULAS ════ -->
         <div class="painel" id="painel-sumulas">
             <div class="secao-card">
                 <div class="secao-card-header">
@@ -561,9 +510,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
             </div>
         </div>
 
-        <!-- ════════════════════════════════════
-             PAINEL: ALUNOS
-        ════════════════════════════════════ -->
+        <!-- ════ PAINEL: ALUNOS ════ -->
         <div class="painel" id="painel-alunos">
             <div class="secao-card">
                 <div class="secao-card-header">
@@ -617,13 +564,62 @@ include __DIR__ . '/../includes/doctype.php'; ?>
             </div>
         </div>
 
+        <!-- ════ PAINEL: PROFESSORES (NOVO) ════ -->
+        <div class="painel" id="painel-professores">
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Gestão de Professores</h3>
+                    <span class="secao-tag-mini"><?= count($professores) ?> registros</span>
+                    <!-- Botão para promover um aluno existente a professor -->
+                    <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-promover-professor')">
+                        <i class="fas fa-user-plus"></i> Promover Aluno
+                    </button>
+                </div>
+                <div class="tabela-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Cargo Atual</th><th>Status</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody>
+                        <?php if (empty($professores)): ?>
+                            <tr><td colspan="6" style="text-align:center;opacity:.6;padding:20px;">Nenhum outro professor cadastrado.</td></tr>
+                        <?php else: foreach ($professores as $prof): ?>
+                            <tr id="tr-prof-<?= $prof['id_usuario'] ?>">
+                                <td><?= $prof['id_usuario'] ?></td>
+                                <td style="font-weight:600;"><?= htmlspecialchars($prof['nome_usuario']) ?></td>
+                                <td style="color:var(--texto-secundario);font-size:.82rem;"><?= htmlspecialchars($prof['email_usuario']) ?></td>
+                                <td>
+                                    <?php if ($prof['tipo_usuario'] === 'adm_geral'): ?>
+                                        <span class="badge-cargo adm-sala"><i class="fas fa-crown"></i> Adm. Geral</span>
+                                    <?php else: ?>
+                                        <span class="badge-cargo eleger"><i class="fas fa-chalkboard-teacher"></i> Professor</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= $prof['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
+                                <td class="td-acoes">
+                                    <?php if ($prof['tipo_usuario'] === 'professor'): ?>
+                                        <!-- Só professores podem ser rebaixados; adm_geral é protegido -->
+                                        <button class="btn-acao remover" title="Remover cargo de professor"
+                                                onclick="gerenciarProfessor(<?= $prof['id_usuario'] ?>, 'rebaixar', '<?= addslashes(htmlspecialchars($prof['nome_usuario'])) ?>')">
+                                            <i class="fas fa-user-minus"></i> Remover
+                                        </button>
+                                    <?php else: ?>
+                                        <span style="opacity:.4;font-size:.8rem;">Protegido</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div><!-- /content -->
 </div><!-- /main -->
 
 
-<!-- ════════════════════════════════════
-     MODAL: Nova Edição
-════════════════════════════════════ -->
+<!-- ════ MODAL: Nova Edição ════ -->
 <div class="modal-overlay" id="modal-edicao">
     <div class="modal modal-edicao">
         <div class="modal-header">
@@ -635,13 +631,11 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                 <div class="form-grid">
                     <div class="form-grupo span2">
                         <label class="form-label">Nome do Evento <span style="color:var(--laranja)">*</span></label>
-                        <input class="form-input" type="text" name="nome_edicao"
-                               placeholder="Ex.: Interclasse 2026 — 1º Semestre" maxlength="80" required />
+                        <input class="form-input" type="text" name="nome_edicao" placeholder="Ex.: Interclasse 2026 — 1º Semestre" maxlength="80" required />
                     </div>
                     <div class="form-grupo">
                         <label class="form-label">Ano <span style="color:var(--laranja)">*</span></label>
-                        <input class="form-input" type="number" name="ano_edicao"
-                               value="<?= date('Y') ?>" min="2020" max="2099" required />
+                        <input class="form-input" type="number" name="ano_edicao" value="<?= date('Y') ?>" min="2020" max="2099" required />
                     </div>
                     <div class="form-grupo">
                         <label class="form-label">Status <span style="color:var(--laranja)">*</span></label>
@@ -662,24 +656,19 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                     </div>
                     <div class="form-grupo span2">
                         <label class="form-label">Descrição (opcional)</label>
-                        <textarea class="form-textarea" name="descricao_edicao"
-                                  placeholder="Descreva o evento, regras gerais, observações…" rows="3"></textarea>
+                        <textarea class="form-textarea" name="descricao_edicao" rows="3"></textarea>
                     </div>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secundario" onclick="fecharModal('modal-edicao')">Cancelar</button>
-            <button class="btn btn-primario" onclick="document.getElementById('form-edicao').submit()">
-                <i class="fas fa-save"></i> Criar Edição
-            </button>
+            <button class="btn btn-primario" onclick="document.getElementById('form-edicao').submit()"><i class="fas fa-save"></i> Criar Edição</button>
         </div>
     </div>
 </div>
 
-<!-- ════════════════════════════════════
-     MODAL: Agendar Partida
-════════════════════════════════════ -->
+<!-- ════ MODAL: Agendar Partida ════ -->
 <div class="modal-overlay" id="modal-partida">
     <div class="modal">
         <div class="modal-header">
@@ -739,23 +728,19 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                     </div>
                     <div class="form-grupo span2">
                         <label class="form-label">Observações</label>
-                        <textarea class="form-textarea" name="observacoes_partida" placeholder="Notas adicionais…"></textarea>
+                        <textarea class="form-textarea" name="observacoes_partida"></textarea>
                     </div>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secundario" onclick="fecharModal('modal-partida')">Cancelar</button>
-            <button class="btn btn-primario" onclick="document.getElementById('form-partida').submit()">
-                <i class="fas fa-save"></i> Salvar
-            </button>
+            <button class="btn btn-primario" onclick="document.getElementById('form-partida').submit()"><i class="fas fa-save"></i> Salvar</button>
         </div>
     </div>
 </div>
 
-<!-- ════════════════════════════════════
-     MODAL: Editar Partida (data/hora/local)
-════════════════════════════════════ -->
+<!-- ════ MODAL: Editar Partida ════ -->
 <div class="modal-overlay" id="modal-editar-partida">
     <div class="modal modal-editar-partida">
         <div class="modal-header">
@@ -781,16 +766,12 @@ include __DIR__ . '/../includes/doctype.php'; ?>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secundario" onclick="fecharModal('modal-editar-partida')">Cancelar</button>
-            <button class="btn btn-primario" id="btn-salvar-edicao-partida">
-                <i class="fas fa-save"></i> Salvar Alterações
-            </button>
+            <button class="btn btn-primario" id="btn-salvar-edicao-partida"><i class="fas fa-save"></i> Salvar Alterações</button>
         </div>
     </div>
 </div>
 
-<!-- ════════════════════════════════════
-     MODAL: Enviar Súmula
-════════════════════════════════════ -->
+<!-- ════ MODAL: Enviar Súmula ════ -->
 <div class="modal-overlay" id="modal-sumula">
     <div class="modal">
         <div class="modal-header">
@@ -818,25 +799,54 @@ include __DIR__ . '/../includes/doctype.php'; ?>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secundario" onclick="fecharModal('modal-sumula')">Cancelar</button>
-            <button class="btn btn-primario" onclick="document.getElementById('form-sumula').submit()">
-                <i class="fas fa-upload"></i> Enviar
+            <button class="btn btn-primario" onclick="document.getElementById('form-sumula').submit()"><i class="fas fa-upload"></i> Enviar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ════ MODAL: Promover Aluno a Professor (NOVO) ════ -->
+<div class="modal-overlay" id="modal-promover-professor">
+    <div class="modal">
+        <div class="modal-header">
+            <h4><i class="fas fa-chalkboard-teacher" style="color:var(--laranja);margin-right:6px;"></i> Promover Aluno a Professor</h4>
+            <button class="modal-close" onclick="fecharModal('modal-promover-professor')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-grupo span2">
+                    <label class="form-label">Selecionar Aluno <span style="color:var(--laranja)">*</span></label>
+                    <select class="form-select" id="select-promover-usuario">
+                        <option value="">Selecionar…</option>
+                        <?php foreach ($alunos as $a): ?>
+                        <option value="<?= $a['id_usuario'] ?>">
+                            <?= htmlspecialchars($a['nome_usuario']) ?>
+                            <?php if ($a['nome_turma']): ?>(<?= htmlspecialchars($a['nome_turma']) ?>)<?php endif; ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-grupo span2">
+                    <p style="font-size:.85rem;color:var(--texto-secundario);margin:0;">
+                        O aluno selecionado receberá acesso ao painel de professor e poderá gerenciar partidas, resultados e súmulas.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="fecharModal('modal-promover-professor')">Cancelar</button>
+            <button class="btn btn-primario" onclick="promoverAlunoProfessor()">
+                <i class="fas fa-user-plus"></i> Promover
             </button>
         </div>
     </div>
 </div>
 
-<!-- ════════════════════════════════════
-     MODAL: Resultado do Sorteio
-════════════════════════════════════ -->
+<!-- ════ MODAL: Sorteio ════ -->
 <div class="modal-sorteio-overlay" id="modal-sorteio">
     <div class="modal-sorteio-box">
         <div class="modal-sorteio-header">
-            <div class="modal-sorteio-titulo">
-                <i class="fas fa-shuffle"></i> Resultado do Sorteio
-            </div>
-            <button class="modal-sorteio-fechar" onclick="fecharModalSorteio()">
-                <i class="fas fa-times"></i>
-            </button>
+            <div class="modal-sorteio-titulo"><i class="fas fa-shuffle"></i> Resultado do Sorteio</div>
+            <button class="modal-sorteio-fechar" onclick="fecharModalSorteio()"><i class="fas fa-times"></i></button>
         </div>
         <div id="sorteio-loading" style="text-align:center;padding:28px;color:var(--texto-secundario);">
             <i class="fas fa-spinner fa-spin" style="font-size:1.6rem;display:block;margin-bottom:12px;color:var(--laranja)"></i>
@@ -844,17 +854,53 @@ include __DIR__ . '/../includes/doctype.php'; ?>
         </div>
         <div id="sorteio-resultado" style="display:none;"></div>
         <div id="sorteio-footer" style="display:none;margin-top:20px;text-align:right;">
-            <button class="btn btn-primario" onclick="fecharModalSorteio()">
-                <i class="fas fa-check"></i> Fechar
-            </button>
+            <button class="btn btn-primario" onclick="fecharModalSorteio()"><i class="fas fa-check"></i> Fechar</button>
         </div>
     </div>
 </div>
 
 <div class="toast-container" id="toast-container"></div>
 
-<!-- Scripts: base primeiro, depois específico da página -->
 <script src="/soee/src/frontend/scripts/adm.js"></script>
 <script src="/soee/src/frontend/scripts/dash-prof.js"></script>
-                                
+<script>
+/**
+ * Gerencia cargo de professor: rebaixa para aluno.
+ */
+function gerenciarProfessor(userId, acao, nome) {
+    const msg = acao === 'rebaixar'
+        ? `Remover "${nome}" do cargo de professor?`
+        : `Promover "${nome}" a professor?`;
+    if (!confirm(msg)) return;
+
+    fetch('/soee/src/backend/actions/eleger-professor.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `usuario_id=${userId}&acao=${acao}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            mostrarToast(data.msg, 'sucesso');
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            mostrarToast(data.erro || 'Erro ao processar.', 'erro');
+        }
+    })
+    .catch(() => mostrarToast('Erro de conexão.', 'erro'));
+}
+
+/**
+ * Promove aluno selecionado no modal a professor.
+ */
+function promoverAlunoProfessor() {
+    const sel = document.getElementById('select-promover-usuario');
+    const userId = sel?.value;
+    if (!userId) { mostrarToast('Selecione um aluno.', 'erro'); return; }
+    const nome = sel.options[sel.selectedIndex].text;
+    fecharModal('modal-promover-professor');
+    gerenciarProfessor(parseInt(userId), 'promover', nome);
+}
+</script>
+
 <?php include __DIR__ . '/../includes/end.php'; ?>
