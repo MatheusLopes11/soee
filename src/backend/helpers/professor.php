@@ -26,8 +26,8 @@ function badgeStatus(string $s): string {
     ];
     return '<span class="badge-status '.($map[$s] ?? 'pendente').'">'.($labels[$s] ?? ucfirst($s)).'</span>';
 }
-function fmtData(?string $d): string { return $d ? date('d/m/Y', strtotime($d)) : '—'; }
-function fmtHora(?string $h): string { return $h ? substr($h, 0, 5) : '—'; }
+function fmtData(?string $d): string  { return $d ? date('d/m/Y', strtotime($d)) : '—'; }
+function fmtHora(?string $h): string  { return $h ? substr($h, 0, 5) : '—'; }
 
 $dias_pt  = ['Sunday'=>'Dom','Monday'=>'Seg','Tuesday'=>'Ter','Wednesday'=>'Qua',
              'Thursday'=>'Qui','Friday'=>'Sex','Saturday'=>'Sáb'];
@@ -37,4 +37,3 @@ $meses_pt = ['January'=>'Janeiro','February'=>'Fevereiro','March'=>'Março',
              'November'=>'Novembro','December'=>'Dezembro'];
 $faseLabel = ['grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas',
               'semi'=>'Semifinal','final'=>'Final','terceiro_lugar'=>'3º Lugar'];
-?>
