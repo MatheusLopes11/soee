@@ -248,7 +248,7 @@
                ───────────────────────────── -->
           <article class="membro-card reveal reveal-delay-4">
             <div class="membro-avatar">
-              <!-- <img src="/soee/src/images/equipe/henrique.jpg" alt="Henrique Orlovas"> -->
+              <img src="/soee/src/frontend/assets/images/henrique_orbolas.jpeg" alt="Henrique Orbolas"> 
               <div class="membro-iniciais">HO</div>
             </div>
             <div class="membro-info">
