@@ -240,3 +240,20 @@ $partidas_select = $conn->query("
     INNER JOIN modalidade m         ON m.id_modalidade = em.modalidade_id_modalidade
     ORDER BY p.data_partida DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
+
+// ── ALUNOS & TURMAS ───────────────────────────────────────
+$alunos = $conn->query("
+    SELECT
+        u.id_usuario,
+        u.nome_usuario,
+        u.email_usuario,
+        u.genero_usuario,
+        u.tipo_usuario,
+        u.ativo_usuario,
+        t.nome_turma
+    FROM usuario u
+    LEFT JOIN turma t ON t.id_turma = u.turma_id_turma
+    WHERE u.tipo_usuario IN ('aluno','adm_sala') 
+      AND u.ativo_usuario = TRUE -- FIX: Exibe apenas os alunos ativos no sistema
+    ORDER BY t.nome_turma ASC, u.nome_usuario ASC
+")->fetchAll(PDO::FETCH_ASSOC);
