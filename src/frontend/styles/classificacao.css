@@ -528,7 +528,7 @@ body {
 ══════════════════════════════════════════ */
 .grupos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
     gap: 24px;
 }
 
@@ -577,9 +577,20 @@ body {
 }
 
 /* ── Tabela de grupos ── */
-.grupo-tabela-wrap { overflow-x: auto; }
+.grupo-tabela-wrap {
+    overflow-x: auto;
+}
 .grupo-tabela {
-    width: 100%; border-collapse: collapse; min-width: 480px;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+.th-pos, .td-pos { width: 30px; }
+.th-time, .td-time { width: auto; }
+.grupo-tabela th:not(.th-pos):not(.th-time),
+.grupo-tabela td.td-num,
+.grupo-tabela td.td-pts {
+    width: 8%;
 }
 .grupo-tabela th {
     padding: 8px 9px; text-align: center;
@@ -594,8 +605,6 @@ body {
 .grupo-tabela th:hover { color: var(--azul); background: rgba(30,86,113,.06); }
 .grupo-tabela th[data-sort="asc"]::after  { content: ' ▲'; font-size: .55rem; animation: sortIndicator .2s ease; }
 .grupo-tabela th[data-sort="desc"]::after { content: ' ▼'; font-size: .55rem; animation: sortIndicator .2s ease; }
-.th-pos  { width: 36px; }
-.th-time { text-align: left !important; min-width: 120px; }
 
 .grupo-tabela td {
     padding: 9px 9px; border-bottom: 1px solid var(--borda);
@@ -607,7 +616,7 @@ body {
 .grupo-tabela tbody tr.classificado .td-pos { border-left: 3px solid var(--verde); }
 .grupo-tabela tbody tr.lider .td-pos        { border-left: 3px solid var(--amarelo); }
 
-.td-pos  { width: 38px; text-align: center; }
+.td-pos  { text-align: center; }
 .td-time { text-align: left; }
 .td-num  { text-align: center; font-size: .83rem; font-variant-numeric: tabular-nums; }
 .td-pts  { text-align: center; }
@@ -637,7 +646,7 @@ body {
 .time-nome {
     font-size: .84rem; font-weight: 600;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    max-width: 140px;
+    max-width: 100%;
 }
 .badge-classifica {
     display: inline-flex; align-items: center; justify-content: center;
@@ -1036,12 +1045,12 @@ body {
     .tab         { padding: 11px 13px; font-size: .78rem; }
     .tab-conteudo { padding: 14px 10px; }
     .topbar-edicao { display: none; }
-    .grupo-tabela-wrap {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    .grupo-tabela { min-width: 520px; }
     .esporte-hero { padding: 22px 14px 18px; }
+
+    .th-pos, .td-pos { width: 24px; }
+    .grupo-tabela th,
+    .grupo-tabela td { padding: 7px 4px; font-size: .72rem; }
+    .time-nome { font-size: .76rem; }
 }
 
 .time-info {

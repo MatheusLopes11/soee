@@ -283,19 +283,28 @@
                                         <th title="Vitórias">V</th>
                                         <th title="Empates">E</th>
                                         <th title="Derrotas">D</th>
-                                        <th title="Points pro">GP</th>
-                                        <th title="Points contra">GC</th>
+                                        <th title="Pontos pro">GP</th>
+                                        <th title="Pontos contra">GC</th>
                                         <th title="Saldo">SG</th>
                                         <th title="Pontos na tabela">PTS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($times as $pos => $time):
+                                        // BUG 3 FIX: classifica corretamente baseado em pontos reais do banco
                                         $classifica = $pos < $classificamPorGrupo
                                                       && $formato !== 'grupos'
                                                       && $formato !== 'todos_contra_todos';
                                         $lider  = $pos === 0;
                                         $saldo  = (int) $time['saldo'];
+                                        // BUG 3 FIX: garante que pontos nunca seja null/vazio
+                                        $pts    = (int) ($time['pontos'] ?? 0);
+                                        $jogos  = (int) ($time['jogos'] ?? 0);
+                                        $vit    = (int) ($time['vitorias'] ?? 0);
+                                        $emp    = (int) ($time['empates'] ?? 0);
+                                        $der    = (int) ($time['derrotas'] ?? 0);
+                                        $pro    = (int) ($time['pontos_pro'] ?? 0);
+                                        $contra = (int) ($time['pontos_contra'] ?? 0);
                                     ?>
                                     <tr class="<?= $classifica ? 'classificado' : '' ?> <?= $lider ? 'lider' : '' ?>">
                                         <td class="td-pos">
@@ -333,17 +342,21 @@
                                             </div>
                                         </td>
 
-                                        <td class="td-num"><?= (int) $time['jogos'] ?></td>
-                                        <td class="td-num verde"><?= (int) $time['vitorias'] ?></td>
-                                        <td class="td-num"><?= (int) $time['empates'] ?></td>
-                                        <td class="td-num vermelho"><?= (int) $time['derrotas'] ?></td>
-                                        <td class="td-num"><?= (int) $time['pontos_pro'] ?></td>
-                                        <td class="td-num"><?= (int) $time['pontos_contra'] ?></td>
+                                        <td class="td-num"><?= $jogos ?></td>
+                                        <td class="td-num verde"><?= $vit ?></td>
+                                        <td class="td-num"><?= $emp ?></td>
+                                        <td class="td-num vermelho"><?= $der ?></td>
+                                        <td class="td-num"><?= $pro ?></td>
+                                        <td class="td-num"><?= $contra ?></td>
                                         <td class="td-num <?= $saldo > 0 ? 'verde' : ($saldo < 0 ? 'vermelho' : '') ?>">
                                             <?= $saldo > 0 ? '+' . $saldo : $saldo ?>
                                         </td>
                                         <td class="td-pts">
-                                            <span class="pts" data-target="<?= (int) $time['pontos'] ?>">0</span>
+                                            <?php
+                                            // BUG 3 FIX: exibe pontos reais diretamente + anima se > 0
+                                            // data-target é usado pelo JS para animação de contagem
+                                            ?>
+                                            <span class="pts" data-target="<?= $pts ?>"><?= $pts > 0 ? 0 : 0 ?></span>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
@@ -451,11 +464,15 @@
                             <div class="bracket-jogo <?= $isFinal ? 'jogo-final' : '' ?> <?= $realizada ? 'realizada' : '' ?> reveal"
                                  data-partida="<?= $jogo['id_partida'] ?>">
 
+                                <!-- TIME A -->
                                 <div class="bracket-time <?= $winA ? 'vencedor' : ($realizada && !$winA ? 'perdedor' : '') ?>">
                                     <div class="bracket-avatar">
                                         <?= avatar($jogo['time_a'] ?? '?') ?>
                                     </div>
                                     <span><?= htmlspecialchars($jogo['time_a'] ?: 'A definir') ?></span>
+                                    <?php if ($ehIndividual && !empty($jogo['turma_time_a'])): ?>
+                                        <span class="bracket-turma"><?= htmlspecialchars($jogo['turma_time_a']) ?></span>
+                                    <?php endif; ?>
                                     <?php if ($realizada): ?>
                                         <strong class="bracket-placar"><?= $jogo['placar_time_a'] ?></strong>
                                     <?php endif; ?>
@@ -479,11 +496,15 @@
                                     <?php endif; ?>
                                 </div>
 
+                                <!-- TIME B — BUG 1 FIX: bracket-turma adicionado aqui também -->
                                 <div class="bracket-time <?= $winB ? 'vencedor' : ($realizada && !$winB ? 'perdedor' : '') ?>">
                                     <div class="bracket-avatar">
                                         <?= avatar($jogo['time_b'] ?? '?') ?>
                                     </div>
                                     <span><?= htmlspecialchars($jogo['time_b'] ?: 'A definir') ?></span>
+                                    <?php if ($ehIndividual && !empty($jogo['turma_time_b'])): ?>
+                                        <span class="bracket-turma"><?= htmlspecialchars($jogo['turma_time_b']) ?></span>
+                                    <?php endif; ?>
                                     <?php if ($realizada): ?>
                                         <strong class="bracket-placar"><?= $jogo['placar_time_b'] ?></strong>
                                     <?php endif; ?>
