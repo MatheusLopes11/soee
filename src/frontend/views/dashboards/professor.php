@@ -20,7 +20,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/soee/src/frontend/styles/dash-adm.css">
     <link rel="stylesheet" href="/soee/src/frontend/styles/dash-prof.css">
-    <link rel="icon" type="image/png" href="/soee/src/images/logo-soee.png">
+    <link rel="icon" type="image/png" href="/soee/src/frontend/assets/icons/logo-soee.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -512,57 +512,71 @@ include __DIR__ . '/../includes/doctype.php'; ?>
 
         <!-- ════ PAINEL: ALUNOS ════ -->
         <div class="painel" id="painel-alunos">
-            <div class="secao-card">
-                <div class="secao-card-header">
-                    <h3>Alunos &amp; Turmas</h3>
-                    <span class="secao-tag-mini"><?= count($alunos) ?> registros</span>
-                </div>
-                <div class="tabela-wrap">
-                    <table>
-                        <thead>
-                            <tr><th>#</th><th>Nome</th><th>E-mail</th><th>Turma</th><th>Gênero</th><th>Cargo</th><th>Status</th><th>Ações</th></tr>
-                        </thead>
-                        <tbody>
-                        <?php if (empty($alunos)): ?>
-                            <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhum aluno encontrado.</td></tr>
-                        <?php else:
-                            $generoLabel = ['m' => 'Masc.', 'f' => 'Fem.', 'n' => '—'];
-                            foreach ($alunos as $a):
-                                $isAdm = $a['tipo_usuario'] === 'adm_sala'; ?>
-                            <tr>
-                                <td><?= $a['id_usuario'] ?></td>
-                                <td style="font-weight:600;"><?= htmlspecialchars($a['nome_usuario']) ?></td>
-                                <td style="color:var(--texto-secundario);font-size:.82rem;"><?= htmlspecialchars($a['email_usuario']) ?></td>
-                                <td><?= htmlspecialchars($a['nome_turma'] ?? '—') ?></td>
-                                <td><?= $generoLabel[$a['genero_usuario']] ?? '—' ?></td>
-                                <td>
-                                    <?php if ($isAdm): ?>
-                                        <span class="badge-cargo adm-sala"><i class="fas fa-star"></i> Adm. Sala</span>
-                                    <?php else: ?>
-                                        <span class="badge-cargo aluno"><i class="fas fa-user-graduate"></i> Aluno</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?= $a['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
-                                <td class="td-acoes">
-                                    <?php if ($isAdm): ?>
-                                        <button class="btn-acao remover" title="Remover cargo"
-                                                onclick="elegerAdmSala(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
-                                            <i class="fas fa-undo"></i>
-                                        </button>
-                                    <?php else: ?>
-                                        <button class="btn-acao eleger" title="Eleger como Adm. de Sala"
-                                                onclick="elegerAdmSala(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
-                                            <i class="fas fa-star"></i>
-                                        </button>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                            <?php endforeach; endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="secao-card">
+        <div class="secao-card-header">
+            <h3>Alunos &amp; Turmas</h3>
+            <span class="secao-tag-mini"><?= count($alunos) ?> registros</span>
         </div>
+        <div class="tabela-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Turma</th>
+                        <th>Gênero</th>
+                        <th>Cargo</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php if (empty($alunos)): ?>
+                    <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhum aluno encontrado.</td></tr>
+                <?php else:
+                    $generoLabel = ['m' => 'Masc.', 'f' => 'Fem.', 'n' => '—'];
+                    foreach ($alunos as $a):
+                        $isAdm = $a['tipo_usuario'] === 'adm_sala'; ?>
+                    <tr>
+                        <td><?= $a['id_usuario'] ?></td>
+                        <td style="font-weight:600;"><?= htmlspecialchars($a['nome_usuario']) ?></td>
+                        <td style="color:var(--texto-secundario);font-size:.82rem;"><?= htmlspecialchars($a['email_usuario']) ?></td>
+                        <td><?= htmlspecialchars($a['nome_turma'] ?? '—') ?></td>
+                        <td><?= $generoLabel[$a['genero_usuario']] ?? '—' ?></td>
+                        <td>
+                            <?php if ($isAdm): ?>
+                                <span class="badge-cargo adm-sala"><i class="fas fa-star"></i> Adm. Sala</span>
+                            <?php else: ?>
+                                <span class="badge-cargo aluno"><i class="fas fa-user-graduate"></i> Aluno</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><?= $a['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
+                        <td class="td-acoes">
+                            <?php if ($isAdm): ?>
+                                <button class="btn-acao remover" title="Remover cargo"
+                                        onclick="elegerAdmSala(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                            <?php else: ?>
+                                <button class="btn-acao eleger" title="Eleger como Adm. de Sala"
+                                        onclick="elegerAdmSala(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                            <?php endif; ?>
+
+                            <button class="btn-acao remover" title="Remover Aluno do Sistema" style="background-color: #dc3545; color: white;"
+                                    onclick="removerAluno(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <?php endforeach; endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
         <!-- ════ PAINEL: PROFESSORES (NOVO) ════ -->
         <div class="painel" id="painel-professores">
@@ -573,6 +587,10 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                     <!-- Botão para promover um aluno existente a professor -->
                     <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-promover-professor')">
                         <i class="fas fa-user-plus"></i> Promover Aluno
+                    </button>
+
+                    <button class="btn btn-sucesso btn-sm" onclick="abrirModal('modal-cadastrar-professor')">
+                        <i class="fas fa-plus"></i> Novo Professor
                     </button>
                 </div>
                 <div class="tabela-wrap">
@@ -841,6 +859,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
     </div>
 </div>
 
+
 <!-- ════ MODAL: Sorteio ════ -->
 <div class="modal-sorteio-overlay" id="modal-sorteio">
     <div class="modal-sorteio-box">
@@ -900,6 +919,63 @@ function promoverAlunoProfessor() {
     const nome = sel.options[sel.selectedIndex].text;
     fecharModal('modal-promover-professor');
     gerenciarProfessor(parseInt(userId), 'promover', nome);
+}
+
+/**
+ * Gerencia a exclusão física completa de um aluno de forma assíncrona.
+ */
+function removerAluno(userId, nome) {
+    if (!confirm(`ATENÇÃO: Deseja REALMENTE deletar o aluno "${nome}" permanentemente? O e-mail e todos os registros associados serão apagados definitivamente.`)) {
+        return;
+    }
+
+    fetch('/soee/src/backend/actions/remover-aluno.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `usuario_id=${userId}&acao=remover`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            if (typeof mostrarToast === 'function') {
+                mostrarToast(data.msg, 'sucesso');
+            } else {
+                alert(data.msg);
+            }
+
+            const botoes = document.querySelectorAll(`button[onclick*="removerAluno(${userId}"]`);
+            botoes.forEach(btn => {
+                const linhaTabela = btn.closest('tr');
+                if (linhaTabela) {
+                    linhaTabela.style.transition = 'opacity 0.4s ease';
+                    linhaTabela.style.opacity = '0';
+                    setTimeout(() => linhaTabela.remove(), 400);
+                }
+            });
+
+            const tagContador = document.querySelector('#painel-alunos .secao-tag-mini');
+            if (tagContador) {
+                const totalAtual = parseInt(tagContador.textContent) || 0;
+                if (totalAtual > 0) {
+                    tagContador.textContent = `${totalAtual - 1} registros`;
+                }
+            }
+
+        } else {
+            if (typeof mostrarToast === 'function') {
+                mostrarToast(data.erro || 'Erro ao processar remoção.', 'erro');
+            } else {
+                alert(data.erro || 'Erro ao processar remoção.');
+            }
+        }
+    })
+    .catch(() => {
+        if (typeof mostrarToast === 'function') {
+            mostrarToast('Erro de conexão com o servidor.', 'erro');
+        } else {
+            alert('Erro de conexão com o servidor.');
+        }
+    });
 }
 </script>
 
