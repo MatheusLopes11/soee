@@ -9,8 +9,6 @@ $userId   = AuthHome::getId();
 $userNome = AuthHome::getNome();
 
 include __DIR__ . '/../../../backend/model/selects/aluno.php';
-
-# HTML
 include __DIR__ . '/../includes/doctype.php'; ?>
 <head>
     <title>SOEE | Dashboard Aluno</title>

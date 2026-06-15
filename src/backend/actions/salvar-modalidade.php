@@ -5,9 +5,36 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php
 
 AuthHome::exigirTipo(['adm_geral', 'professor', 'adm_sala']);
 
-$redir = '/soee/src/frontend/views/forms/esporte.php';
+$idModalidade = (int) ($_POST['id_modalidade'] ?? 0);
+$acao         = trim($_POST['acao'] ?? '');
+$tipo_user    = AuthHome::getTipo();
 
-/* ── Campos obrigatórios ── */
+$dashboard_url = '/soee/src/frontend/views/dashboards/adm.php';
+if ($tipo_user === 'professor') {
+    $dashboard_url = '/soee/src/frontend/views/dashboards/professor.php';
+} elseif ($tipo_user === 'adm_sala') {
+    $dashboard_url = '/soee/src/frontend/views/dashboards/adm-sala.php';
+}
+
+if ($acao === 'excluir' && $idModalidade > 0) {
+    try {
+        $stmt = $conn->prepare("DELETE FROM modalidade WHERE id_modalidade = :id");
+        $stmt->execute([':id' => $idModalidade]);
+
+        $_SESSION['flash_msg']  = 'Modalidade excluída com sucesso!';
+        $_SESSION['flash_tipo'] = 'sucesso';
+        header("Location: $dashboard_url");
+        exit;
+    } catch (PDOException $e) {
+        error_log("Erro ao excluir modalidade: " . $e->getMessage());
+        $_SESSION['flash_msg']  = 'Não é possível excluir! Existem inscrições ou partidas vinculadas a esta modalidade.';
+        $_SESSION['flash_tipo'] = 'erro';
+        header("Location: $dashboard_url?erro=dependencia_db");
+        exit;
+    }
+}
+
+$redir = '/soee/src/frontend/views/forms/esporte.php';
 $obrigatorios = ['nome_modalidade', 'tipo_modalidade', 'formato_modalidade',
                  'tipo_participacao', 'qtd_min_jogadores', 'qtd_max_jogadores',
                  'tipo_duracao', 'regulamento_modalidade', 'genero_modalidade'];
@@ -19,7 +46,6 @@ foreach ($obrigatorios as $campo) {
     }
 }
 
-$idModalidade   = (int) ($_POST['id_modalidade'] ?? 0);
 $nome           = trim($_POST['nome_modalidade']);
 $descricao      = trim($_POST['descricao_modalidade'] ?? '');
 $tipo           = $_POST['tipo_modalidade'];
@@ -31,7 +57,6 @@ $tipoDuracao    = $_POST['tipo_duracao'];
 $regulamento    = trim($_POST['regulamento_modalidade']);
 $genero         = $_POST['genero_modalidade'];
 
-/* ── Duração ── */
 $duracaoMinutos = null;
 $duracaoPontos  = null;
 if ($tipoDuracao === 'minutos') {
@@ -43,7 +68,6 @@ if ($tipoDuracao === 'minutos') {
     else $duracaoPontos = (int) $duracaoPontos ?: null;
 }
 
-/* ── Foto ── */
 $fotoFinal = null;
 $origemFoto = $_POST['origem_foto'] ?? 'nenhuma';
 
@@ -67,7 +91,6 @@ if ($origemFoto === 'upload' && !empty($_FILES['foto_arquivo']['tmp_name'])) {
     $fotoFinal = trim($_POST['foto_url']);
 }
 
-/* ── Verificar duplicata (apenas insert) ── */
 if ($idModalidade === 0) {
     $check = $conn->prepare("SELECT id_modalidade FROM modalidade WHERE nome_modalidade = :nome LIMIT 1");
     $check->execute([':nome' => $nome]);
@@ -76,16 +99,8 @@ if ($idModalidade === 0) {
     }
 }
 
-// REMOVIDO: bloco ALTER TABLE com ENUM inline — incompatível com PostgreSQL.
-// No PostgreSQL, colunas ENUM são definidas na criação da tabela via CREATE TYPE.
-// O schema Supabase já possui a coluna genero_modalidade corretamente tipada.
-
 try {
     if ($idModalidade > 0) {
-        /* ── UPDATE ── */
-        // PostgreSQL: ativo_modalidade é BOOLEAN, recebe TRUE/FALSE
-        $ativoValue = (bool) ($_POST['ativo_modalidade'] ?? false) ? 'TRUE' : 'FALSE';
-
         $sql = "UPDATE modalidade SET
                     nome_modalidade        = :nome,
                     descricao_modalidade   = :desc,
@@ -111,7 +126,7 @@ try {
             ':participacao' => $participacao,
             ':min'          => $qtdMin,
             ':max'          => $qtdMax,
-            ':ativo'        => isset($_POST['ativo_modalidade']) && $_POST['ativo_modalidade'] ? true : false,
+            ':ativo'        => (isset($_POST['ativo_modalidade']) && ($_POST['ativo_modalidade'] == '1' || $_POST['ativo_modalidade'] == 'true')) ? true : false,
             ':genero'       => $genero,
             ':tipoDur'      => $tipoDuracao,
             ':durMin'       => $duracaoMinutos,
@@ -126,12 +141,10 @@ try {
 
         $_SESSION['flash_msg']  = 'Modalidade atualizada com sucesso!';
         $_SESSION['flash_tipo'] = 'sucesso';
-        header('Location: /soee/src/frontend/views/dashboards/adm-sala.php');
+        header("Location: $dashboard_url");
         exit;
 
     } else {
-        /* ── INSERT ── */
-        // PostgreSQL: ativo_modalidade é BOOLEAN → TRUE, não 1
         $stmt = $conn->prepare("
             INSERT INTO modalidade
                 (nome_modalidade, descricao_modalidade, tipo_modalidade,
@@ -161,20 +174,12 @@ try {
 
         $_SESSION['flash_msg']  = 'Modalidade cadastrada com sucesso!';
         $_SESSION['flash_tipo'] = 'sucesso';
-
-        $tipo_user = AuthHome::getTipo();
-        if ($tipo_user === 'professor') {
-            header('Location: /soee/src/frontend/views/dashboards/professor.php?ok=1');
-        } elseif ($tipo_user === 'adm_sala') {
-            header('Location: /soee/src/frontend/views/dashboards/adm-sala.php');
-        } else {
-            header('Location: /soee/src/frontend/views/dashboards/adm.php');
-        }
+        header("Location: $dashboard_url?ok=1");
         exit;
     }
 
 } catch (PDOException $e) {
-    error_log($e->getMessage());
+    error_log("Erro de banco de dados no salvar-modalidade: " . $e->getMessage());
     header("Location: $redir?erro=erro_db");
     exit;
 }
