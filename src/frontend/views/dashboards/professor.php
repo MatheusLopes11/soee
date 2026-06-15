@@ -81,6 +81,9 @@ include __DIR__ . '/../includes/doctype.php'; ?>
         <a class="nav-item" href="javascript:void(0)" data-painel="alunos" onclick="trocarPainel(this)">
             <i class="fas fa-users"></i> Alunos
         </a>
+        <a class="nav-item" href="javascript:void(0)" data-painel="modalidades" onclick="trocarPainel(this)">
+            <i class="fas fa-futbol"></i> Modalidades
+        </a>
         <!-- NOVO: painel de professores -->
         <a class="nav-item" href="javascript:void(0)" data-painel="professores" onclick="trocarPainel(this)">
             <i class="fas fa-chalkboard-teacher"></i> Professores
@@ -462,6 +465,49 @@ include __DIR__ . '/../includes/doctype.php'; ?>
             </div>
         </div>
 
+        <!-- ══════ MODALIDADES ══════ -->
+        <div class="painel" id="painel-modalidades">
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Modalidades Esportivas</h3>
+                    <span class="secao-tag-mini"><?= count($modalidades) ?> registros</span>
+                    <a href="/soee/src/frontend/views/forms/criacao-esporte.php" class="btn btn-primario btn-sm">
+                        <i class="fas fa-plus"></i> Nova Modalidade
+                    </a>
+                </div>
+                <div class="tabela-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>#</th><th>Nome</th><th>Tipo</th><th>Formato</th><th>Participação</th><th>Min/Max</th><th>Status</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($modalidades)): ?>
+                            <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhuma modalidade cadastrada.</td></tr>
+                            <?php else: foreach ($modalidades as $m): ?>
+                            <tr>
+                                <td><?= $m['id_modalidade'] ?></td>
+                                <td><?= htmlspecialchars($m['nome_modalidade']) ?></td>
+                                <td><?= htmlspecialchars($m['tipo_modalidade']) ?></td>
+                                <td><?= htmlspecialchars($m['formato_modalidade']) ?></td>
+                                <td><?= htmlspecialchars($m['tipo_participacao']) ?></td>
+                                <td><?= $m['qtd_min_jogadores'] ?> / <?= $m['qtd_max_jogadores'] ?></td>
+                                <td><?= $m['ativo_modalidade'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
+                                <td class="td-acoes">
+                                    <!-- CORRIGIDO: passa dados da modalidade para o modal de edição -->
+                                    
+                                    <button class="btn btn-perigo btn-sm"
+                                        onclick="excluirRegistro('modalidade', <?= $m['id_modalidade'] ?>)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- ════ PAINEL: SÚMULAS ════ -->
         <div class="painel" id="painel-sumulas">
             <div class="secao-card">
@@ -789,6 +835,142 @@ include __DIR__ . '/../includes/doctype.php'; ?>
     </div>
 </div>
 
+<div class="modal-overlay" id="modal-nova-modalidade">
+    <div class="modal modal-edicao">
+        <div class="modal-header">
+            <h4><i class="fas fa-plus-circle" style="color:var(--laranja); margin-right:6px;"></i> Nova Modalidade</h4>
+            <button class="modal-close" onclick="fecharModal('modal-nova-modalidade')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form action="/soee/src/backend/actions/salvar-modalidade.php" method="POST" enctype="multipart/form-data" id="form-nova-modalidade">
+                <input type="hidden" name="id_modalidade" value="0" />
+                <input type="hidden" name="acao" value="cadastrar" />
+
+                <div class="form-grid">
+                    <div class="form-grupo span2">
+                        <label class="form-label">Nome da Modalidade *</label>
+                        <input class="form-input" type="text" name="nome_modalidade" placeholder="Ex: Futsal Masculino" required />
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Tipo *</label>
+                        <select class="form-select" name="tipo_modalidade" required>
+                            <option value="coletivo">Coletivo</option>
+                            <option value="individual">Individual</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Formato *</label>
+                        <select class="form-select" name="formato_modalidade" required>
+                            <option value="tradicional">Tradicional</option>
+                            <option value="eletronico">Eletrônico</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Tipo Participação *</label>
+                        <select class="form-select" name="tipo_participacao" required>
+                            <option value="time">Time</option>
+                            <option value="solo">Solo</option>
+                            <option value="dupla">Dupla</option>
+                            <option value="trio">Trio</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Gênero Alvo *</label>
+                        <select class="form-select" name="genero_modalidade" required>
+                            <option value="misto">Misto</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="feminino">Feminino</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Mín. Jogadores *</label>
+                        <input class="form-input" type="number" name="qtd_min_jogadores" min="1" value="1" required />
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Máx. Jogadores *</label>
+                        <input class="form-input" type="number" name="qtd_max_jogadores" min="1" value="1" required />
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Tipo Duração *</label>
+                        <select class="form-select" name="tipo_duracao" id="new-mod-tipodur" onchange="alternarCamposDuracaoNova()" required>
+                            <option value="minutos">Minutos</option>
+                            <option value="pontos">Pontos</option>
+                            <option value="sets">Sets</option>
+                            <option value="sem_limite">Sem Limite</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grupo" id="grupo-new-minutos">
+                        <label class="form-label">Duração (Minutos)</label>
+                        <select class="form-select" name="duracao_minutos" id="new-dur-minutos" onchange="verificarOutroMinutosNova()">
+                            <option value="15">15 min</option>
+                            <option value="20">20 min</option>
+                            <option value="30">30 min</option>
+                            <option value="40">40 min</option>
+                            <option value="outro">Outro valor...</option>
+                        </select>
+                        <input class="form-input" type="text" name="outro_minutos" id="new-outro-minutos" placeholder="Ex: 2 tempos de 15" style="display:none; margin-top:5px;" />
+                    </div>
+
+                    <div class="form-grupo" id="grupo-new-pontos" style="display:none;">
+                        <label class="form-label">Limite de Pontos</label>
+                        <select class="form-select" name="duracao_pontos" id="new-dur-pontos" onchange="verificarOutroPontosNova()">
+                            <option value="11">11 pontos</option>
+                            <option value="15">15 pontos</option>
+                            <option value="21">21 pontos</option>
+                            <option value="25">25 pontos</option>
+                            <option value="outro">Outro valor...</option>
+                        </select>
+                        <input class="form-input" type="number" name="outro_pontos" id="new-outro-pontos" placeholder="Ex: 30" style="display:none; margin-top:5px;" />
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Origem da Foto</label>
+                        <select class="form-select" name="origem_foto" id="new-origem-foto" onchange="alternarOrigemFotoNova()">
+                            <option value="nenhuma">Sem Foto</option>
+                            <option value="upload">Upload de Arquivo</option>
+                            <option value="url">Link / URL da Internet</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grupo" id="grupo-new-foto-upload" style="display:none;">
+                        <label class="form-label">Arquivo de Imagem (Max 5MB)</label>
+                        <input class="form-input" type="file" name="foto_arquivo" accept="image/*" />
+                    </div>
+
+                    <div class="form-grupo span2" id="grupo-new-foto-url" style="display:none;">
+                        <label class="form-label">URL da Imagem</label>
+                        <input class="form-input" type="url" name="foto_url" placeholder="https://exemplo.com/imagem.png" />
+                    </div>
+
+                    <div class="form-grupo span2">
+                        <label class="form-label">Regulamento / Critérios de Vitória *</label>
+                        <textarea class="form-textarea" name="regulamento_modalidade" placeholder="Descreva as regras principais do torneio..." rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-grupo span2">
+                        <label class="form-label">Descrição / Observações Gerais</label>
+                        <textarea class="form-textarea" name="descricao_modalidade" placeholder="Informações adicionais para exibição na página..." rows="2"></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px; width: 100%;">
+            <button class="btn btn-secundario" onclick="fecharModal('modal-nova-modalidade')">Cancelar</button>
+            <button class="btn btn-primario" onclick="submeterNovaModalidade()">
+                <i class="fas fa-check"></i> Cadastrar Modalidade
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- ════ MODAL: Enviar Súmula ════ -->
 <div class="modal-overlay" id="modal-sumula">
     <div class="modal">
@@ -874,6 +1056,66 @@ include __DIR__ . '/../includes/doctype.php'; ?>
         <div id="sorteio-resultado" style="display:none;"></div>
         <div id="sorteio-footer" style="display:none;margin-top:20px;text-align:right;">
             <button class="btn btn-primario" onclick="fecharModalSorteio()"><i class="fas fa-check"></i> Fechar</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-cadastrar-professor">
+    <div class="modal modal-edicao">
+        <div class="modal-header">
+            <h4><i class="fas fa-chalkboard-teacher" style="color:var(--laranja);margin-right:6px;"></i> Cadastrar Novo Professor</h4>
+            <button class="modal-close" onclick="fecharModal('modal-cadastrar-professor')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form action="/soee/src/backend/actions/salvar-professor.php" method="POST" enctype="multipart/form-data" id="form-cadastrar-professor">
+                <div class="form-grid">
+                    
+                    <div class="form-grupo span2">
+                        <label class="form-label">Nome Completo <span style="color:var(--laranja)">*</span></label>
+                        <input class="form-input" type="text" name="nome_usuario" placeholder="Ex: João Silva" maxlength="100" required />
+                    </div>
+                    
+                    <div class="form-grupo">
+                        <label class="form-label">E-mail <span style="color:var(--laranja)">*</span></label>
+                        <input class="form-input" type="email" name="email_usuario" placeholder="joaosilva@email.com" maxlength="100" required />
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Senha <span style="color:var(--laranja)">*</span></label>
+                        <input class="form-input" type="password" name="senha_usuario" placeholder="Mínimo 6 caracteres" minlength="6" required />
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Gênero <span style="color:var(--laranja)">*</span></label>
+                        <select class="form-select" name="genero_usuario" required>
+                            <option value="">Selecionar...</option>
+                            <option value="m">Masculino</option>
+                            <option value="f">Feminino</option>
+                            <option value="n">Prefiro não responder</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Foto de Perfil (Opcional)</label>
+                        <input class="form-input" type="file" name="foto_usuario" accept="image/png, image/jpeg, image/jpg" />
+                    </div>
+
+                    <div class="form-grupo">
+                        <label class="form-label">Status Inicial <span style="color:var(--laranja)">*</span></label>
+                        <select class="form-select" name="ativo_usuario" required>
+                            <option value="1">Ativo</option>
+                            <option value="0">Inativo</option>
+                        </select>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="fecharModal('modal-cadastrar-professor')">Cancelar</button>
+            <button class="btn btn-sucesso" onclick="document.getElementById('form-cadastrar-professor').submit()">
+                <i class="fas fa-save"></i> Cadastrar Professor
+            </button>
         </div>
     </div>
 </div>
@@ -976,6 +1218,51 @@ function removerAluno(userId, nome) {
             alert('Erro de conexão com o servidor.');
         }
     });
+}
+
+function abrirEditarModalidade(id, nome, tipo, formato, participacao, min, max, ativo, descricao) {
+    // Alimenta os valores do formulário interno do Modal
+    document.getElementById('edit-mod-id').value = id;
+    document.getElementById('edit-mod-nome').value = nome;
+    document.getElementById('edit-mod-tipo').value = tipo;
+    document.getElementById('edit-mod-formato').value = formato;
+    document.getElementById('edit-mod-participacao').value = participacao;
+    document.getElementById('edit-mod-status').value = ativo ? "1" : "0";
+    document.getElementById('edit-mod-min').value = min;
+    document.getElementById('edit-mod-max').value = max;
+    document.getElementById('edit-mod-descricao').value = descricao;
+
+    // Abre o modal utilizando a função padrão do seu sistema
+    abrirModal('modal-editar-modalidade');
+}
+
+function deletarModalidadeAtual() {
+    const idMod = document.getElementById('edit-mod-id').value;
+    const nomeMod = document.getElementById('edit-mod-nome').value;
+
+    if (!idMod) return;
+
+    if (confirm(`Tem certeza que deseja excluir permanentemente a modalidade "${nomeMod}"? Esta ação não pode ser desfeita e pode afetar inscrições ou partidas vinculadas.`)) {
+        // Envia uma requisição post ou redireciona para a action responsável pela exclusão
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/soee/src/backend/actions/salvar-modalidade.php';
+
+        const inputId = document.createElement('input');
+        inputId.type = 'hidden';
+        inputId.name = 'id_modalidade';
+        inputId.value = idMod;
+
+        const inputAcao = document.createElement('input');
+        inputAcao.type = 'hidden';
+        inputAcao.name = 'acao';
+        inputAcao.value = 'excluir';
+
+        form.appendChild(inputId);
+        form.appendChild(inputAcao);
+        document.body.appendChild(form);
+        form.submit();
+    }
 }
 </script>
 

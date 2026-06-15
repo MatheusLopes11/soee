@@ -129,6 +129,16 @@ $resultados = $conn->query("
     ORDER BY p.data_partida DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
+// ── MODALIDADES ────────────────────────────────────────────
+$modalidades = $conn->query("
+    SELECT id_modalidade, nome_modalidade, tipo_modalidade,
+           formato_modalidade, tipo_participacao,
+           qtd_min_jogadores, qtd_max_jogadores, ativo_modalidade,
+           descricao_modalidade
+    FROM modalidade
+    ORDER BY id_modalidade
+")->fetchAll(PDO::FETCH_ASSOC);
+
 // ── SÚMULAS PENDENTES ─────────────────────────────────────
 $sumulas_pendentes = $conn->query("
     SELECT

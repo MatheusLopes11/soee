@@ -2,9 +2,25 @@
 // ═══════════════════════════════════════════════════════════
 //  model/selects/classificacao.php — SOEE
 // ═══════════════════════════════════════════════════════════
-session_start();
-require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/includes/conexao.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Garante a inclusão correta da conexão usando caminhos relativos robustos
+require_once __DIR__ . '/../../includes/conexao.php';
+require_once __DIR__ . '/../../controllers/home.php';
+
+// Cria compatibilidade de escopo caso o arquivo de conexão defina $pdo ou $conn
+if (isset($pdo) && !isset($conn)) {
+    $conn = $pdo;
+} elseif (isset($conn) && !isset($pdo)) {
+    $pdo = $conn;
+}
+
+// Verifica se a conexão realmente foi estabelecida antes de prosseguir
+if (!isset($conn) || !$conn) {
+    die("Erro crítico: A variável de conexão com o banco de dados não foi definida.");
+}
 
 $modalidadeId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
