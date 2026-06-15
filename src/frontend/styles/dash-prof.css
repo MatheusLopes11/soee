@@ -300,3 +300,4 @@
     white-space: nowrap;
 }
 .btn-editar-partida:hover { background: var(--azul-secundario, #2c7da3); color: white; border-color: var(--azul-secundario, #2c7da3); }
+
