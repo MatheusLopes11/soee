@@ -132,7 +132,7 @@ $resultados = $conn->query("
 // ── MODALIDADES ────────────────────────────────────────────
 $modalidades = $conn->query("
     SELECT id_modalidade, nome_modalidade, tipo_modalidade,
-           formato_modalidade, tipo_participacao,
+           formato_modalidade, tipo_participacao, genero_modalidade,
            qtd_min_jogadores, qtd_max_jogadores, ativo_modalidade,
            descricao_modalidade
     FROM modalidade
