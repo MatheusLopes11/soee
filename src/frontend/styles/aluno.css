@@ -126,3 +126,161 @@
         @media (max-width:768px) {
             .stat-resumo { grid-template-columns: repeat(2,1fr); }
         }
+
+        /* ═══════════════════════════════════════════════════════════
+        duplas.css  —  SOEE
+        Estilos para formulário de inscrição em duplas/trios
+        e autocomplete de busca de parceiros.
+
+        Adicione ao final de aluno.css  (ou importe separado).
+        ═══════════════════════════════════════════════════════════ */
+
+        /* ── Seção interna da dupla ────────────────────────────── */
+        .dupla-secao {
+            background: var(--fundo, #f0f4f8);
+            border: 1px solid var(--borda, #e2e8f0);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+
+        [data-theme="dark"] .dupla-secao {
+            background: rgba(255,255,255,.04);
+            border-color: rgba(255,255,255,.09);
+        }
+
+        .dupla-secao-titulo {
+            font-size: .76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--laranja, #f97316);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ── Wrap do campo de busca de parceiro ────────────────── */
+        .parceiro-busca-wrap {
+            position: relative;
+        }
+
+        /* Input com borda especial quando parceiro selecionado */
+        .parceiro-busca-input.parceiro-selecionado {
+            border-color: #22c55e !important;
+            background: rgba(34,197,94,.05);
+        }
+
+        /* ── Dropdown de sugestões ──────────────────────────────── */
+        .parceiro-sugestoes {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--card, #fff);
+            border: 1px solid var(--borda, #e2e8f0);
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.12);
+            z-index: 999;
+            max-height: 220px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        [data-theme="dark"] .parceiro-sugestoes {
+            background: #1e2d3d;
+            border-color: rgba(255,255,255,.1);
+        }
+
+        .parceiro-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: .85rem;
+            transition: background .15s;
+        }
+
+        .parceiro-item:not(.vazio):hover {
+            background: rgba(249,115,22,.08);
+        }
+
+        .parceiro-item:not(:last-child) {
+            border-bottom: 1px solid var(--borda, #e2e8f0);
+        }
+
+        .parceiro-item.vazio {
+            color: var(--texto-2, #64748b);
+            font-size: .8rem;
+            cursor: default;
+            justify-content: center;
+        }
+
+        .parceiro-item strong {
+            font-weight: 600;
+        }
+
+        .parceiro-turma {
+            font-size: .72rem;
+            color: var(--texto-2, #64748b);
+            background: var(--fundo, #f0f4f8);
+            border-radius: 999px;
+            padding: 1px 8px;
+            white-space: nowrap;
+        }
+
+        [data-theme="dark"] .parceiro-turma {
+            background: rgba(255,255,255,.07);
+        }
+
+        /* ── Rótulo opcional ───────────────────────────────────── */
+        .insc-opt {
+            font-weight: 400;
+            color: var(--texto-2, #64748b);
+            font-size: .75em;
+        }
+
+        /* ── Tabela de classificação: nome de dupla ─────────────── */
+        .time-dupla-nome {
+            font-weight: 700;
+            font-size: .88rem;
+            line-height: 1.2;
+        }
+
+        .time-dupla-separador {
+            font-size: .7rem;
+            color: var(--texto-2, #64748b);
+            display: block;
+            margin: 1px 0;
+        }
+
+        /* ── Badge de tipo participação na sidebar/hero ─────────── */
+        .sidebar-badge.dupla,
+        .sidebar-badge.trio {
+            background: rgba(139,92,246,.12);
+            color: #7c3aed;
+            border-color: rgba(139,92,246,.25);
+        }
+
+        /* ── Avatar de dupla na tabela de classificação ──────────── */
+        .time-avatar-dupla {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .time-avatar-dupla .av {
+            width: 18px;
+            height: 18px;
+            font-size: .55rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+        }
+        

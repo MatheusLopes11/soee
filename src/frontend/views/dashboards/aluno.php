@@ -486,32 +486,9 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                                 <?php endif; ?>
                             </div>
 
-                            <?php if (!$jaInscrito && !$bloqueado): ?>
-                            <form onsubmit="enviarInscricao(event, <?= $md['id_edicao_modalidade'] ?>)">
-                                <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;">
-                                    <div>
-                                        <label class="insc-label">
-                                            <i class="fa-solid fa-shirt" style="font-size:.7rem"></i>
-                                            Nome da Camisa <span style="font-weight:400;color:var(--texto-2,#64748b)">(opcional)</span>
-                                        </label>
-                                        <input type="text" name="nome_camisa"
-                                               class="insc-input"
-                                               placeholder="Ex: Cafu, Neymar…"
-                                               value="<?= htmlspecialchars($nomeCamisaSalvo) ?>"
-                                               maxlength="20">
-                                    </div>
-                                    <div>
-                                        <label class="insc-label">Nº Camisa <span style="font-weight:400;color:var(--texto-2,#64748b)">(opcional)</span></label>
-                                        <input type="number" name="camisa" min="1" max="99"
-                                               class="insc-input"
-                                               placeholder="Ex: 10">
-                                    </div>
-                                    <button type="submit" class="btn-inscrever">
-                                        <i class="fa-solid fa-plus"></i> Inscrever
-                                    </button>
-                                </div>
-                            </form>
-                            <?php endif; ?>
+                            <?php include '.../formulario_inscricao.php'; ?>
+
+                            
                         </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
