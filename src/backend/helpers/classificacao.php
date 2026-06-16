@@ -1,5 +1,7 @@
 <?php
-// ── HELPERS ──────────────────────────────────────────────
+
+
+
 $tipoIcons = [
     'quadra' => 'fa-basketball',
     'mesa'   => 'fa-table-tennis-paddle-ball',
@@ -65,3 +67,260 @@ $destDash = match($tipo) {
     'adm_geral' => '/soee/src/frontend/views/dashboards/adm.php',
     default     => '/soee/src/frontend/views/dashboards/aluno.php',
 };
+
+// ═══════════════════════════════════════════════════════
+//  helpers/classificacao.php  —  SOEE
+//  Versão com suporte a duplas e trios.
+
+// ═══════════════════════════════════════════════════════
+
+// ── Paleta de cores para avatares ─────────────────────
+$avatarColors = [
+    '#e63946','#f4a261','#2a9d8f','#457b9d','#7b2d8b',
+    '#f77f00','#4cc9f0','#06d6a0','#ef476f','#118ab2',
+];
+
+/**
+ * Retorna o HTML de um avatar colorido com iniciais.
+ */
+function avatar(string $nome): string {
+    global $avatarColors;
+    if (empty($nome)) return '<span class="av" style="background:#888">?</span>';
+    $inicial = mb_strtoupper(mb_substr(trim($nome), 0, 1));
+    $cor     = $avatarColors[array_sum(array_map('ord', str_split($nome))) % count($avatarColors)];
+    return '<span class="av" style="background:' . $cor . '">' . htmlspecialchars($inicial) . '</span>';
+}
+
+/**
+ * Retorna o nome de exibição de uma dupla/trio a partir de
+ * uma linha de classificação que já possui nome_dupla_exibicao.
+ * Se não houver, usa nome_exibicao padrão.
+ */
+function getNomeExibicao(array $row): string {
+    return !empty($row['nome_dupla_exibicao'])
+        ? $row['nome_dupla_exibicao']
+        : ($row['nome_exibicao'] ?? '');
+}
+
+// ─────────────────────────────────────────────────────
+//  QUERY PRINCIPAL: monta $grupos com suporte a duplas
+// ─────────────────────────────────────────────────────
+// Esta função substitui o trecho de montagem de $grupos
+// no selects/classificacao.php. Chame-a passando $conn,
+// $modalidadeId e $participacao.
+
+function montarGruposClassificacao(
+    PDO    $conn,
+    int    $modalidadeId,
+    string $participacao
+): array {
+
+    $ehIndividual = in_array($participacao, ['solo', 'dupla', 'trio']);
+    $ehDuplaOuTrio = in_array($participacao, ['dupla', 'trio']);
+
+    if ($ehDuplaOuTrio) {
+        // ── Dupla / Trio ─────────────────────────────────
+        // Agrupa por grupo_dupla_id e monta nome de exibição
+        $stmt = $conn->prepare("
+            SELECT
+                c.id_classificacao,
+                c.grupo_classificacao,
+                c.pontos,
+                c.vitorias,
+                c.derrotas,
+                c.empates,
+                c.pontos_pro,
+                c.pontos_contra,
+                c.saldo,
+                c.jogos,
+                c.nome_dupla_exibicao,
+                c.grupo_dupla_id,
+                c.usuario_id_participante,
+                u.nome_usuario,
+                t.nome_turma AS subtitulo
+            FROM classificacao c
+            INNER JOIN usuario u ON u.id_usuario = c.usuario_id_participante
+            INNER JOIN turma   t ON t.id_turma   = c.turma_id_turma
+            WHERE c.edicao_modalidade_id = :emId
+            ORDER BY c.grupo_classificacao ASC,
+                     c.pontos DESC,
+                     c.saldo  DESC,
+                     c.vitorias DESC
+        ");
+        $stmt->execute([':emId' => $modalidadeId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Quando o nome_dupla_exibicao ainda não foi salvo,
+        // constrói dinamicamente agrupando por grupo_dupla_id
+        $duplasPorGrupo = [];
+        foreach ($rows as $row) {
+            $gd    = $row['grupo_dupla_id'];
+            $grupo = $row['grupo_classificacao'] ?? 'A';
+
+            if ($gd) {
+                // Agrupa membros da mesma dupla — usa a linha
+                // do capitão (usuario_id_participante com menor id) como base
+                if (!isset($duplasPorGrupo[$grupo][$gd])) {
+                    $duplasPorGrupo[$grupo][$gd] = $row;
+                    $duplasPorGrupo[$grupo][$gd]['_membros'] = [$row['nome_usuario']];
+                } else {
+                    $duplasPorGrupo[$grupo][$gd]['_membros'][] = $row['nome_usuario'];
+                }
+            } else {
+                // Inscrição antiga sem grupo_dupla_id — trata como individual
+                $duplasPorGrupo[$grupo]['_solo_' . $row['id_classificacao']] = $row;
+                $duplasPorGrupo[$grupo]['_solo_' . $row['id_classificacao']]['_membros'] = [$row['nome_usuario']];
+            }
+        }
+
+        // Monta $grupos no formato esperado pelo template
+        $grupos = [];
+        foreach ($duplasPorGrupo as $grupo => $duplas) {
+            $lista = [];
+            foreach ($duplas as $dupla) {
+                $membros = $dupla['_membros'] ?? [$dupla['nome_usuario']];
+                // Nome de exibição: "João & Maria" ou usa o salvo
+                $nomeExibicao = !empty($dupla['nome_dupla_exibicao'])
+                    ? $dupla['nome_dupla_exibicao']
+                    : implode(' & ', $membros);
+
+                $lista[] = array_merge($dupla, [
+                    'nome_exibicao' => $nomeExibicao,
+                    'subtitulo'     => $dupla['subtitulo'] ?? '',
+                ]);
+            }
+            // Reordena pela pontuação (já vêm ordenados da query,
+            // mas o agrupamento pode misturar)
+            usort($lista, fn($a, $b) =>
+                $b['pontos']   <=> $a['pontos']   ?:
+                $b['saldo']    <=> $a['saldo']     ?:
+                $b['vitorias'] <=> $a['vitorias']
+            );
+            $grupos[$grupo] = $lista;
+        }
+
+        return $grupos;
+
+    } elseif ($ehIndividual) {
+        // ── Solo ─────────────────────────────────────────
+        $stmt = $conn->prepare("
+            SELECT
+                c.id_classificacao,
+                c.grupo_classificacao,
+                c.pontos, c.vitorias, c.derrotas, c.empates,
+                c.pontos_pro, c.pontos_contra, c.saldo, c.jogos,
+                c.usuario_id_participante,
+                u.nome_usuario AS nome_exibicao,
+                t.nome_turma   AS subtitulo
+            FROM classificacao c
+            INNER JOIN usuario u ON u.id_usuario = c.usuario_id_participante
+            INNER JOIN turma   t ON t.id_turma   = c.turma_id_turma
+            WHERE c.edicao_modalidade_id = :emId
+            ORDER BY c.grupo_classificacao ASC,
+                     c.pontos DESC, c.saldo DESC, c.vitorias DESC
+        ");
+        $stmt->execute([':emId' => $modalidadeId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $grupos = [];
+        foreach ($rows as $row) {
+            $grupos[$row['grupo_classificacao'] ?? 'A'][] = $row;
+        }
+        return $grupos;
+
+    } else {
+        // ── Por time / turma ─────────────────────────────
+        $stmt = $conn->prepare("
+            SELECT
+                c.id_classificacao,
+                c.grupo_classificacao,
+                c.pontos, c.vitorias, c.derrotas, c.empates,
+                c.pontos_pro, c.pontos_contra, c.saldo, c.jogos,
+                t.nome_turma AS nome_exibicao,
+                NULL::text   AS subtitulo
+            FROM classificacao c
+            INNER JOIN turma t ON t.id_turma = c.turma_id_turma
+            WHERE c.edicao_modalidade_id = :emId
+              AND c.usuario_id_participante IS NULL
+            ORDER BY c.grupo_classificacao ASC,
+                     c.pontos DESC, c.saldo DESC, c.vitorias DESC
+        ");
+        $stmt->execute([':emId' => $modalidadeId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $grupos = [];
+        foreach ($rows as $row) {
+            $grupos[$row['grupo_classificacao'] ?? 'A'][] = $row;
+        }
+        return $grupos;
+    }
+}
+
+// ─────────────────────────────────────────────────────
+//  PARTIDAS: monta nome de exibição para duplas
+//  nos resultados de query de partidas
+// ─────────────────────────────────────────────────────
+
+/**
+ * Dado um array de partidas e a conexão PDO, enriquece cada
+ * partida com time_a / time_b como nome da dupla quando aplicável.
+ *
+ * @param array  $partidas    Resultado de fetchAll das partidas
+ * @param PDO    $conn
+ * @param string $participacao 'dupla'|'trio'|'solo'|'time'
+ */
+function enriquecerPartidasComNomeDupla(
+    array  &$partidas,
+    PDO    $conn,
+    string $participacao
+): void {
+    if (!in_array($participacao, ['dupla', 'trio'])) return;
+    if (empty($partidas)) return;
+
+    // Coleta todos os usuario_id usados nas partidas
+    $uids = [];
+    foreach ($partidas as $p) {
+        if (!empty($p['usuario_id_time_a'])) $uids[] = (int)$p['usuario_id_time_a'];
+        if (!empty($p['usuario_id_time_b'])) $uids[] = (int)$p['usuario_id_time_b'];
+    }
+    $uids = array_unique($uids);
+    if (empty($uids)) return;
+
+    // Para cada uid, busca o grupo_dupla_id e os membros
+    $emId = $partidas[0]['edicao_modalidade_id'] ?? 0;
+    if (!$emId) return;
+
+    $placeholders = implode(',', array_fill(0, count($uids), '?'));
+    $stmt = $conn->prepare("
+        SELECT
+            i.usuario_id_usuario,
+            i.grupo_dupla_id,
+            string_agg(u2.nome_usuario, ' & ' ORDER BY u2.id_usuario) AS nome_dupla
+        FROM inscricao i
+        INNER JOIN inscricao i2 ON i2.grupo_dupla_id = i.grupo_dupla_id
+                                AND i2.edicao_modalidade_id = i.edicao_modalidade_id
+        INNER JOIN usuario u2   ON u2.id_usuario = i2.usuario_id_usuario
+        WHERE i.edicao_modalidade_id = ?
+          AND i.usuario_id_usuario IN ($placeholders)
+          AND i.grupo_dupla_id IS NOT NULL
+          AND i.status_inscricao = 'ativa'
+        GROUP BY i.usuario_id_usuario, i.grupo_dupla_id
+    ");
+    $stmt->execute(array_merge([$emId], $uids));
+
+    $nomePorUid = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $nomePorUid[(int)$row['usuario_id_usuario']] = $row['nome_dupla'];
+    }
+
+    // Enriquece cada partida
+    foreach ($partidas as &$p) {
+        if (!empty($p['usuario_id_time_a']) && isset($nomePorUid[(int)$p['usuario_id_time_a']])) {
+            $p['time_a'] = $nomePorUid[(int)$p['usuario_id_time_a']];
+        }
+        if (!empty($p['usuario_id_time_b']) && isset($nomePorUid[(int)$p['usuario_id_time_b']])) {
+            $p['time_b'] = $nomePorUid[(int)$p['usuario_id_time_b']];
+        }
+    }
+    unset($p);
+}
