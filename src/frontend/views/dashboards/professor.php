@@ -690,9 +690,17 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                                 <td class="td-acoes">
                                     <?php if ($prof['tipo_usuario'] === 'professor'): ?>
                                         <!-- Só professores podem ser rebaixados; adm_geral é protegido -->
-                                        <button class="btn-acao remover" title="Remover cargo de professor"
-                                                onclick="gerenciarProfessor(<?= $prof['id_usuario'] ?>, 'rebaixar', '<?= addslashes(htmlspecialchars($prof['nome_usuario'])) ?>')">
-                                            <i class="fas fa-user-minus"></i> Remover
+                                       <button 
+                                            class="btn-acao remover"
+                                            title="Excluir professor"
+                                            onclick="excluirProfessor(
+                                                <?= $prof['id_usuario'] ?>,
+                                                '<?= htmlspecialchars(addslashes($prof['nome_usuario'])) ?>'
+                                            )">
+
+                                            <i class="fas fa-trash"></i>
+                                            Excluir
+
                                         </button>
                                     <?php else: ?>
                                         <span style="opacity:.4;font-size:.8rem;">Protegido</span>
@@ -1152,129 +1160,223 @@ include __DIR__ . '/../includes/doctype.php'; ?>
 <!-- ══════════════════════════════════════════════════
      MODAL — Editar Modalidade
 ══════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="modal-modalidade" style="display: none;" onclick="fecharSeOverlay(event,'modal-modalidade')">
-    <div class="modal-card">
+<div class="modal-overlay" id="modal-modalidade" onclick="fecharModalPeloFundo(event)">
+    <div class="modal modal-edicao">
         <div class="modal-header">
-            <h3 id="modal-modalidade-titulo">
-                <i class="fa-solid fa-pen"></i> Editar Modalidade
-            </h3>
-            <button class="modal-fechar" onclick="fecharModal('modal-modalidade')" aria-label="Fechar">
-                <i class="fa-solid fa-xmark"></i>
+            <h4>
+                <i class="fas fa-trophy" style="color:var(--laranja);margin-right:6px;"></i>
+                <span id="modal-modalidade-titulo">
+                    Editar Modalidade
+                </span>
+            </h4>
+            <button type="button"
+                    class="modal-close"
+                    onclick="fecharModal('modal-modalidade')">
+                <i class="fas fa-times"></i>
             </button>
         </div>
+
         <div class="modal-body">
-            <form id="form-modalidade" action="/soee/src/backend/actions/salvar-modalidade.php" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="id_modalidade" id="inp-id-modalidade">
-                <input type="hidden" name="origem_foto" value="upload">
+            <div class="form-grid">
+                <input type="hidden" id="inp-id-modalidade">
+                <div class="form-grupo span2">
+                    <label class="form-label">
+                        Nome da Modalidade *
+                    </label>
 
-                <div class="form-grid">
-                    <div class="form-grupo span2">
-                        <label class="form-label">Nome <span class="obrig">*</span></label>
-                        <input class="form-input" type="text" name="nome_modalidade" id="inp-nome" placeholder="Ex.: Futsal, Vôlei…" required maxlength="60">
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Tipo <span class="obrig">*</span></label>
-                        <select class="form-select" name="tipo_modalidade" id="inp-tipo" required>
-                            <option value="">Selecionar…</option>
-                            <option value="quadra">Quadra</option>
-                            <option value="mesa">Mesa</option>
-                            <option value="outro">Outro</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Formato <span class="obrig">*</span></label>
-                        <select class="form-select" name="formato_modalidade" id="inp-formato" required>
-                            <option value="">Selecionar…</option>
-                            <option value="mata_mata">Mata-mata</option>
-                            <option value="grupos">Grupos</option>
-                            <option value="grupos_mata_mata">Grupos + Mata-mata</option>
-                            <option value="todos_contra_todos">Todos contra todos</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Participação <span class="obrig">*</span></label>
-                        <select class="form-select" name="tipo_participacao" id="inp-participacao" required>
-                            <option value="">Selecionar…</option>
-                            <option value="solo">Individual (Solo)</option>
-                            <option value="dupla">Dupla</option>
-                            <option value="trio">Trio</option>
-                            <option value="time">Time</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Gênero <span class="obrig">*</span></label>
-                        <select class="form-select" name="genero_modalidade" id="inp-genero" required>
-                            <option value="">Selecionar…</option>
-                            <option value="masculino">Masculino</option>
-                            <option value="feminino">Feminino</option>
-                            <option value="misto">Misto</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Mín. jogadores <span class="obrig">*</span></label>
-                        <input class="form-input" type="number" name="qtd_min_jogadores" id="inp-min" min="1" max="99" placeholder="5" required>
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Máx. jogadores <span class="obrig">*</span></label>
-                        <input class="form-input" type="number" name="qtd_max_jogadores" id="inp-max" min="1" max="99" placeholder="7" required>
-                    </div>
-
-                    <div class="form-grupo span2">
-                        <label class="form-label">Tipo de Duração</label>
-                        <select class="form-select" name="tipo_duracao" id="inp-tipo-duracao" onchange="toggleDuracao(this.value)">
-                            <option value="">Sem limite definido</option>
-                            <option value="minutos">Por tempo (minutos)</option>
-                            <option value="pontos">Por pontuação</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo span2" id="grupo-dur-minutos" style="display:none">
-                        <label class="form-label">Duração (ex: 2x15 ou 30)</label>
-                        <input class="form-input" type="text" name="duracao_minutos" id="inp-dur-minutos" placeholder="Ex.: 2x15">
-                    </div>
-
-                    <div class="form-grupo span2" id="grupo-dur-pontos" style="display:none">
-                        <label class="form-label">Pontos para vencer</label>
-                        <input class="form-input" type="number" name="duracao_pontos" id="inp-dur-pontos" min="1" max="255" placeholder="Ex.: 21">
-                    </div>
-
-                    <div class="form-grupo span2">
-                        <label class="form-label">Foto da Modalidade (opcional)</label>
-                        <input class="form-input" type="file" name="foto_arquivo" accept=".jpg,.jpeg,.png,.webp,.gif">
-                    </div>
-
-                    <div class="form-grupo span2">
-                        <label class="form-label">Descrição</label>
-                        <textarea class="form-textarea" name="descricao_modalidade" id="inp-desc" placeholder="Regras básicas, observações…" rows="3"></textarea>
-                    </div>
-
-                    <div class="form-grupo span2">
-                        <label class="form-label">Regulamento</label>
-                        <textarea class="form-textarea" name="regulamento_modalidade" id="inp-regul" placeholder="Regulamento completo…" rows="4"></textarea>
-                    </div>
-
-                    <div class="form-grupo span2">
-                        <label class="toggle-label">
-                            <input type="checkbox" name="ativo_modalidade" id="inp-ativo" value="1" checked>
-                            <span class="toggle-track"></span>
-                            Modalidade ativa
-                        </label>
-                    </div>
+                    <input
+                        class="form-input"
+                        type="text"
+                        id="inp-nome-modalidade"
+                        maxlength="60">
                 </div>
-            </form>
+
+                <div class="form-grupo">
+                    <label class="form-label">
+                        Ambiente/Tipo *
+                    </label>
+
+                    <select class="form-select"
+                            id="inp-tipo-modalidade">
+                        <option value="">Selecionar...</option>
+                        <option value="quadra">Quadra</option>
+                        <option value="mesa">Mesa</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+
+                <div class="form-grupo">
+                    <label class="form-label">
+                        Tipo Participação *
+                    </label>
+
+                    <select class="form-select"
+                            id="inp-tipo-participacao">
+                        <option value="">Selecionar...</option>
+                        <option value="solo">Solo</option>
+                        <option value="dupla">Dupla</option>
+                        <option value="trio">Trio</option>
+                        <option value="time">Time</option>
+                    </select>
+                </div>
+
+                <div class="form-grupo">
+                    <label class="form-label">
+                        Formato *
+                    </label>
+
+                    <select class="form-select"
+                            id="inp-formato-modalidade">
+                        <option value="">Selecionar...</option>
+                        <option value="mata_mata">Mata-mata</option>
+                        <option value="grupos">Grupos</option>
+                        <option value="grupos_mata_mata">
+                            Grupos + Mata-mata
+                        </option>
+                        <option value="todos_contra_todos">
+                            Todos contra todos
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-grupo">
+                    <label class="form-label">
+                        Gênero *
+                    </label>
+
+                    <select class="form-select"
+                            id="inp-genero-modalidade">
+
+                        <option value="misto">Misto</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="feminino">Feminino</option>
+                    </select>
+                </div>
+
+                <div class="form-grupo">
+                    <label class="form-label">
+                        Tipo duração
+                    </label>
+
+                    <select class="form-select"
+                            id="inp-tipo-duracao"
+                            onchange="toggleDuracao(this.value)">
+
+                        <option value="">
+                            Selecione...
+                        </option>
+
+                        <option value="minutos">
+                            Minutos
+                        </option>
+
+                        <option value="pontos">
+                            Pontos
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-grupo">
+
+                    <label class="form-label">
+                        Mínimo jogadores *
+                    </label>
+
+                    <input
+                        class="form-input"
+                        type="number"
+                        id="inp-qtd-min">
+                </div>
+
+                <div class="form-grupo">
+
+                    <label class="form-label">
+                        Máximo jogadores *
+                    </label>
+
+                    <input
+                        class="form-input"
+                        type="number"
+                        id="inp-qtd-max">
+                </div>
+
+                <div class="form-grupo span2"
+                     id="grupo-dur-minutos"
+                     style="display:none">
+
+                    <label class="form-label">
+                        Duração minutos
+                    </label>
+
+                    <input
+                        class="form-input"
+                        id="inp-dur-minutos">
+                </div>
+
+                <div class="form-grupo span2"
+                     id="grupo-dur-pontos"
+                     style="display:none">
+
+                    <label class="form-label">
+                        Pontuação máxima
+                    </label>
+
+                    <input
+                        class="form-input"
+                        type="number"
+                        id="inp-dur-pontos">
+                </div>
+
+                <div class="form-grupo span2">
+
+                    <label class="form-label">
+                        Descrição
+                    </label>
+
+                    <textarea
+                        class="form-input"
+                        id="inp-descricao-modalidade"></textarea>
+                </div>
+
+                <div class="form-grupo span2">
+                    <label class="form-label">
+                        Status *
+                    </label>
+
+                    <select class="form-select"
+                            id="inp-ativo">
+
+                        <option value="1">
+                            Ativo
+                        </option>
+
+                        <option value="0">
+                            Inativo
+                        </option>
+                    </select>
+                </div>
+            </div>
         </div>
+
         <div class="modal-footer">
-            <button class="btn btn-secundario" onclick="fecharModal('modal-modalidade')">Cancelar</button>
-            <button class="btn btn-primario" onclick="document.getElementById('form-modalidade').submit()">
-                <i class="fa-solid fa-floppy-disk"></i> Salvar Modalidade
+
+            <button
+                type="button"
+                class="btn btn-secundario"
+                onclick="fecharModal('modal-modalidade')">
+                Cancelar
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-sucesso"
+                onclick="salvarAlteracoesModalidade()">
+
+                <i class="fas fa-save"></i>
+                Salvar Alterações
             </button>
         </div>
+
     </div>
 </div>
 
@@ -1423,6 +1525,239 @@ function abrirModalEditarModalidade(md) {
 
     if (typeof abrirModal === 'function') {
         abrirModal('modal-modalidade');
+    }
+}
+
+function abrirModalEditarModalidade(md){
+
+    document.getElementById('modal-modalidade-titulo').innerHTML =
+        '<i class="fa-solid fa-pen"></i> Editar Modalidade';
+
+    document.getElementById('inp-id-modalidade').value =
+        md.id_modalidade;
+
+    document.getElementById('inp-nome-modalidade').value =
+        md.nome_modalidade || '';
+
+    document.getElementById('inp-tipo-modalidade').value =
+        md.tipo_modalidade || '';
+
+    document.getElementById('inp-tipo-participacao').value =
+        md.tipo_participacao || '';
+
+    document.getElementById('inp-formato-modalidade').value =
+        md.formato_modalidade || '';
+
+    document.getElementById('inp-genero-modalidade').value =
+        md.genero_modalidade || '';
+
+    document.getElementById('inp-qtd-min').value =
+        md.qtd_min_jogadores || '';
+
+    document.getElementById('inp-qtd-max').value =
+        md.qtd_max_jogadores || '';
+
+    document.getElementById('inp-descricao-modalidade').value =
+        md.descricao_modalidade || '';
+
+    document.getElementById('inp-ativo').value =
+        md.ativo_modalidade ? "1" : "0";
+
+    document.getElementById('inp-tipo-duracao').value =
+        md.tipo_duracao || '';
+
+    document.getElementById('inp-dur-minutos').value =
+        md.duracao_minutos || '';
+
+    document.getElementById('inp-dur-pontos').value =
+        md.duracao_pontos || '';
+
+    toggleDuracao(md.tipo_duracao);
+    const modal =
+        document.getElementById('modal-modalidade');
+    modal.style.display="flex";
+    modal.classList.add("active");
+    document.body.style.overflow="hidden";
+}
+
+function fecharModal(id){
+    const modal=document.getElementById(id);
+
+    if(!modal)
+        return;
+    modal.style.display="none";
+    modal.classList.remove("active");
+    modal.classList.remove("open");
+    document.body.style.overflow="";
+
+}
+
+function fecharModalPeloFundo(event){
+    if(event.target.id==="modal-modalidade"){
+        fecharModal("modal-modalidade");
+    }
+}
+
+
+
+
+
+function toggleDuracao(valor){
+
+
+    const minutos =
+        document.getElementById("grupo-dur-minutos");
+
+
+    const pontos =
+        document.getElementById("grupo-dur-pontos");
+
+
+
+    minutos.style.display =
+        valor==="minutos" ? "block" : "none";
+
+
+
+    pontos.style.display =
+        valor==="pontos" ? "block" : "none";
+
+
+}
+
+function salvarAlteracoesModalidade(){
+    const dados=new FormData();
+    dados.append(
+        "id_modalidade",
+        document.getElementById("inp-id-modalidade").value
+    );
+    dados.append(
+        "nome_modalidade",
+        document.getElementById("inp-nome-modalidade").value
+    );
+    dados.append(
+        "tipo_modalidade",
+        document.getElementById("inp-tipo-modalidade").value
+    );
+    dados.append(
+        "tipo_participacao",
+        document.getElementById("inp-tipo-participacao").value
+    );
+    dados.append(
+        "formato_modalidade",
+        document.getElementById("inp-formato-modalidade").value
+    );
+    dados.append(
+        "genero_modalidade",
+        document.getElementById("inp-genero-modalidade").value
+    );
+    dados.append(
+        "tipo_duracao",
+        document.getElementById("inp-tipo-duracao").value
+    );
+    dados.append(
+        "qtd_min_jogadores",
+        document.getElementById("inp-qtd-min").value
+    );
+    dados.append(
+        "qtd_max_jogadores",
+        document.getElementById("inp-qtd-max").value
+    );
+    dados.append(
+        "duracao_minutos",
+        document.getElementById("inp-dur-minutos").value
+    );
+    dados.append(
+        "duracao_pontos",
+        document.getElementById("inp-dur-pontos").value
+    );
+    dados.append(
+        "descricao_modalidade",
+        document.getElementById("inp-descricao-modalidade").value
+    );
+    dados.append(
+        "ativo_modalidade",
+        document.getElementById("inp-ativo").value
+    );
+    fetch(
+        "/soee/src/backend/actions/editar-modalidade.php",
+        {
+            method:"POST",
+            body:dados
+        }
+    )
+    .then(r=>r.json())
+    .then(res=>{
+        if(res.success){
+            alert("Modalidade atualizada!");
+            fecharModal("modal-modalidade");
+            location.reload();
+        }
+        else{
+            alert(res.message);
+        }
+    })
+    .catch(err=>{
+        console.error(err);
+        alert("Erro de comunicação com servidor");
+    });
+}
+
+async function excluirProfessor(id, nome) {
+
+
+    const confirmar = confirm(
+        `Tem certeza que deseja excluir o professor ${nome}?\n\n` +
+        `Todos os dados dele serão removidos permanentemente.`
+    );
+
+
+    if (!confirmar) {
+
+        return;
+
+    }
+    const dados = new FormData();
+
+    dados.append(
+        "id_usuario",
+        id
+    );
+
+
+
+    try {
+
+
+        const resposta = await fetch(
+            "/soee/src/backend/actions/excluir-professor.php",
+            {
+
+                method: "POST",
+
+                body: dados,
+
+                credentials: "same-origin"
+            }
+        );
+        const retorno = await resposta.json();
+        alert(
+            retorno.message
+        );
+        if (retorno.success) {
+            const linha =
+                document.getElementById(
+                    "tr-prof-" + id
+                );
+            if (linha) {
+                linha.remove();
+            }
+        }
+    } catch(error) {
+        console.error(error);
+        alert(
+            "Erro de comunicação com o servidor."
+        );
     }
 }
 </script>
