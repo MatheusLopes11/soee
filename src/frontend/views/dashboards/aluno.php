@@ -486,7 +486,9 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                                 <?php endif; ?>
                             </div>
 
-                            <?php include '.../formulario_inscricao.php'; ?>
+                            <?php if (!$jaInscrito && !$bloqueado): ?>
+    <?php include __DIR__ . '/../includes/formulario_inscricao.php'; ?>
+<?php endif; ?>
 
                             
                         </div>

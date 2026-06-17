@@ -54,25 +54,6 @@ if (!function_exists('fmtDataLong')) {
 if (!function_exists('fmtHora')) {
     function fmtHora($h)     { return $h ? substr($h, 0, 5) : ''; }
 }
-if (!function_exists('avatar')) {
-    function avatar($nome)   { return mb_strtoupper(mb_substr(trim($nome ?? '?'), 0, 2)); }
-}
-
-// ── AUTH ─────────────────────────────────────────────────
-$logado = !empty($_SESSION['usuario_id']);
-$tipo   = $_SESSION['usuario_tipo'] ?? '';
-$destDash = match($tipo) {
-    'professor' => '/soee/src/frontend/views/dashboards/professor.php',
-    'adm_sala'  => '/soee/src/frontend/views/dashboards/adm-sala.php',
-    'adm_geral' => '/soee/src/frontend/views/dashboards/adm.php',
-    default     => '/soee/src/frontend/views/dashboards/aluno.php',
-};
-
-// ═══════════════════════════════════════════════════════
-//  helpers/classificacao.php  —  SOEE
-//  Versão com suporte a duplas e trios.
-
-// ═══════════════════════════════════════════════════════
 
 // ── Paleta de cores para avatares ─────────────────────
 $avatarColors = [
@@ -81,14 +62,40 @@ $avatarColors = [
 ];
 
 /**
- * Retorna o HTML de um avatar colorido com iniciais.
+ * Retorna o HTML de um avatar colorido com duas iniciais.
+ * - Duplas ("Ana Sardi & Clara Cenni"): inicial de cada pessoa → "AC"
+ * - Nome simples: inicial do primeiro + inicial do último sobrenome → "AS"
  */
-function avatar(string $nome): string {
-    global $avatarColors;
-    if (empty($nome)) return '<span class="av" style="background:#888">?</span>';
-    $inicial = mb_strtoupper(mb_substr(trim($nome), 0, 1));
-    $cor     = $avatarColors[array_sum(array_map('ord', str_split($nome))) % count($avatarColors)];
-    return '<span class="av" style="background:' . $cor . '">' . htmlspecialchars($inicial) . '</span>';
+if (!function_exists('avatar')) {
+    function avatar(string $nome): string {
+        global $avatarColors;
+
+        if (empty(trim($nome))) {
+            return '<span class="av" style="background:#888">??</span>';
+        }
+
+        // Se for dupla/trio (contém " & "), pega a inicial de cada lado
+        if (str_contains($nome, ' & ')) {
+            $partes = explode(' & ', $nome, 2);
+            $i1 = mb_strtoupper(mb_substr(trim($partes[0]), 0, 1));
+            $i2 = mb_strtoupper(mb_substr(trim($partes[1]), 0, 1));
+            $iniciais = $i1 . $i2;
+        } else {
+            // Nome simples: inicial do primeiro + inicial do último sobrenome
+            $palavras = array_values(array_filter(explode(' ', trim($nome))));
+            $i1 = mb_strtoupper(mb_substr($palavras[0], 0, 1));
+            $i2 = count($palavras) > 1
+                ? mb_strtoupper(mb_substr($palavras[count($palavras) - 1], 0, 1))
+                : mb_strtoupper(mb_substr($palavras[0], 1, 1));
+            $iniciais = $i1 . $i2;
+        }
+
+        $cor = $avatarColors[array_sum(array_map('ord', str_split($nome))) % count($avatarColors)];
+
+        return '<span class="av" style="background:' . $cor . '">'
+             . htmlspecialchars($iniciais)
+             . '</span>';
+    }
 }
 
 /**
@@ -105,9 +112,6 @@ function getNomeExibicao(array $row): string {
 // ─────────────────────────────────────────────────────
 //  QUERY PRINCIPAL: monta $grupos com suporte a duplas
 // ─────────────────────────────────────────────────────
-// Esta função substitui o trecho de montagem de $grupos
-// no selects/classificacao.php. Chame-a passando $conn,
-// $modalidadeId e $participacao.
 
 function montarGruposClassificacao(
     PDO    $conn,
@@ -115,12 +119,11 @@ function montarGruposClassificacao(
     string $participacao
 ): array {
 
-    $ehIndividual = in_array($participacao, ['solo', 'dupla', 'trio']);
+    $ehIndividual  = in_array($participacao, ['solo', 'dupla', 'trio']);
     $ehDuplaOuTrio = in_array($participacao, ['dupla', 'trio']);
 
     if ($ehDuplaOuTrio) {
         // ── Dupla / Trio ─────────────────────────────────
-        // Agrupa por grupo_dupla_id e monta nome de exibição
         $stmt = $conn->prepare("
             SELECT
                 c.id_classificacao,
@@ -150,16 +153,12 @@ function montarGruposClassificacao(
         $stmt->execute([':emId' => $modalidadeId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Quando o nome_dupla_exibicao ainda não foi salvo,
-        // constrói dinamicamente agrupando por grupo_dupla_id
         $duplasPorGrupo = [];
         foreach ($rows as $row) {
             $gd    = $row['grupo_dupla_id'];
             $grupo = $row['grupo_classificacao'] ?? 'A';
 
             if ($gd) {
-                // Agrupa membros da mesma dupla — usa a linha
-                // do capitão (usuario_id_participante com menor id) como base
                 if (!isset($duplasPorGrupo[$grupo][$gd])) {
                     $duplasPorGrupo[$grupo][$gd] = $row;
                     $duplasPorGrupo[$grupo][$gd]['_membros'] = [$row['nome_usuario']];
@@ -167,19 +166,16 @@ function montarGruposClassificacao(
                     $duplasPorGrupo[$grupo][$gd]['_membros'][] = $row['nome_usuario'];
                 }
             } else {
-                // Inscrição antiga sem grupo_dupla_id — trata como individual
                 $duplasPorGrupo[$grupo]['_solo_' . $row['id_classificacao']] = $row;
                 $duplasPorGrupo[$grupo]['_solo_' . $row['id_classificacao']]['_membros'] = [$row['nome_usuario']];
             }
         }
 
-        // Monta $grupos no formato esperado pelo template
         $grupos = [];
         foreach ($duplasPorGrupo as $grupo => $duplas) {
             $lista = [];
             foreach ($duplas as $dupla) {
                 $membros = $dupla['_membros'] ?? [$dupla['nome_usuario']];
-                // Nome de exibição: "João & Maria" ou usa o salvo
                 $nomeExibicao = !empty($dupla['nome_dupla_exibicao'])
                     ? $dupla['nome_dupla_exibicao']
                     : implode(' & ', $membros);
@@ -189,8 +185,6 @@ function montarGruposClassificacao(
                     'subtitulo'     => $dupla['subtitulo'] ?? '',
                 ]);
             }
-            // Reordena pela pontuação (já vêm ordenados da query,
-            // mas o agrupamento pode misturar)
             usort($lista, fn($a, $b) =>
                 $b['pontos']   <=> $a['pontos']   ?:
                 $b['saldo']    <=> $a['saldo']     ?:
@@ -258,16 +252,11 @@ function montarGruposClassificacao(
 
 // ─────────────────────────────────────────────────────
 //  PARTIDAS: monta nome de exibição para duplas
-//  nos resultados de query de partidas
 // ─────────────────────────────────────────────────────
 
 /**
  * Dado um array de partidas e a conexão PDO, enriquece cada
  * partida com time_a / time_b como nome da dupla quando aplicável.
- *
- * @param array  $partidas    Resultado de fetchAll das partidas
- * @param PDO    $conn
- * @param string $participacao 'dupla'|'trio'|'solo'|'time'
  */
 function enriquecerPartidasComNomeDupla(
     array  &$partidas,
@@ -277,7 +266,6 @@ function enriquecerPartidasComNomeDupla(
     if (!in_array($participacao, ['dupla', 'trio'])) return;
     if (empty($partidas)) return;
 
-    // Coleta todos os usuario_id usados nas partidas
     $uids = [];
     foreach ($partidas as $p) {
         if (!empty($p['usuario_id_time_a'])) $uids[] = (int)$p['usuario_id_time_a'];
@@ -286,7 +274,6 @@ function enriquecerPartidasComNomeDupla(
     $uids = array_unique($uids);
     if (empty($uids)) return;
 
-    // Para cada uid, busca o grupo_dupla_id e os membros
     $emId = $partidas[0]['edicao_modalidade_id'] ?? 0;
     if (!$emId) return;
 
@@ -313,7 +300,6 @@ function enriquecerPartidasComNomeDupla(
         $nomePorUid[(int)$row['usuario_id_usuario']] = $row['nome_dupla'];
     }
 
-    // Enriquece cada partida
     foreach ($partidas as &$p) {
         if (!empty($p['usuario_id_time_a']) && isset($nomePorUid[(int)$p['usuario_id_time_a']])) {
             $p['time_a'] = $nomePorUid[(int)$p['usuario_id_time_a']];
@@ -324,3 +310,13 @@ function enriquecerPartidasComNomeDupla(
     }
     unset($p);
 }
+
+// ── AUTH ─────────────────────────────────────────────────
+$logado = !empty($_SESSION['usuario_id']);
+$tipo   = $_SESSION['usuario_tipo'] ?? '';
+$destDash = match($tipo) {
+    'professor' => '/soee/src/frontend/views/dashboards/professor.php',
+    'adm_sala'  => '/soee/src/frontend/views/dashboards/adm-sala.php',
+    'adm_geral' => '/soee/src/frontend/views/dashboards/adm.php',
+    default     => '/soee/src/frontend/views/dashboards/aluno.php',
+};

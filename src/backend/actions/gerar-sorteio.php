@@ -2,8 +2,9 @@
 // ═══════════════════════════════════════════════════════════
 //  gerar-sorteio.php — SOEE
 //  Compatível com banco PostgreSQL/Supabase real:
-//    - classificacao: sem usuario_id_participante
-//    - partida: sem usuario_id_time_a/b
+//    - classificacao: usuario_id_participante usado para
+//      duplas/trios = capitão da dupla (chave 1:1 confiável)
+//    - partida: usuario_id_time_a/b = capitão de cada dupla
 //  Suporte a duplas/trios integrado diretamente neste arquivo
 // ═══════════════════════════════════════════════════════════
 session_start();
@@ -152,13 +153,17 @@ try {
             VALUES (:emid, :ta, :tb, :uA, :uB, :data, :hora, :fase, :grupo, 'agendada')
         ");
 
-        // INSERT classificacao para duplas (com grupo_dupla_id e nome_dupla_exibicao)
+        // INSERT classificacao para duplas
+        // usuario_id_participante = capitão da dupla → chave 1:1 estável,
+        // necessária para distinguir múltiplas duplas da MESMA turma.
+        // grupo_dupla_id e nome_dupla_exibicao continuam sendo gravados
+        // para exibição e para fallback de busca por grupo.
         $stmtClassif = $conn->prepare("
             INSERT INTO classificacao
-                (edicao_modalidade_id, turma_id_turma, grupo_classificacao,
-                 grupo_dupla_id, nome_dupla_exibicao,
+                (edicao_modalidade_id, turma_id_turma, usuario_id_participante,
+                 grupo_classificacao, grupo_dupla_id, nome_dupla_exibicao,
                  pontos, vitorias, derrotas, empates, jogos, pontos_pro, pontos_contra, saldo)
-            VALUES (:emid, :turma, :grupo, :grupoDuplaId, :nomeExibicao, 0,0,0,0,0,0,0,0)
+            VALUES (:emid, :turma, :uid, :grupo, :grupoDuplaId, :nomeExibicao, 0,0,0,0,0,0,0,0)
             ON CONFLICT DO NOTHING
         ");
 
@@ -192,6 +197,7 @@ try {
                 $stmtClassif->execute([
                     ':emid'         => $emId,
                     ':turma'        => (int) $cap['turma_id_turma'],
+                    ':uid'          => (int) $cap['usuario_id_usuario'],
                     ':grupo'        => $letra,
                     ':grupoDuplaId' => $d['grupo_dupla_id'],
                     ':nomeExibicao' => $d['nome_exibicao'],
