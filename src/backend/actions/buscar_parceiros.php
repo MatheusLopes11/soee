@@ -22,10 +22,23 @@ if (!$emId || strlen($q) < 2) {
     exit;
 }
 
+// Busca a turma do usuário logado
+$stmtTurma = $conn->prepare("
+    SELECT turma_id_turma FROM usuario WHERE id_usuario = :uid LIMIT 1
+");
+$stmtTurma->execute([':uid' => $userId]);
+$turmaId = $stmtTurma->fetchColumn();
+
+if (!$turmaId) {
+    echo json_encode([]);
+    exit;
+}
+
 // Busca alunos ativos que:
 // 1. Não sejam o próprio usuário
-// 2. Não estejam já inscritos nesta modalidade
-// 3. O nome contenha o termo buscado
+// 2. Sejam da mesma turma do usuário logado
+// 3. Não estejam já inscritos nesta modalidade
+// 4. O nome contenha o termo buscado
 $stmt = $conn->prepare("
     SELECT u.id_usuario, u.nome_usuario, t.nome_turma
     FROM usuario u
@@ -33,6 +46,7 @@ $stmt = $conn->prepare("
     WHERE u.tipo_usuario IN ('aluno', 'adm_sala')
       AND u.ativo_usuario = TRUE
       AND u.id_usuario != :uid
+      AND u.turma_id_turma = :turmaId
       AND u.nome_usuario ILIKE :q
       AND u.id_usuario NOT IN (
           SELECT usuario_id_usuario
@@ -40,14 +54,15 @@ $stmt = $conn->prepare("
           WHERE edicao_modalidade_id = :emId
             AND status_inscricao = 'ativa'
       )
-    ORDER BY t.nome_turma ASC, u.nome_usuario ASC
+    ORDER BY u.nome_usuario ASC
     LIMIT 10
 ");
 
 $stmt->execute([
-    ':uid'  => $userId,
-    ':emId' => $emId,
-    ':q'    => '%' . $q . '%',
+    ':uid'     => $userId,
+    ':turmaId' => $turmaId,
+    ':emId'    => $emId,
+    ':q'       => '%' . $q . '%',
 ]);
 
 $alunos = $stmt->fetchAll(PDO::FETCH_ASSOC);
