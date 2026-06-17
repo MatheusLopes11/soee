@@ -87,14 +87,18 @@ if ($modalidadeId) {
     }
 }
 
-$ehIndividual = in_array($participacao, ['solo', 'dupla', 'trio']);
+$ehIndividual  = in_array($participacao, ['solo', 'dupla', 'trio']);
+$ehDuplaOuTrio = in_array($participacao, ['dupla', 'trio']);
 
 // ══════════════════════════════════════════════════════════
 //  BUG 3 FIX — Recálculo automático da classificação
 //  Lê todos os resultados de grupos já salvos e atualiza
 //  a tabela classificacao caso ela esteja zerada/desatualizada.
+//  (Esse recálculo é por turma e só se aplica de fato a
+//  modalidades por TIME; para dupla/trio o saldo joga por
+//  usuario_id_participante e é tratado pelo motor de resultado.)
 // ══════════════════════════════════════════════════════════
-if ($emId && in_array($formato, ['grupos', 'grupos_mata_mata', 'todos_contra_todos'])) {
+if ($emId && !$ehDuplaOuTrio && in_array($formato, ['grupos', 'grupos_mata_mata', 'todos_contra_todos'])) {
 
     // Verifica se a classificacao está zerada mas existem resultados
     $stmtZero = $conn->prepare("
@@ -245,7 +249,52 @@ $grupos    = [];
 $temGrupos = $formato && in_array($formato, ['grupos', 'grupos_mata_mata', 'todos_contra_todos']);
 
 if ($emId && $temGrupos) {
-    if ($ehIndividual) {
+
+    if ($ehDuplaOuTrio) {
+        // ── Dupla / Trio ───────────────────────────────────
+        // Resolve 1:1 pelo usuario_id_participante (capitão da
+        // dupla, gravado pelo gerar-sorteio.php). O nome de
+        // exibição "Nome & Nome" vem do nome_dupla_exibicao
+        // salvo; se estiver vazio (registro antigo), monta
+        // dinamicamente via STRING_AGG usando grupo_dupla_id.
+        $stmtCl = $conn->prepare("
+            SELECT
+                cl.id_classificacao,
+                cl.grupo_classificacao,
+                cl.jogos,
+                cl.vitorias,
+                cl.empates,
+                cl.derrotas,
+                cl.pontos_pro,
+                cl.pontos_contra,
+                cl.saldo,
+                cl.pontos,
+                cl.grupo_dupla_id,
+                t.nome_turma,
+                COALESCE(
+                    cl.nome_dupla_exibicao,
+                    (
+                        SELECT STRING_AGG(u2.nome_usuario, ' & ' ORDER BY u2.nome_usuario)
+                        FROM inscricao i2
+                        INNER JOIN usuario u2 ON u2.id_usuario = i2.usuario_id_usuario
+                        WHERE i2.grupo_dupla_id = cl.grupo_dupla_id
+                          AND i2.edicao_modalidade_id = cl.edicao_modalidade_id
+                          AND i2.status_inscricao = 'ativa'
+                    )
+                ) AS nome_usuario
+            FROM classificacao cl
+            INNER JOIN turma t ON t.id_turma = cl.turma_id_turma
+            WHERE cl.edicao_modalidade_id = :emid
+              AND cl.grupo_dupla_id IS NOT NULL
+            ORDER BY
+                cl.grupo_classificacao ASC,
+                cl.pontos DESC,
+                cl.saldo DESC,
+                cl.vitorias DESC,
+                cl.pontos_pro DESC
+        ");
+    } elseif ($ehIndividual) {
+        // ── Solo ─────────────────────────────────────────
         $stmtCl = $conn->prepare("
             SELECT
                 t.id_turma,
@@ -303,7 +352,7 @@ if ($emId && $temGrupos) {
     $stmtCl->execute([':emid' => $emId]);
 
     foreach ($stmtCl->fetchAll(PDO::FETCH_ASSOC) as $row) {
-        if ($ehIndividual && !empty($row['nome_usuario'])) {
+        if (($ehIndividual || $ehDuplaOuTrio) && !empty($row['nome_usuario'])) {
             $row['nome_exibicao'] = $row['nome_usuario'];
             $row['subtitulo']     = $row['nome_turma'];
         } else {
@@ -320,7 +369,94 @@ $partidas_fase = [];
 $todasPartidas = [];
 
 if ($emId) {
-    if ($ehIndividual) {
+
+    if ($ehDuplaOuTrio) {
+        // ── Dupla / Trio ───────────────────────────────────
+        // Resolve time_a/time_b direto por usuario_id_time_a/b
+        // (capitão de cada dupla, gravado pelo gerar-sorteio.php).
+        // Isso evita a ambiguidade de "qualquer aluno da turma"
+        // que ocorria quando duas duplas eram da mesma turma.
+        $stmtP = $conn->prepare("
+            SELECT
+                p.id_partida,
+                p.data_partida,
+                p.hora_partida,
+                p.local_partida,
+                p.fase_partida,
+                p.status_partida,
+                p.grupo_partida,
+                p.turma_id_time_a,
+                p.turma_id_time_b,
+                ta.nome_turma AS turma_time_a,
+                tb.nome_turma AS turma_time_b,
+                COALESCE(nda.nome_dupla, ua.nome_usuario, ta.nome_turma) AS time_a,
+                COALESCE(ndb.nome_dupla, ub.nome_usuario, tb.nome_turma) AS time_b,
+                r.placar_time_a,
+                r.placar_time_b,
+                CASE
+                    WHEN r.turma_id_vencedor IS NULL THEN NULL
+                    WHEN r.turma_id_vencedor = p.turma_id_time_a
+                         AND (r.usuario_id_vencedor IS NULL OR r.usuario_id_vencedor = p.usuario_id_time_a)
+                         THEN COALESCE(nda.nome_dupla, ua.nome_usuario, ta.nome_turma)
+                    WHEN r.turma_id_vencedor = p.turma_id_time_b
+                         AND (r.usuario_id_vencedor IS NULL OR r.usuario_id_vencedor = p.usuario_id_time_b)
+                         THEN COALESCE(ndb.nome_dupla, ub.nome_usuario, tb.nome_turma)
+                    WHEN r.usuario_id_vencedor = p.usuario_id_time_a
+                         THEN COALESCE(nda.nome_dupla, ua.nome_usuario, ta.nome_turma)
+                    WHEN r.usuario_id_vencedor = p.usuario_id_time_b
+                         THEN COALESCE(ndb.nome_dupla, ub.nome_usuario, tb.nome_turma)
+                    ELSE NULL
+                END AS vencedor
+            FROM partida p
+            INNER JOIN turma ta ON ta.id_turma = p.turma_id_time_a
+            INNER JOIN turma tb ON tb.id_turma = p.turma_id_time_b
+            LEFT JOIN usuario ua ON ua.id_usuario = p.usuario_id_time_a
+            LEFT JOIN usuario ub ON ub.id_usuario = p.usuario_id_time_b
+            LEFT JOIN resultado r ON r.partida_id_partida = p.id_partida
+            -- Nome da dupla completa do lado A, ex: Joao e Maria
+            LEFT JOIN LATERAL (
+                SELECT STRING_AGG(u2.nome_usuario, ' & ' ORDER BY u2.nome_usuario) AS nome_dupla
+                FROM inscricao i1
+                INNER JOIN inscricao i2 ON i2.grupo_dupla_id = i1.grupo_dupla_id
+                                        AND i2.edicao_modalidade_id = i1.edicao_modalidade_id
+                                        AND i2.status_inscricao = 'ativa'
+                INNER JOIN usuario u2 ON u2.id_usuario = i2.usuario_id_usuario
+                WHERE i1.usuario_id_usuario = p.usuario_id_time_a
+                  AND i1.edicao_modalidade_id = p.edicao_modalidade_id
+                  AND i1.status_inscricao = 'ativa'
+                  AND i1.grupo_dupla_id IS NOT NULL
+            ) nda ON true
+            -- Nome da dupla completa do lado B
+            LEFT JOIN LATERAL (
+                SELECT STRING_AGG(u3.nome_usuario, ' & ' ORDER BY u3.nome_usuario) AS nome_dupla
+                FROM inscricao i1
+                INNER JOIN inscricao i2 ON i2.grupo_dupla_id = i1.grupo_dupla_id
+                                        AND i2.edicao_modalidade_id = i1.edicao_modalidade_id
+                                        AND i2.status_inscricao = 'ativa'
+                INNER JOIN usuario u3 ON u3.id_usuario = i2.usuario_id_usuario
+                WHERE i1.usuario_id_usuario = p.usuario_id_time_b
+                  AND i1.edicao_modalidade_id = p.edicao_modalidade_id
+                  AND i1.status_inscricao = 'ativa'
+                  AND i1.grupo_dupla_id IS NOT NULL
+            ) ndb ON true
+            WHERE p.edicao_modalidade_id = :emid
+            ORDER BY
+                CASE p.fase_partida
+                    WHEN 'grupos'         THEN 1
+                    WHEN 'oitavas'        THEN 2
+                    WHEN 'quartas'        THEN 3
+                    WHEN 'semi'           THEN 4
+                    WHEN 'terceiro_lugar' THEN 5
+                    WHEN 'final'          THEN 6
+                    ELSE 99
+                END,
+                p.data_partida ASC,
+                p.hora_partida ASC
+        ");
+        $stmtP->execute([':emid' => $emId]);
+
+    } elseif ($ehIndividual) {
+        // ── Solo ───────────────────────────────────────────
         $stmtP = $conn->prepare("
             SELECT
                 p.id_partida,

@@ -36,23 +36,66 @@ $stmtNomeCamisa = $conn->prepare("
 $stmtNomeCamisa->execute([':id' => $userId]);
 $nomeCamisaSalvo = $stmtNomeCamisa->fetchColumn() ?: '';
 
-// ── INSCRIÇÕES ATIVAS DO ALUNO ────────────────────────────
+// ── INSCRIÇÕES ATIVAS DO ALUNO (com parceiros de dupla) ──
+// Alteração em relação ao original:
+//   - Adicionado grupo_dupla_id e tipo_participacao
+//   - STRING_AGG busca os nomes dos parceiros na mesma dupla
+//   - O parâmetro agora é :uid (em vez de :id) pois aparece
+//     duas vezes na query (WHERE e CASE WHEN)
 $stmtInsc = $conn->prepare("
-    SELECT i.id_inscricao, i.numero_camisa_inscricao, i.nome_camisa_inscricao,
-           i.posicao_inscricao, i.capitao_inscricao,
-           i.edicao_modalidade_id, i.status_inscricao,
-           m.nome_modalidade, m.id_modalidade
+    SELECT
+        i.id_inscricao,
+        i.edicao_modalidade_id,
+        i.numero_camisa_inscricao,
+        i.nome_camisa_inscricao,
+        i.posicao_inscricao,
+        i.capitao_inscricao,
+        i.status_inscricao,
+        i.grupo_dupla_id,
+        m.nome_modalidade,
+        m.id_modalidade,
+        m.tipo_participacao,
+        e.nome_edicao,
+
+        -- Nomes dos parceiros na mesma dupla (exclui o próprio aluno)
+        STRING_AGG(
+            CASE WHEN i2.usuario_id_usuario != :uid
+                 THEN u2.nome_usuario
+            END,
+            ' & '
+            ORDER BY u2.nome_usuario
+        ) AS nomes_parceiros
+
     FROM inscricao i
     INNER JOIN edicao_modalidade em ON em.id_edicao_modalidade = i.edicao_modalidade_id
-    INNER JOIN modalidade m ON m.id_modalidade = em.modalidade_id_modalidade
-    WHERE i.usuario_id_usuario = :id AND i.status_inscricao = 'ativa'
-    ORDER BY i.data_inscricao DESC
+    INNER JOIN modalidade m         ON m.id_modalidade = em.modalidade_id_modalidade
+    INNER JOIN edicao e             ON e.id_edicao = em.edicao_id_edicao
+
+    -- Busca parceiros do mesmo grupo_dupla_id na mesma modalidade
+    LEFT JOIN inscricao i2 ON i2.grupo_dupla_id       = i.grupo_dupla_id
+                           AND i2.edicao_modalidade_id = i.edicao_modalidade_id
+                           AND i2.status_inscricao     = 'ativa'
+    LEFT JOIN usuario u2   ON u2.id_usuario = i2.usuario_id_usuario
+
+    WHERE i.usuario_id_usuario = :uid
+      AND i.status_inscricao   = 'ativa'
+    GROUP BY
+        i.id_inscricao, i.edicao_modalidade_id,
+        i.numero_camisa_inscricao, i.nome_camisa_inscricao,
+        i.posicao_inscricao, i.capitao_inscricao,
+        i.status_inscricao, i.grupo_dupla_id,
+        m.nome_modalidade, m.id_modalidade,
+        m.tipo_participacao, e.nome_edicao
+    ORDER BY m.nome_modalidade ASC
 ");
-$stmtInsc->execute([':id' => $userId]);
+$stmtInsc->execute([':uid' => $userId]);
 $inscricoes = $stmtInsc->fetchAll(PDO::FETCH_ASSOC);
+
+// IDs das modalidades em que o aluno já está inscrito
 $modalidadesInscritas = array_column($inscricoes, 'edicao_modalidade_id');
 
 // ── MODALIDADES DISPONÍVEIS PARA INSCRIÇÃO ────────────────
+// Igual ao original — já trazia tipo_participacao
 $stmtMod = $conn->query("
     SELECT m.id_modalidade, m.nome_modalidade, m.tipo_participacao,
            m.tipo_modalidade, m.genero_modalidade, em.id_edicao_modalidade,
@@ -164,9 +207,12 @@ if ($turmaId && !empty($inscricoes)) {
         $stmtEl = $conn->prepare("
             SELECT u.id_usuario, u.nome_usuario,
                    i.numero_camisa_inscricao, i.nome_camisa_inscricao,
-                   i.posicao_inscricao, i.capitao_inscricao
+                   i.posicao_inscricao, i.capitao_inscricao,
+                   fp.caminho_foto AS foto_perfil_usuario
             FROM inscricao i
             INNER JOIN usuario u ON u.id_usuario = i.usuario_id_usuario
+            LEFT JOIN foto_perfil fp ON fp.usuario_id_usuario = u.id_usuario
+                                     AND fp.atual_foto = true
             WHERE i.edicao_modalidade_id = :emid
               AND u.turma_id_turma = :turma
               AND i.status_inscricao = 'ativa'
@@ -199,11 +245,17 @@ if (!empty($inscricoes)) {
 }
 
 $faseLabel = [
-    'grupos'=>'Grupos','oitavas'=>'Oitavas','quartas'=>'Quartas',
-    'semi'=>'Semi','final'=>'Final','terceiro_lugar'=>'3º Lugar',
+    'grupos'        => 'Grupos',
+    'oitavas'       => 'Oitavas',
+    'quartas'       => 'Quartas',
+    'semi'          => 'Semi',
+    'final'         => 'Final',
+    'terceiro_lugar'=> '3º Lugar',
 ];
 $statusLabel = [
-    'agendada'=>'Agendada','realizada'=>'Realizada',
-    'cancelada'=>'Cancelada','wo'=>'W.O.',
+    'agendada'  => 'Agendada',
+    'realizada' => 'Realizada',
+    'cancelada' => 'Cancelada',
+    'wo'        => 'W.O.',
 ];
 ?>
