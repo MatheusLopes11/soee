@@ -1015,7 +1015,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
             <button class="modal-close" onclick="fecharModal('modal-sumula')"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body">
-            <form action="/soee/src/backend/php/actions/salvar-sumula.php" method="POST" enctype="multipart/form-data" id="form-sumula">
+            <form action="/soee/src/backend/actions/salvar-sumula.php" method="POST" enctype="multipart/form-data" id="form-sumula">
                 <div class="form-grid">
                     <div class="form-grupo span2">
                         <label class="form-label">Partida</label>

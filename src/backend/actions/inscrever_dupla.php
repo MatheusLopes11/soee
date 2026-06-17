@@ -1,9 +1,9 @@
 <?php
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 //  actions/inscrever_dupla.php  —  SOEE
 //  Inscreve o aluno logado + parceiro(s) como uma dupla/trio.
 //  Chamado via fetch() POST pelo aluno.js
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/includes/conexao.php";
@@ -18,7 +18,7 @@ $userId = AuthHome::getId();
 // ── Entrada ──────────────────────────────────────────
 $emId          = (int)   ($_POST['edicao_modalidade_id'] ?? 0);
 $parceiro1Id   = (int)   ($_POST['parceiro1_id']         ?? 0);
-$parceiro2Id   = (int)   ($_POST['parceiro2_id']         ?? 0); // só para trio
+$parceiro2Id   = (int)   ($_POST['parceiro2_id']         ?? 0);
 $nomeCamisa    = trim(   $_POST['nome_camisa']            ?? '');
 $numCamisa     = !empty($_POST['camisa']) ? (int)$_POST['camisa'] : null;
 $nomeCamisa1   = trim(   $_POST['nome_camisa_p1']         ?? '');
@@ -52,7 +52,7 @@ if (!$mod) jsonErro('Modalidade não encontrada.');
 if ($mod['status_edicao_modalidade'] !== 'inscricoes') jsonErro('Inscrições encerradas para esta modalidade.');
 if (strtotime($mod['data_fim_inscricao']) < strtotime('today')) jsonErro('Prazo de inscrições encerrado.');
 
-$tipo = $mod['tipo_participacao']; // 'dupla' | 'trio'
+$tipo = $mod['tipo_participacao'];
 
 // ── Valida parceiros ─────────────────────────────────
 if ($tipo === 'dupla') {
@@ -65,8 +65,18 @@ if ($tipo === 'dupla') {
     if ($parceiro1Id === $parceiro2Id) jsonErro('Os parceiros devem ser pessoas diferentes.');
     $membros = [$userId, $parceiro1Id, $parceiro2Id];
 } else {
-    // solo ou time — usa o endpoint original
     jsonErro('Use o endpoint padrão para modalidades individuais ou por time.');
+}
+
+// ── Busca a turma do usuário logado ──────────────────
+$stmtTurmaLogado = $conn->prepare("
+    SELECT turma_id_turma FROM usuario WHERE id_usuario = :uid LIMIT 1
+");
+$stmtTurmaLogado->execute([':uid' => $userId]);
+$turmaIdLogado = (int) $stmtTurmaLogado->fetchColumn();
+
+if (!$turmaIdLogado) {
+    jsonErro('Você não está associado a nenhuma turma.');
 }
 
 // ── Verifica se algum membro já está inscrito ────────
@@ -81,24 +91,36 @@ $stmtJa->execute(array_merge([$emId], $membros));
 $jaInscritos = $stmtJa->fetchAll(PDO::FETCH_COLUMN);
 
 if (!empty($jaInscritos)) {
-    // Busca nomes para mensagem de erro
-    $stmtNomes = $conn->prepare("SELECT nome_usuario FROM usuario WHERE id_usuario IN ($placeholders)");
+    $placeholdersNomes = implode(',', array_fill(0, count($jaInscritos), '?'));
+    $stmtNomes = $conn->prepare("SELECT nome_usuario FROM usuario WHERE id_usuario IN ($placeholdersNomes)");
     $stmtNomes->execute($jaInscritos);
     $nomes = $stmtNomes->fetchAll(PDO::FETCH_COLUMN);
     jsonErro(implode(', ', $nomes) . ' já está inscrito nesta modalidade.');
 }
 
-// ── Verifica se os parceiros existem e são alunos ────
+// ── Verifica se os parceiros existem, são alunos E são da mesma turma ────
 $stmtCheck = $conn->prepare("
-    SELECT id_usuario, nome_usuario FROM usuario
+    SELECT id_usuario, nome_usuario, turma_id_turma
+    FROM usuario
     WHERE id_usuario IN ($placeholders)
-      AND tipo_usuario IN ('aluno','adm_sala')
+      AND tipo_usuario IN ('aluno', 'adm_sala')
       AND ativo_usuario = TRUE
 ");
 $stmtCheck->execute($membros);
-$encontrados = $stmtCheck->fetchAll(PDO::FETCH_COLUMN);
+$encontrados = $stmtCheck->fetchAll(PDO::FETCH_ASSOC);
+
 if (count($encontrados) !== count($membros)) {
     jsonErro('Um ou mais membros não foram encontrados ou não são alunos ativos.');
+}
+
+// Garante que todos são da mesma turma
+foreach ($encontrados as $membro) {
+    if ((int) $membro['turma_id_turma'] !== $turmaIdLogado) {
+        jsonErro(
+            htmlspecialchars($membro['nome_usuario']) .
+            ' é de outra turma. Duplas e trios só podem ser formados por alunos da mesma turma.'
+        );
+    }
 }
 
 // ── Gera UUID para o grupo da dupla/trio ─────────────
@@ -111,10 +133,10 @@ $grupoDuplaId = sprintf(
     mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
 );
 
-// ── Dados de cada membro [userId, nomeCamisa, numCamisa] ──
+// ── Dados de cada membro [userId, nomeCamisa, numCamisa, capitao] ──
 $dadosMembros = [
-    [$userId,     $nomeCamisa,  $numCamisa,  true],  // capitão = quem se inscreveu
-    [$parceiro1Id,$nomeCamisa1, $numCamisa1, false],
+    [$userId,      $nomeCamisa,  $numCamisa,  true],
+    [$parceiro1Id, $nomeCamisa1, $numCamisa1, false],
 ];
 if ($tipo === 'trio') {
     $dadosMembros[] = [$parceiro2Id, $nomeCamisa2, $numCamisa2, false];
@@ -144,7 +166,6 @@ try {
         ]);
     }
 
-    // ── Salva nome de camisa na sessão (só do usuário logado) ──
     if ($nomeCamisa) {
         $_SESSION['nome_camisa_salvo'] = $nomeCamisa;
     }
