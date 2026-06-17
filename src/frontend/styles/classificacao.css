@@ -637,12 +637,32 @@ body {
 .pos-badge.bronze { background: rgba(180,83,9,.12);   color: #92400e; }
 
 .time-col { display: flex; align-items: center; gap: 9px; }
+
+/* ── Avatar genérico — preenche o container pai ── */
+.av {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    font-size: .85rem;
+    font-weight: 800;
+    font-family: inherit;
+    letter-spacing: .01em;
+    color: #fff;
+    line-height: 1;
+    text-transform: uppercase;
+    user-select: none;
+}
+
 .time-avatar {
-    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--azul), var(--azul-2));
-    color: white; font-size: .56rem; font-weight: 800;
+    width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
+    overflow: hidden;
+    background: none;
     display: flex; align-items: center; justify-content: center;
 }
+
 .time-nome {
     font-size: .84rem; font-weight: 600;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -723,7 +743,7 @@ body {
     min-width: max-content;
     align-items: flex-start;
     padding: 4px 0;
-    position: relative; /* para conectores SVG absolutos */
+    position: relative;
 }
 
 .bracket-coluna {
@@ -792,7 +812,6 @@ body {
 .bracket-time.vencedor  { background: rgba(34,197,94,.06); color: var(--verde); }
 .bracket-time.perdedor  { opacity: .45; text-decoration: line-through; }
 
-/* Animações de resultado */
 .bracket-time.animar-vitoria {
     animation: flashVerde .7s ease, pulsoVerde .7s ease;
 }
@@ -803,16 +822,13 @@ body {
 .bracket-time span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .bracket-avatar {
-    width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--azul), var(--azul-2));
-    color: white; font-size: .53rem; font-weight: 800;
+    width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+    overflow: hidden;
+    background: none;
     display: flex; align-items: center; justify-content: center;
     transition: transform .2s;
 }
-.bracket-jogo:hover .bracket-avatar { transform: scale(1.1); }
-.bracket-time.vencedor .bracket-avatar {
-    background: linear-gradient(135deg, #15803d, #22c55e);
-}
+.bracket-jogo:hover .bracket-avatar { transform: scale(1.08); }
 .bracket-time.perdedor .bracket-avatar { opacity: .4; }
 
 .bracket-placar {
@@ -879,7 +895,6 @@ body {
     color: var(--texto);
 }
 
-/* Container do confete */
 #confete-container {
     position: absolute; inset: 0;
     pointer-events: none; overflow: hidden;
@@ -896,7 +911,7 @@ body {
     display: flex; flex-direction: column; gap: 26px;
 }
 
-.partidas-secao { }
+
 
 .partidas-secao-titulo {
     display: flex; align-items: center; gap: 9px;
@@ -954,14 +969,12 @@ body {
 .pr-time.vencedor { color: var(--verde); }
 
 .pr-avatar {
-    width: 25px; height: 25px; border-radius: 7px; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--azul), var(--azul-2));
-    color: white; font-size: .52rem; font-weight: 800;
+    width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+    overflow: hidden;
+    background: none;
     display: flex; align-items: center; justify-content: center;
 }
-.pr-time.vencedor .pr-avatar {
-    background: linear-gradient(135deg, #15803d, #22c55e);
-}
+
 
 .pr-placar {
     display: flex; align-items: center; gap: 6px;

@@ -6,8 +6,8 @@
 // ═══════════════════════════════════════════════════════
 
 session_start();
-require_once __DIR__ . '/../../../../backend/includes/conexao.php';
-require_once __DIR__ . '/../../../../backend/controllers/home.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/includes/conexao.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/controllers/home.php";
 
 header('Content-Type: application/json');
 
