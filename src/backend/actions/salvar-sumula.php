@@ -3,14 +3,13 @@
 // │  salvar-sumula.php — SOEE                                       │
 // │  Handles both INSERT (novo upload) and UPDATE (editar partida)  │
 // └─────────────────────────────────────────────────────────────────┘
-session_start(); // CORRIGIDO: session_start() ANTES do require, não depois
+session_start();
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/includes/conexao.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
 
 AuthHome::exigirTipo(['adm_geral', 'adm_sala', 'professor']);
 
-// CORRIGIDO: a sessão usa 'user_id', não 'id_usuario'
 $usuario = AuthHome::getId();
 $tipo    = AuthHome::getTipo();
 
@@ -23,9 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$acao     = $_POST['acao']     ?? 'criar';  // 'criar' | 'editar'
+$acao     = $_POST['acao']              ?? 'criar';  // 'criar' | 'editar'
 $partida  = (int)($_POST['partida_id_partida'] ?? 0);
-$idSumula = (int)($_POST['id_sumula'] ?? 0);
+$idSumula = (int)($_POST['id_sumula']   ?? 0);
 
 // ── EDITAR: apenas troca a partida vinculada ──────────────────────
 if ($acao === 'editar') {
@@ -36,7 +35,6 @@ if ($acao === 'editar') {
         exit;
     }
 
-    // Confirma que a súmula existe e pertence a uma partida válida
     $check = $conn->prepare("SELECT id_sumula FROM sumula WHERE id_sumula = :id LIMIT 1");
     $check->execute([':id' => $idSumula]);
     if (!$check->fetch()) {
@@ -103,15 +101,16 @@ if ($arquivo['size'] > 10 * 1024 * 1024) {
     exit;
 }
 
+// Diretório de upload — mesmo usado pelo editar-sumula.php
 $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/soee/src/frontend/assets/sumulas/';
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0775, true);
 }
 
-$ext          = pathinfo($arquivo['name'], PATHINFO_EXTENSION);
+$ext          = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
 $nome         = uniqid('sumula_') . '.' . $ext;
 $caminho      = $uploadDir . $nome;
-$caminhoBanco = '/soee/src/frontend/assets/sumulas/' . $nome;
+$caminhoBanco = '/soee/src/frontend/assets/sumulas/' . $nome;  // path completo salvo no banco
 
 if (!move_uploaded_file($arquivo['tmp_name'], $caminho)) {
     $_SESSION['flash_msg']  = 'Falha ao salvar o arquivo no servidor.';
@@ -140,7 +139,6 @@ try {
     $_SESSION['flash_tipo'] = 'sucesso';
 
 } catch (PDOException $e) {
-    // Remove arquivo físico se o INSERT falhar
     @unlink($caminho);
     error_log('Erro ao salvar súmula: ' . $e->getMessage());
     $_SESSION['flash_msg']  = 'Erro ao registrar a súmula no banco de dados.';

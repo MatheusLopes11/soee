@@ -131,19 +131,32 @@ $resultados = $conn->query("
 
 // ── MODALIDADES ────────────────────────────────────────────
 $modalidades = $conn->query("
-    SELECT id_modalidade, nome_modalidade, tipo_modalidade,
-           formato_modalidade, tipo_participacao, genero_modalidade,
-           qtd_min_jogadores, qtd_max_jogadores, ativo_modalidade,
-           descricao_modalidade
+    SELECT
+        id_modalidade,
+        nome_modalidade,
+        tipo_modalidade,
+        formato_modalidade,
+        tipo_participacao,
+        genero_modalidade,
+        qtd_min_jogadores,
+        qtd_max_jogadores,
+        ativo_modalidade,
+        descricao_modalidade,
+        regulamento_modalidade,
+        tipo_duracao,
+        duracao_minutos,
+        duracao_pontos
     FROM modalidade
     ORDER BY id_modalidade
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// ── SÚMULAS PENDENTES ─────────────────────────────────────
+// ── SÚMULAS PENDENTES (widget do overview) ────────────────
+// FIX: traz apenas os campos necessários para o widget resumido
 $sumulas_pendentes = $conn->query("
     SELECT
         s.id_sumula,
         s.status_sumula,
+        s.partida_id_partida,
         u.nome_usuario AS enviado_por,
         m.nome_modalidade,
         ta.nome_turma AS time_a,
@@ -159,11 +172,15 @@ $sumulas_pendentes = $conn->query("
     ORDER BY s.data_envio_sumula DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// ── TODAS AS SÚMULAS ──────────────────────────────────────
+// ── TODAS AS SÚMULAS (painel Súmulas) ────────────────────
+// FIX: adicionados caminho_arquivo_sumula e partida_id_partida
+//      que estavam faltando e causavam os erros no dashboard
 $sumulas = $conn->query("
     SELECT
         s.id_sumula,
+        s.partida_id_partida,
         s.nome_arquivo_sumula,
+        s.caminho_arquivo_sumula,
         s.tipo_arquivo_sumula,
         s.data_envio_sumula,
         s.status_sumula,
@@ -194,12 +211,12 @@ $alunos = $conn->query("
     FROM usuario u
     LEFT JOIN turma t ON t.id_turma = u.turma_id_turma
     WHERE u.tipo_usuario IN ('aluno','adm_sala')
+      AND u.ativo_usuario = TRUE
     ORDER BY t.nome_turma ASC, u.nome_usuario ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// ── PROFESSORES (novo painel) ─────────────────────────────
-// FIX: lista todos os professores para o painel de gestão.
-//      Exclui o próprio professor logado para evitar auto-remoção acidental.
+// ── PROFESSORES (painel de gestão) ───────────────────────
+// Exclui o próprio professor logado para evitar auto-remoção acidental
 $stmtProf = $conn->prepare("
     SELECT
         u.id_usuario,
@@ -249,21 +266,4 @@ $partidas_select = $conn->query("
     INNER JOIN edicao_modalidade em ON em.id_edicao_modalidade = p.edicao_modalidade_id
     INNER JOIN modalidade m         ON m.id_modalidade = em.modalidade_id_modalidade
     ORDER BY p.data_partida DESC
-")->fetchAll(PDO::FETCH_ASSOC);
-
-// ── ALUNOS & TURMAS ───────────────────────────────────────
-$alunos = $conn->query("
-    SELECT
-        u.id_usuario,
-        u.nome_usuario,
-        u.email_usuario,
-        u.genero_usuario,
-        u.tipo_usuario,
-        u.ativo_usuario,
-        t.nome_turma
-    FROM usuario u
-    LEFT JOIN turma t ON t.id_turma = u.turma_id_turma
-    WHERE u.tipo_usuario IN ('aluno','adm_sala') 
-      AND u.ativo_usuario = TRUE -- FIX: Exibe apenas os alunos ativos no sistema
-    ORDER BY t.nome_turma ASC, u.nome_usuario ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
