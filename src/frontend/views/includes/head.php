@@ -15,10 +15,6 @@
 <link rel="stylesheet" href="/soee/src/frontend/styles/animations/loader.css">
 <link rel="stylesheet" href="/soee/src/frontend/styles/animations/cursor.css">
 
-<!-- ( RESPONSIVO ) -->
-<link rel="stylesheet" href="/soee/src/frontend/styles/responsive/mobile.css">
-<link rel="stylesheet" href="/soee/src/frontend/styles/responsive/tablet.css">
-
 <!-- ( WEBS ) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,3 +49,7 @@
 
 <!-- ( PÁGINAS ) -->
 <link rel="stylesheet" href="/soee/src/frontend/styles/index.css">
+
+<!-- ( RESPONSIVO — deve vir por último para sobrescrever corretamente ) -->
+<link rel="stylesheet" href="/soee/src/frontend/styles/responsive/tablet.css">
+<link rel="stylesheet" href="/soee/src/frontend/styles/responsive/mobile.css">
