@@ -1,17 +1,139 @@
-@media (max-width: 900px) {
-.menu-principal { 
-    display: none; 
-}
-.sobre-grid { 
-    grid-template-columns: 1fr; 
-}
-.rodape-conteudo { 
-    grid-template-columns: 1fr; gap: 36px; 
-}
-.hero-stats { 
-    display: none; 
-}
-.cursor-dot, .cursor-ring { 
-  display: none; 
-}
+/* ══════════════════════════════════════════════════════════════
+   tablet.css — SOEE · Responsivo ≤ 960px
+   Cobre: site público, dashboards, formulários, páginas internas
+══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 960px) {
+
+  /* ── CURSOR (touch não precisa) ── */
+  .cursor-dot, .cursor-ring { display: none !important; }
+
+  /* ════════════════════════════════
+     HEADER / NAV SITE
+  ════════════════════════════════ */
+  .menu-principal { display: none; }
+  .cabecalho-container { padding: 12px 20px; gap: 12px; }
+  .cabecalho-logos img { height: 2.6rem; }
+  .logo-sistema { height: 2.4rem; }
+
+  /* ════════════════════════════════
+     HERO SITE
+  ════════════════════════════════ */
+  .hero-stats { display: none; }
+  .intro-conteudo { padding: 0 20px; }
+
+  /* ════════════════════════════════
+     SEÇÃO SOBRE
+  ════════════════════════════════ */
+  .sobre-grid { grid-template-columns: 1fr; }
+
+  /* ════════════════════════════════
+     FOOTER
+  ════════════════════════════════ */
+  .rodape-conteudo { grid-template-columns: 1fr; gap: 32px; padding: 56px 24px; }
+
+  /* ════════════════════════════════
+     DASHBOARDS — SIDEBAR SLIDE
+  ════════════════════════════════ */
+
+  /* ADM dashboard */
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    transform: translateX(-100%);
+    z-index: 300;
+    transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: none;
+  }
+  .sidebar.open,
+  .sidebar.aberta {
+    transform: translateX(0);
+    box-shadow: 8px 0 32px rgba(0,0,0,0.18);
+  }
+  .main        { margin-left: 0 !important; }
+  .dash-main   { margin-left: 0 !important; }
+  .conteudo    { margin-left: 0 !important; }
+
+  /* Botão hambúrguer — injetado pelo JS em todos os dashboards */
+  .sidebar-toggle-mobile {
+    display: flex !important;
+    position: fixed; bottom: 24px; right: 24px;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--laranja-destaque, #ff4d12); color: white;
+    border: none; font-size: 1.2rem;
+    cursor: pointer; z-index: 400;
+    align-items: center; justify-content: center;
+    box-shadow: 0 6px 20px rgba(255,77,18,0.35);
+    transition: transform 0.25s;
+  }
+  .sidebar-toggle-mobile:hover { transform: scale(1.1); }
+
+  /* Overlay escuro atrás da sidebar */
+  .sidebar-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 299;
+    backdrop-filter: blur(2px);
+  }
+  .sidebar-overlay.ativa { display: block; }
+
+  /* Topbar */
+  .topbar-search { display: none !important; }
+  .content { padding: 24px 20px; }
+  .dash-content { padding: 24px 20px; }
+
+  /* KPI grid — 2 colunas */
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Formulários */
+  .form-grid { grid-template-columns: 1fr !important; }
+  .form-grupo.span2 { grid-column: span 1 !important; }
+
+  /* Tabelas — scroll horizontal */
+  .tabela-wrap,
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Agenda kanban */
+  .agenda-colunas { gap: 12px; }
+  .agenda-coluna  { min-width: 200px; }
+
+  /* Modal */
+  .modal { width: 94vw; max-width: 520px; margin: 0 auto; }
+
+  /* ════════════════════════════════
+     PÁGINAS DE SITE INTERNAS
+  ════════════════════════════════ */
+
+  /* Contato / redes */
+  .redes-grid { grid-template-columns: 1fr !important; }
+  .feed-placeholder-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Modalidades */
+  .modalidades-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Quem somos / time */
+  .team-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Classificação — grupos */
+  .grupos-grid { grid-template-columns: 1fr !important; }
+
+  /* Cadastro */
+  .cad-scene { flex-direction: column; }
+  .cad-lateral { display: none; }
+  .cad-form-wrap { width: 100%; max-width: 100%; padding: 32px 24px; }
+
+  /* Login — esconde lado esquerdo decorativo */
+  .pagina-login { grid-template-columns: 1fr; }
+  .lado-esquerdo { display: none; }
+  .lado-direito  { min-height: 100vh; padding: 32px 24px; }
+
+  /* Perfil usuário */
+  .conta-hero { padding: 48px 20px 40px; }
+  .conta-main { padding: 24px 16px 60px; }
+  .conta-topbar { padding: 0 18px; }
+  .info-grid { grid-template-columns: 1fr !important; }
+
+  /* Sobre ETEC */
+  .sobre-etec-grid { grid-template-columns: 1fr !important; }
+
 }

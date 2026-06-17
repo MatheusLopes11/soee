@@ -503,5 +503,6 @@ include __DIR__ . '/../includes/doctype.php'; ?>
 
 <script src="../../scripts/dash-user.js"></script>
 <script src="../../scripts/aluno.js"></script>
+<script src="/soee/src/frontend/scripts/responsive.js"></script>
 
 <?php include __DIR__ . '/../includes/end.php'; ?>
