@@ -44,7 +44,17 @@
             </div>
         `;
 
-        // Insere como primeiro filho do <body>
+        const paginaClassificacao = document.querySelector('.app-layout');
+        const areaDashboard = paginaClassificacao
+            ? null
+            : document.querySelector('.main, .conteudo, .dash-main');
+
+        if (areaDashboard) {
+            areaDashboard.insertBefore(barra, areaDashboard.firstChild);
+            return;
+        }
+
+        // Insere como primeiro filho do <body> nas demais páginas
         document.body.insertBefore(barra, document.body.firstChild);
     }
 

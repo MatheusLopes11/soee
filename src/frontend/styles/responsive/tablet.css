@@ -3,6 +3,12 @@
    Cobre: site público, dashboards, formulários, páginas internas
 ══════════════════════════════════════════════════════════════ */
 
+/* Oculta o botão hamburguer e o overlay por padrão no desktop */
+.sidebar-toggle-mobile,
+.sidebar-overlay {
+  display: none;
+}
+
 @media (max-width: 960px) {
 
   /* ── CURSOR (touch não precisa) ── */

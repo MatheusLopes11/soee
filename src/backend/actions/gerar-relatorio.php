@@ -15,10 +15,33 @@ class RelatorioPDF extends FPDF {
 
     public $titulo_relatorio = '';
 
+    private function pageWidth() {
+        return $this->GetPageWidth();
+    }
+
+    private function txt($texto) {
+        return utf8_decode((string)($texto ?? '-'));
+    }
+
+    private function textoNaCelula($texto, $largura) {
+        $texto = trim($this->txt($texto));
+        $limite = max(4, $largura - 3);
+
+        if ($this->GetStringWidth($texto) <= $limite) {
+            return $texto;
+        }
+
+        while (strlen($texto) > 0 && $this->GetStringWidth($texto . '...') > $limite) {
+            $texto = substr($texto, 0, -1);
+        }
+
+        return rtrim($texto) . '...';
+    }
+
     function Header() {
         // Faixa de cabeÃ§alho azul
         $this->SetFillColor(10, 61, 98);
-        $this->Rect(0, 0, 210, 28, 'F');
+        $this->Rect(0, 0, $this->pageWidth(), 28, 'F');
 
         // TÃ­tulo principal
         $this->SetFont('Arial', 'B', 16);
@@ -30,11 +53,11 @@ class RelatorioPDF extends FPDF {
         $this->SetFont('Arial', '', 10);
         $this->SetTextColor(180, 210, 230);
         $this->SetX(10);
-        $this->Cell(0, 6, utf8_decode($this->titulo_relatorio), 0, 1, 'C');
+        $this->Cell(0, 6, $this->txt($this->titulo_relatorio), 0, 1, 'C');
 
         // Linha laranja decorativa
         $this->SetFillColor(230, 100, 20);
-        $this->Rect(0, 28, 210, 2, 'F');
+        $this->Rect(0, 28, $this->pageWidth(), 2, 'F');
 
         $this->SetTextColor(0, 0, 0);
         $this->Ln(6);
@@ -45,7 +68,7 @@ class RelatorioPDF extends FPDF {
         $this->SetFont('Arial', 'I', 8);
         $this->SetTextColor(120, 120, 120);
         $data = date('d/m/Y H:i');
-        $this->Cell(0, 5, utf8_decode("Gerado em $data  |  ETEC Juscelino Kubitschek de Oliveira  |  Pagina " . $this->PageNo()), 0, 0, 'C');
+        $this->Cell(0, 5, $this->txt("Gerado em $data  |  ETEC Juscelino Kubitschek de Oliveira  |  Pagina " . $this->PageNo()), 0, 0, 'C');
     }
 
     // CabeÃ§alho de seÃ§Ã£o laranja
@@ -53,7 +76,7 @@ class RelatorioPDF extends FPDF {
         $this->SetFillColor(230, 100, 20);
         $this->SetTextColor(255, 255, 255);
         $this->SetFont('Arial', 'B', 11);
-        $this->Cell(0, 8, utf8_decode("  $texto"), 0, 1, 'L', true);
+        $this->Cell(0, 8, $this->txt("  $texto"), 0, 1, 'L', true);
         $this->SetTextColor(0, 0, 0);
         $this->Ln(2);
     }
@@ -66,9 +89,9 @@ class RelatorioPDF extends FPDF {
             $this->SetFillColor(255, 255, 255);
         }
         $this->SetFont('Arial', 'B', 9);
-        $this->Cell(65, 6, utf8_decode($label), 0, 0, 'L', true);
+        $this->Cell(65, 6, $this->txt($label), 0, 0, 'L', true);
         $this->SetFont('Arial', '', 9);
-        $this->Cell(0, 6, utf8_decode($valor), 0, 1, 'L', true);
+        $this->Cell(0, 6, $this->txt($valor), 0, 1, 'L', true);
     }
 
     // CabeÃ§alho de tabela
@@ -77,14 +100,14 @@ class RelatorioPDF extends FPDF {
         $this->SetTextColor(255, 255, 255);
         $this->SetFont('Arial', 'B', 9);
         foreach ($colunas as $i => $col) {
-            $this->Cell($larguras[$i], 7, utf8_decode($col), 0, 0, 'C', true);
+            $this->Cell($larguras[$i], 7, $this->textoNaCelula($col, $larguras[$i]), 0, 0, 'C', true);
         }
         $this->Ln();
         $this->SetTextColor(0, 0, 0);
     }
 
     // Linha de tabela zebrada
-    function TabelaLinha($dados, $larguras, $par) {
+    function TabelaLinha($dados, $larguras, $par, $alinhamentos = []) {
         if ($par) {
             $this->SetFillColor(245, 249, 253);
         } else {
@@ -92,7 +115,8 @@ class RelatorioPDF extends FPDF {
         }
         $this->SetFont('Arial', '', 8);
         foreach ($dados as $i => $val) {
-            $this->Cell($larguras[$i], 6, utf8_decode($val), 0, 0, 'L', true);
+            $alinhamento = $alinhamentos[$i] ?? 'L';
+            $this->Cell($larguras[$i], 6, $this->textoNaCelula($val, $larguras[$i]), 0, 0, $alinhamento, true);
         }
         $this->Ln();
     }
@@ -105,11 +129,11 @@ class RelatorioPDF extends FPDF {
         $this->SetXY($x, $y + 2);
         $this->SetFont('Arial', 'B', 14);
         $this->SetTextColor(255, 200, 50);
-        $this->Cell($w, 7, utf8_decode($valor), 0, 1, 'C');
+        $this->Cell($w, 7, $this->txt($valor), 0, 1, 'C');
         $this->SetXY($x, $y + 10);
         $this->SetFont('Arial', '', 7);
         $this->SetTextColor(180, 210, 230);
-        $this->Cell($w, 5, utf8_decode($label), 0, 1, 'C');
+        $this->Cell($w, 5, $this->textoNaCelula($label, $w), 0, 1, 'C');
         $this->SetTextColor(0, 0, 0);
     }
 }
@@ -164,7 +188,7 @@ function relatorio_inscricoes($conn) {
             $row['tipo_participacao'],
             $row['total_inscritos'],
             $row['turmas_participando'],
-        ], [80, 40, 40, 30], $i % 2 === 0);
+        ], [80, 40, 40, 30], $i % 2 === 0, ['L', 'C', 'C', 'C']);
     }
     $pdf->Ln(6);
 
@@ -194,7 +218,7 @@ function relatorio_inscricoes($conn) {
             $row['sigla_curso'],
             $row['alunos_inscritos'],
             $row['total_inscricoes'],
-        ], [60, 40, 50, 40], $i % 2 === 0);
+        ], [60, 40, 50, 40], $i % 2 === 0, ['L', 'C', 'C', 'C']);
     }
     $pdf->Ln(6);
 
@@ -221,7 +245,7 @@ function relatorio_inscricoes($conn) {
                 $row['nome_turma'],
                 $row['sigla_curso'],
                 $row['periodo_turma'],
-            ], [80, 35, 50, 25], $i % 2 === 0);
+            ], [80, 35, 50, 25], $i % 2 === 0, ['L', 'C', 'C', 'C']);
         }
     } else {
         $pdf->SetFont('Arial', 'I', 9);
@@ -271,7 +295,7 @@ function relatorio_inscricoes($conn) {
 
         $pdf->TabelaCabecalho(
             ['Nome', 'Turma', 'Curso', 'Camisa', 'Posicao', 'Capitao'],
-            [60, 28, 25, 17, 35, 25]
+            [70, 28, 25, 17, 30, 20]
         );
         foreach ($lista as $i => $aluno) {
             $pdf->TabelaLinha([
@@ -281,7 +305,7 @@ function relatorio_inscricoes($conn) {
                 $aluno['numero_camisa_inscricao'] ?? '-',
                 $aluno['posicao_inscricao'] ?? '-',
                 $aluno['capitao_inscricao'] ? 'Sim' : 'Nao',
-            ], [60, 28, 25, 17, 35, 25], $i % 2 === 0);
+            ], [70, 28, 25, 17, 30, 20], $i % 2 === 0, ['L', 'C', 'C', 'C', 'C', 'C']);
         }
     }
 
@@ -291,7 +315,7 @@ function relatorio_inscricoes($conn) {
 // â”€â”€â”€ RELATÃ“RIO DE JOGOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function relatorio_jogos($conn) {
-    $pdf = new RelatorioPDF('P', 'mm', 'A4');
+    $pdf = new RelatorioPDF('L', 'mm', 'A4');
     $pdf->titulo_relatorio = 'Relatorio de Partidas, Resultados e Classificacao';
     $pdf->SetAutoPageBreak(true, 20);
     $pdf->AddPage();
@@ -304,10 +328,10 @@ function relatorio_jogos($conn) {
 
     $pdf->SecaoTitulo('Resumo Geral');
     $y = $pdf->GetY();
-    $pdf->KpiBox('Total de Partidas', $total_partidas,  10,  $y);
-    $pdf->KpiBox('Realizadas',        $realizadas,      56,  $y);
-    $pdf->KpiBox('Agendadas',         $agendadas,       102, $y);
-    $pdf->KpiBox('Modalidades',       $total_modalidades, 148, $y);
+    $pdf->KpiBox('Total de Partidas', $total_partidas,    35,  $y, 50);
+    $pdf->KpiBox('Realizadas',        $realizadas,        95,  $y, 50);
+    $pdf->KpiBox('Agendadas',         $agendadas,         155, $y, 50);
+    $pdf->KpiBox('Modalidades',       $total_modalidades, 215, $y, 50);
     $pdf->SetY($y + 24);
     $pdf->Ln(4);
 
@@ -352,7 +376,7 @@ function relatorio_jogos($conn) {
 
         $pdf->TabelaCabecalho(
             ['Time A', 'Time B', 'Data', 'Hora', 'Local', 'Fase', 'Placar', 'Status'],
-            [28, 28, 18, 14, 28, 20, 20, 22]
+            [42, 42, 22, 18, 48, 34, 24, 34]
         );
         foreach ($lista_partidas as $i => $p) {
             $placar = ($p['placar_time_a'] !== null)
@@ -373,7 +397,7 @@ function relatorio_jogos($conn) {
                 $p['fase_partida'],
                 $placar,
                 $p['status_partida'],
-            ], [28, 28, 18, 14, 28, 20, 20, 22], $i % 2 === 0);
+            ], [42, 42, 22, 18, 48, 34, 24, 34], $i % 2 === 0, ['L', 'L', 'C', 'C', 'L', 'C', 'C', 'C']);
         }
         $pdf->Ln(4);
 
@@ -399,7 +423,7 @@ function relatorio_jogos($conn) {
 
             $pdf->TabelaCabecalho(
                 ['Turma', 'Grupo', 'Pts', 'J', 'V', 'E', 'D', 'GP', 'GC', 'Saldo'],
-                [46, 16, 12, 10, 10, 10, 10, 14, 14, 16]
+                [70, 26, 20, 18, 18, 18, 18, 22, 22, 28]
             );
             foreach ($tabela_class as $i => $cl) {
                 $pdf->TabelaLinha([
@@ -413,7 +437,7 @@ function relatorio_jogos($conn) {
                     $cl['pontos_pro'],
                     $cl['pontos_contra'],
                     $cl['saldo'],
-                ], [46, 16, 12, 10, 10, 10, 10, 14, 14, 16], $i % 2 === 0);
+                ], [70, 26, 20, 18, 18, 18, 18, 22, 22, 28], $i % 2 === 0, ['L', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C']);
             }
             $pdf->Ln(6);
         }
