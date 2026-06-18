@@ -88,6 +88,18 @@ include __DIR__ . '/../../../backend/helpers/adm.php';
             <i class="fas fa-file-alt"></i> Súmulas
             <?php if (count($sumulas_pendentes)): ?><span class="nav-badge"><?= count($sumulas_pendentes) ?></span><?php endif; ?>
         </a>
+
+        <div class="nav-group-label">Relatórios</div>
+<a class="nav-item"
+   href="/soee/src/backend/actions/gerar-relatorio.php?tipo=inscricoes"
+   target="_blank">
+    <i class="fas fa-file-pdf"></i> Rel. Inscrições
+</a>
+<a class="nav-item"
+   href="/soee/src/backend/actions/gerar-relatorio.php?tipo=jogos"
+   target="_blank">
+    <i class="fas fa-file-pdf"></i> Rel. Partidas
+</a>
     </nav>
 
     <div class="sidebar-footer">

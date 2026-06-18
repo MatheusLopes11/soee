@@ -20,6 +20,7 @@ include __DIR__ . '/../includes/doctype.php'; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/soee/src/frontend/styles/dash-adm.css">
     <link rel="stylesheet" href="/soee/src/frontend/styles/dash-prof.css">
+    <link rel="stylesheet" href="/soee/src/frontend/styles/components/acessibilidade.css">
     <link rel="icon" type="image/png" href="/soee/src/frontend/assets/icons/logo-soee.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -91,6 +92,18 @@ include __DIR__ . '/../includes/doctype.php'; ?>
         <a class="nav-item" href="/soee/src/frontend/views/forms/feedback.php">
             <i class="fas fa-comment-dots"></i> Feedback
         </a>
+
+        <div class="nav-group-label">Relatórios</div>
+<a class="nav-item"
+   href="/soee/src/backend/actions/gerar-relatorio.php?tipo=inscricoes"
+   target="_blank">
+    <i class="fas fa-file-pdf"></i> Rel. Inscrições
+</a>
+<a class="nav-item"
+   href="/soee/src/backend/actions/gerar-relatorio.php?tipo=jogos"
+   target="_blank">
+    <i class="fas fa-file-pdf"></i> Rel. Partidas
+</a>
     </nav>
 
     <div class="sidebar-footer">

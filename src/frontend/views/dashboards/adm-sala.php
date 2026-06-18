@@ -107,6 +107,18 @@ include __DIR__ . '/../../../backend/helpers/adm-sala.php';
         <a href="/soee/src/frontend/views/forms/feedback.php" class="nav-item">
             <i class="fa-solid fa-comment-dots"></i> Feedback
         </a>
+
+        <div class="nav-secao">Relatórios</div>
+<a href="/soee/src/backend/actions/gerar-relatorio.php?tipo=inscricoes"
+   target="_blank"
+   class="nav-item">
+    <i class="fa-solid fa-file-pdf"></i> Rel. Inscrições
+</a>
+<a href="/soee/src/backend/actions/gerar-relatorio.php?tipo=jogos"
+   target="_blank"
+   class="nav-item">
+    <i class="fa-solid fa-file-pdf"></i> Rel. Partidas
+</a>
     </nav>
 
     <div class="sidebar-rodape">
