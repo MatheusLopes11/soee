@@ -38,6 +38,9 @@
 <link rel="stylesheet" href="/soee/src/frontend/styles/components/badge.css">
 <link rel="stylesheet" href="/soee/src/frontend/styles/components/particles.css">
 
+<!-- ( ACESSIBILIDADE ) -->
+<link rel="stylesheet" href="/soee/src/frontend/styles/components/acessibilidade.css">
+
 <!-- ( BUTTONS ) -->
 <link rel="stylesheet" href="/soee/src/frontend/styles/buttons/primary.css">
 <link rel="stylesheet" href="/soee/src/frontend/styles/buttons/secondary.css">
