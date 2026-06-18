@@ -26,6 +26,9 @@ include __DIR__ . '/../includes/doctype.php'; ?>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- RESPONSIVO -->
+    <link rel="stylesheet" href="/soee/src/frontend/styles/responsive/tablet.css">
+    <link rel="stylesheet" href="/soee/src/frontend/styles/responsive/mobile.css">
 </head>
 <body>
 

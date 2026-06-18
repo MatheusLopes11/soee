@@ -12,11 +12,8 @@
 body:has(.sidebar):has(.main):not(:has(.app-layout)) .barra-acessibilidade,
 body:has(.sidebar):has(.conteudo):not(:has(.app-layout)) .barra-acessibilidade,
 body:has(.sidebar):has(.dash-main):not(:has(.app-layout)) .barra-acessibilidade {
-  position: fixed;
-  top: 0;
-  left: var(--sidebar-w, var(--sidebar, 260px));
-  right: 0;
-  width: auto;
+  position: relative;
+  width: 100%;
 }
 
 body:has(.sidebar):has(.main):not(:has(.app-layout)) .barra-acessibilidade-container,
@@ -24,12 +21,6 @@ body:has(.sidebar):has(.conteudo):not(:has(.app-layout)) .barra-acessibilidade-c
 body:has(.sidebar):has(.dash-main):not(:has(.app-layout)) .barra-acessibilidade-container {
   max-width: none;
   padding: 4px 32px;
-}
-
-body:has(.sidebar):has(.main):not(:has(.app-layout)) .main,
-body:has(.sidebar):has(.conteudo):not(:has(.app-layout)) .conteudo,
-body:has(.sidebar):has(.dash-main):not(:has(.app-layout)) .dash-main {
-  padding-top: 32px;
 }
 
 body:has(.cabecalho):not(:has(.main)):not(:has(.conteudo)):not(:has(.dash-main)) .barra-acessibilidade,

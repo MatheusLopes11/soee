@@ -24,7 +24,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Toggle sidebar mobile ──────────────────────────────────────
     if (btnSidebar && sidebar) {
-        btnSidebar.addEventListener('click', () => sidebar.classList.toggle('aberta'));
+        btnSidebar.addEventListener('click', () => {
+            if (window.innerWidth > 768) return;
+
+            sidebar.classList.toggle('aberta');
+            const icone = btnSidebar.querySelector('i');
+            if (icone) {
+                icone.className = sidebar.classList.contains('aberta')
+                    ? 'fa-solid fa-xmark'
+                    : 'fa-solid fa-bars';
+            }
+        });
     }
     document.addEventListener('click', (e) => {
         if (!sidebar) return;
@@ -33,7 +43,17 @@ document.addEventListener('DOMContentLoaded', function () {
             !sidebar.contains(e.target) &&
             e.target !== btnSidebar) {
             sidebar.classList.remove('aberta');
+            const icone = btnSidebar?.querySelector('i');
+            if (icone) icone.className = 'fa-solid fa-bars';
         }
+    });
+
+    window.addEventListener('resize', () => {
+        if (!sidebar || !btnSidebar || window.innerWidth <= 768) return;
+
+        sidebar.classList.remove('aberta');
+        const icone = btnSidebar.querySelector('i');
+        if (icone) icone.className = 'fa-solid fa-bars';
     });
 
     // ── Busca alunos (painel overview) ────────────────────────────
