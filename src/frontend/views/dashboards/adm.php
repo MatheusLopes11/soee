@@ -1092,4 +1092,5 @@ include __DIR__ . '/../../../backend/helpers/adm.php';
 <script src="/soee/src/frontend/scripts/adm.js"></script>
 <script src="/soee/src/frontend/scripts/admv2.js"></script>
 
+<script src="/soee/src/frontend/scripts/responsive.js"></script>
 <?php include __DIR__ . '/../includes/end.php';?>

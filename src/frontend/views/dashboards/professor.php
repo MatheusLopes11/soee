@@ -1468,4 +1468,6 @@ async function excluirSumula(id) {
 }
 </script>
 
+<script src="/soee/src/frontend/scripts/responsive.js"></script>
+
 <?php include __DIR__ . '/../includes/end.php'; ?>
