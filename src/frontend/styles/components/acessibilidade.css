@@ -1,0 +1,154 @@
+/* ─── BARRA DE ACESSIBILIDADE ─── */
+
+.barra-acessibilidade {
+  width: 100%;
+  background: var(--azul-principal);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  z-index: 1100;
+  font-size: 0.78rem;
+}
+
+.barra-acessibilidade-container {
+  max-width: 1300px;
+  margin: auto;
+  padding: 5px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* Rótulo "Acessibilidade:" */
+.barra-acessibilidade-label {
+  color: rgba(255,255,255,0.65);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-right: 6px;
+}
+
+/* Botões da barra */
+.btn-acesso {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.85);
+  cursor: pointer;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.6;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.btn-acesso:hover,
+.btn-acesso.ativo {
+  background: var(--laranja-destaque);
+  border-color: var(--laranja-destaque);
+  color: #fff;
+}
+
+/* Separador visual entre grupos de botões */
+.barra-sep {
+  width: 1px;
+  height: 18px;
+  background: rgba(255,255,255,0.18);
+  margin: 0 4px;
+}
+
+/* ─── TEMA ALTO CONTRASTE ─── */
+[data-contraste="alto"] {
+  --fundo-pagina:    #000000 !important;
+  --fundo-bloco:     #0a0a0a !important;
+  --fundo-card:      #0a0a0a !important;
+  --bloco:           #0a0a0a !important;
+  --texto-principal: #ffff00 !important;
+  --texto-secundario:#ffffff !important;
+  --texto-suave:     #cccccc !important;
+  --borda-sutil:     rgba(255,255,0,0.35) !important;
+  --vidro:           rgba(0,0,0,0.97) !important;
+  --azul-principal:  #000080 !important;
+  --laranja-destaque:#ffaa00 !important;
+}
+
+[data-contraste="alto"] * {
+  background-image: none !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+[data-contraste="alto"] a,
+[data-contraste="alto"] button {
+  outline: 2px solid #ffff00 !important;
+  outline-offset: 2px;
+}
+
+/* ─── FONTE DISLEXIA (OpenDyslexic) ─── */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/fonts/OpenDyslexic-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/fonts/OpenDyslexic-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+[data-fonte="dislexia"] body,
+[data-fonte="dislexia"] p,
+[data-fonte="dislexia"] span,
+[data-fonte="dislexia"] li,
+[data-fonte="dislexia"] a,
+[data-fonte="dislexia"] button,
+[data-fonte="dislexia"] input,
+[data-fonte="dislexia"] label,
+[data-fonte="dislexia"] h1,
+[data-fonte="dislexia"] h2,
+[data-fonte="dislexia"] h3,
+[data-fonte="dislexia"] h4,
+[data-fonte="dislexia"] h5,
+[data-fonte="dislexia"] h6,
+[data-fonte="dislexia"] td,
+[data-fonte="dislexia"] th {
+  font-family: 'OpenDyslexic', sans-serif !important;
+  letter-spacing: 0.05em;
+  word-spacing: 0.12em;
+}
+
+/* ─── ESPAÇAMENTO AUMENTADO ─── */
+[data-espacamento="aumentado"] p,
+[data-espacamento="aumentado"] li,
+[data-espacamento="aumentado"] span,
+[data-espacamento="aumentado"] a,
+[data-espacamento="aumentado"] td,
+[data-espacamento="aumentado"] th,
+[data-espacamento="aumentado"] label {
+  line-height: 1.95 !important;
+  letter-spacing: 0.06em !important;
+  word-spacing: 0.18em !important;
+}
+
+/* ─── RESPONSIVO ─── */
+@media (max-width: 768px) {
+  .barra-acessibilidade-container {
+    padding: 5px 16px;
+    justify-content: center;
+    gap: 3px;
+  }
+
+  .barra-acessibilidade-label {
+    display: none;
+  }
+
+  .btn-acesso {
+    padding: 3px 8px;
+    font-size: 0.72rem;
+  }
+}

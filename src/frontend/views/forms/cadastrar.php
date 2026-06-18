@@ -68,7 +68,7 @@
           <li>
             <div class="cad-ben-icone"><i class="fa-solid fa-bell"></i></div>
             <div>
-              <strong>Notificações instantâneas</strong>
+              <strong>Alterações instantâneas</strong>
               <span>Avisos de partidas, mudanças e resultados</span>
             </div>
           </li>

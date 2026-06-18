@@ -226,11 +226,11 @@
             </div>
             <div class="membro-info">
               <h3>Matheus Ferreira Lopes</h3>
-              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> 18 anos</span>
+              <span class="membro-idade"><i class="fa-solid fa-cake-candles"></i> 19 anos</span>
               <span class="membro-cidade"><i class="fa-solid fa-location-dot"></i> Diadema, SP</span>
               <p class="membro-descricao">
                 Cursando Técnologo em Desenvolvimento de Software Multiplataforma na FATEC DIADEMA.
-                Amante de gatinhos, jogos e música.
+                
               </p>
               <div class="membro-links">
                 <a href="https://github.com/MatheusLopes167" target="_blank" class="membro-link" aria-label="GitHub de Matheus Lopes">
