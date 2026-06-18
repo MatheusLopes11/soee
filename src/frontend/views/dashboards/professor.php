@@ -84,7 +84,6 @@ include __DIR__ . '/../includes/doctype.php'; ?>
         <a class="nav-item" href="javascript:void(0)" data-painel="modalidades" onclick="trocarPainel(this)">
             <i class="fas fa-futbol"></i> Modalidades
         </a>
-        <!-- NOVO: painel de professores -->
         <a class="nav-item" href="javascript:void(0)" data-painel="professores" onclick="trocarPainel(this)">
             <i class="fas fa-chalkboard-teacher"></i> Professores
             <span class="nav-badge"><?= count($professores) ?></span>
@@ -467,73 +466,72 @@ include __DIR__ . '/../includes/doctype.php'; ?>
 
         <!-- ══════ PAINEL: MODALIDADES ══════ -->
         <div class="painel" id="painel-modalidades">
-    <div class="secao-card">
-        <div class="secao-card-header">
-            <h3>Modalidades Esportivas</h3>
-            <span class="secao-tag-mini"><?= count($modalidades) ?> registros</span>
-            <a href="/soee/src/frontend/views/forms/criacao-esporte.php" class="btn btn-primario btn-sm">
-                <i class="fas fa-plus"></i> Nova Modalidade
-            </a>
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Modalidades Esportivas</h3>
+                    <span class="secao-tag-mini"><?= count($modalidades) ?> registros</span>
+                    <a href="/soee/src/frontend/views/forms/criacao-esporte.php" class="btn btn-primario btn-sm">
+                        <i class="fas fa-plus"></i> Nova Modalidade
+                    </a>
+                </div>
+                <div class="tabela-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th>Formato</th>
+                                <th>Participação</th>
+                                <th>Min/Max</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($modalidades)): ?>
+                            <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhuma modalidade cadastrada.</td></tr>
+                            <?php else: foreach ($modalidades as $m): ?>
+                            <tr>
+                                <td><?= $m['id_modalidade'] ?></td>
+                                <td><?= htmlspecialchars($m['nome_modalidade']) ?></td>
+                                <td><?= htmlspecialchars($m['tipo_modalidade']) ?></td>
+                                <td><?= htmlspecialchars($m['formato_modalidade']) ?></td>
+                                <td><?= htmlspecialchars($m['tipo_participacao']) ?></td>
+                                <td><?= $m['qtd_min_jogadores'] ?> / <?= $m['qtd_max_jogadores'] ?></td>
+                                <td><?= $m['ativo_modalidade'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
+                                <td class="td-acoes">
+                                    <button class="btn btn-primario btn-sm" title="Editar Modalidade"
+                                        onclick="abrirModalEditarModalidade({
+                                            id_modalidade: <?= $m['id_modalidade'] ?>,
+                                            nome_modalidade: '<?= addslashes(htmlspecialchars($m['nome_modalidade'])) ?>',
+                                            tipo_modalidade: '<?= $m['tipo_modalidade'] ?>',
+                                            formato_modalidade: '<?= $m['formato_modalidade'] ?>',
+                                            tipo_participacao: '<?= $m['tipo_participacao'] ?>',
+                                            genero_modalidade: '<?= $m['genero_modalidade'] ?? '' ?>',
+                                            qtd_min_jogadores: <?= $m['qtd_min_jogadores'] ?>,
+                                            qtd_max_jogadores: <?= $m['qtd_max_jogadores'] ?>,
+                                            ativo_modalidade: <?= $m['ativo_modalidade'] ? '1' : '0' ?>,
+                                            descricao_modalidade: '<?= addslashes(htmlspecialchars($m['descricao_modalidade'] ?? '')) ?>',
+                                            regulamento_modalidade: '<?= addslashes(htmlspecialchars($m['regulamento_modalidade'] ?? '')) ?>',
+                                            tipo_duracao: '<?= $m['tipo_duracao'] ?? '' ?>',
+                                            duracao_minutos: '<?= $m['duracao_minutos'] ?? '' ?>',
+                                            duracao_pontos: '<?= $m['duracao_pontos'] ?? '' ?>'
+                                        })">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-perigo btn-sm" title="Excluir Modalidade"
+                                            onclick="excluirRegistro('modalidade', <?= $m['id_modalidade'] ?>)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="tabela-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nome</th>
-                        <th>Tipo</th>
-                        <th>Formato</th>
-                        <th>Participação</th>
-                        <th>Min/Max</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($modalidades)): ?>
-                    <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhuma modalidade cadastrada.</td></tr>
-                    <?php else: foreach ($modalidades as $m): ?>
-                    <tr>
-                        <td><?= $m['id_modalidade'] ?></td>
-                        <td><?= htmlspecialchars($m['nome_modalidade']) ?></td>
-                        <td><?= htmlspecialchars($m['tipo_modalidade']) ?></td>
-                        <td><?= htmlspecialchars($m['formato_modalidade']) ?></td>
-                        <td><?= htmlspecialchars($m['tipo_participacao']) ?></td>
-                        <td><?= $m['qtd_min_jogadores'] ?> / <?= $m['qtd_max_jogadores'] ?></td>
-                        <td><?= $m['ativo_modalidade'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
-                        <td class="td-acoes">
-                            <button class="btn btn-primario btn-sm" title="Editar Modalidade" 
-                                onclick="abrirModalEditarModalidade({
-                                    id_modalidade: <?= $m['id_modalidade'] ?>,
-                                    nome_modalidade: '<?= addslashes(htmlspecialchars($m['nome_modalidade'])) ?>',
-                                    tipo_modalidade: '<?= $m['tipo_modalidade'] ?>',
-                                    formato_modalidade: '<?= $m['formato_modalidade'] ?>',
-                                    tipo_participacao: '<?= $m['tipo_participacao'] ?>',
-                                    genero_modalidade: '<?= $m['genero_modalidade'] ?? '' ?>',
-                                    qtd_min_jogadores: <?= $m['qtd_min_jogadores'] ?>,
-                                    qtd_max_jogadores: <?= $m['qtd_max_jogadores'] ?>,
-                                    ativo_modalidade: <?= $m['ativo_modalidade'] ? '1' : '0' ?>,
-                                    descricao_modalidade: '<?= addslashes(htmlspecialchars($m['descricao_modalidade'] ?? '')) ?>',
-                                    regulamento_modalidade: '<?= addslashes(htmlspecialchars($m['regulamento_modalidade'] ?? '')) ?>',
-                                    tipo_duracao: '<?= $m['tipo_duracao'] ?? '' ?>',
-                                    duracao_minutos: '<?= $m['duracao_minutos'] ?? '' ?>',
-                                    duracao_pontos: '<?= $m['duracao_pontos'] ?? '' ?>'
-                                })">
-                            <i class="fas fa-pen"></i>
-                            </button>
-
-                            <button class="btn btn-perigo btn-sm" title="Excluir Modalidade" 
-                                    onclick="excluirRegistro('modalidade', <?= $m['id_modalidade'] ?>)">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <?php endforeach; endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
 
         <!-- ════ PAINEL: SÚMULAS ════ -->
         <div class="painel" id="painel-sumulas">
@@ -548,35 +546,97 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                 <div class="tabela-wrap">
                     <table>
                         <thead>
-                            <tr><th>#</th><th>Partida</th><th>Enviado por</th><th>Arquivo</th><th>Tipo</th><th>Data Envio</th><th>Status</th><th>Ações</th></tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Partida</th>
+                                <th>Enviado por</th>
+                                <th>Arquivo</th>
+                                <th>Tipo</th>
+                                <th>Data Envio</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <?php if (empty($sumulas)): ?>
-                            <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhuma súmula enviada.</td></tr>
-                        <?php else: foreach ($sumulas as $s): ?>
-                            <tr>
-                                <td><?= $s['id_sumula'] ?></td>
-                                <td><?= htmlspecialchars($s['nome_modalidade'] . ' — ' . $s['time_a'] . ' vs ' . $s['time_b']) ?></td>
-                                <td><?= htmlspecialchars($s['enviado_por']) ?></td>
-                                <td>
-                                    <a href="#" style="color:var(--azul-secundario)">
-                                        <i class="fas fa-file-<?= strtolower($s['tipo_arquivo_sumula']) === 'pdf' ? 'pdf' : 'image' ?>"></i>
-                                        <?= htmlspecialchars($s['nome_arquivo_sumula']) ?>
-                                    </a>
-                                </td>
-                                <td><?= strtoupper($s['tipo_arquivo_sumula']) ?></td>
-                                <td><?= date('d/m/Y H:i', strtotime($s['data_envio_sumula'])) ?></td>
-                                <td><?= badgeStatus($s['status_sumula']) ?></td>
-                                <td class="td-acoes">
-                                    <?php if ($s['status_sumula'] === 'pendente'): ?>
-                                        <button class="btn btn-ok btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'validada')"><i class="fas fa-check"></i> Validar</button>
-                                        <button class="btn btn-perigo btn-sm" onclick="validarSumula(<?= $s['id_sumula'] ?>, 'rejeitada')"><i class="fas fa-times"></i></button>
-                                    <?php else: ?>
-                                        <button class="btn btn-perigo btn-sm" onclick="excluirRegistro('sumula', <?= $s['id_sumula'] ?>)"><i class="fas fa-trash"></i></button>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; endif; ?>
+                            <?php if (empty($sumulas)): ?>
+                                <tr>
+                                    <td colspan="8" style="text-align:center;opacity:.6;padding:20px;">
+                                        Nenhuma súmula cadastrada.
+                                    </td>
+                                </tr>
+                            <?php else: foreach ($sumulas as $s): ?>
+                                <tr id="tr-sumula-<?= $s['id_sumula'] ?>">
+
+                                    <td><?= $s['id_sumula'] ?></td>
+
+                                    <td>
+                                        <strong><?= htmlspecialchars($s['nome_modalidade']) ?></strong><br>
+                                        <small style="color:var(--texto-secundario);">
+                                            <?= htmlspecialchars($s['time_a'] . ' vs ' . $s['time_b']) ?>
+                                        </small>
+                                    </td>
+
+                                    <td><?= htmlspecialchars($s['enviado_por'] ?? 'Desconhecido') ?></td>
+
+                                    <!-- Arquivo da Súmula -->
+                                    <td>
+                                        <?php if (!empty($s['caminho_arquivo_sumula'])): ?>
+                                            <?php
+                                                // caminho_arquivo_sumula já contém o path completo
+                                                // ex: /soee/src/frontend/assets/sumulas/sumula_abc.pdf
+                                                $ext   = strtolower(pathinfo($s['caminho_arquivo_sumula'], PATHINFO_EXTENSION));
+                                                $isPdf = ($ext === 'pdf');
+                                            ?>
+                                            <a href="/soee/src/frontend/assets/sumulas/<?= htmlspecialchars($s['caminho_arquivo_sumula']) ?>"
+                                               target="_blank"
+                                               class="btn btn-sm"
+                                               style="background-color:var(--laranja);color:white;padding:4px 8px;border-radius:4px;text-decoration:none;font-size:.85rem;display:inline-flex;align-items:center;gap:5px;">
+                                                <i class="fas <?= $isPdf ? 'fa-file-pdf' : 'fa-file-image' ?>"></i>
+                                                <?= $isPdf ? 'Ver PDF' : 'Ver Arquivo' ?>
+                                            </a>
+                                        <?php else: ?>
+                                            <span style="color:var(--vermelho);font-size:.85rem;">
+                                                <i class="fas fa-times-circle"></i> Sem arquivo
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <!-- FIX: usa tipo_arquivo_sumula (nome correto no schema) -->
+                                    <td>
+                                        <span class="secao-tag-mini">
+                                            <?= !empty($s['tipo_arquivo_sumula'])
+                                                ? strtoupper(htmlspecialchars($s['tipo_arquivo_sumula']))
+                                                : '—' ?>
+                                        </span>
+                                    </td>
+
+                                    <!-- FIX: usa data_envio_sumula + guarda fallback para null -->
+                                    <td>
+                                        <?= !empty($s['data_envio_sumula'])
+                                            ? date('d/m/Y H:i', strtotime($s['data_envio_sumula']))
+                                            : '—' ?>
+                                    </td>
+
+                                    <td><?= badgeStatus($s['status_sumula']) ?></td>
+
+                                    <td class="td-acoes">
+                                        <!-- FIX: passa partida_id_partida corretamente -->
+                                        <button class="btn btn-primario btn-sm" title="Editar Súmula"
+                                                onclick="abrirModalEditarSumula({
+                                                    id_sumula:  '<?= $s['id_sumula'] ?>',
+                                                    id_partida: '<?= $s['partida_id_partida'] ?>',
+                                                    status:     '<?= $s['status_sumula'] ?>'
+                                                })">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+                                        <button class="btn btn-perigo btn-sm" title="Excluir Súmula"
+                                                onclick="excluirSumula(<?= $s['id_sumula'] ?>)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+
+                                </tr>
+                            <?php endforeach; endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -585,83 +645,81 @@ include __DIR__ . '/../includes/doctype.php'; ?>
 
         <!-- ════ PAINEL: ALUNOS ════ -->
         <div class="painel" id="painel-alunos">
-    <div class="secao-card">
-        <div class="secao-card-header">
-            <h3>Alunos &amp; Turmas</h3>
-            <span class="secao-tag-mini"><?= count($alunos) ?> registros</span>
-        </div>
-        <div class="tabela-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nome</th>
-                        <th>E-mail</th>
-                        <th>Turma</th>
-                        <th>Gênero</th>
-                        <th>Cargo</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php if (empty($alunos)): ?>
-                    <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhum aluno encontrado.</td></tr>
-                <?php else:
-                    $generoLabel = ['m' => 'Masc.', 'f' => 'Fem.', 'n' => '—'];
-                    foreach ($alunos as $a):
-                        $isAdm = $a['tipo_usuario'] === 'adm_sala'; ?>
-                    <tr>
-                        <td><?= $a['id_usuario'] ?></td>
-                        <td style="font-weight:600;"><?= htmlspecialchars($a['nome_usuario']) ?></td>
-                        <td style="color:var(--texto-secundario);font-size:.82rem;"><?= htmlspecialchars($a['email_usuario']) ?></td>
-                        <td><?= htmlspecialchars($a['nome_turma'] ?? '—') ?></td>
-                        <td><?= $generoLabel[$a['genero_usuario']] ?? '—' ?></td>
-                        <td>
-                            <?php if ($isAdm): ?>
-                                <span class="badge-cargo adm-sala"><i class="fas fa-star"></i> Adm. Sala</span>
-                            <?php else: ?>
-                                <span class="badge-cargo aluno"><i class="fas fa-user-graduate"></i> Aluno</span>
-                            <?php endif; ?>
-                        </td>
-                        <td><?= $a['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
-                        <td class="td-acoes">
-                            <?php if ($isAdm): ?>
-                                <button class="btn-acao remover" title="Remover cargo"
-                                        onclick="elegerAdmSala(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
-                                    <i class="fas fa-undo"></i>
+            <div class="secao-card">
+                <div class="secao-card-header">
+                    <h3>Alunos &amp; Turmas</h3>
+                    <span class="secao-tag-mini"><?= count($alunos) ?> registros</span>
+                </div>
+                <div class="tabela-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Turma</th>
+                                <th>Gênero</th>
+                                <th>Cargo</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php if (empty($alunos)): ?>
+                            <tr><td colspan="8" style="text-align:center;opacity:.6;padding:20px;">Nenhum aluno encontrado.</td></tr>
+                        <?php else:
+                            $generoLabel = ['m' => 'Masc.', 'f' => 'Fem.', 'n' => '—'];
+                            foreach ($alunos as $a):
+                                $isAdm = $a['tipo_usuario'] === 'adm_sala'; ?>
+                        <tr>
+                            <td><?= $a['id_usuario'] ?></td>
+                            <td style="font-weight:600;"><?= htmlspecialchars($a['nome_usuario']) ?></td>
+                            <td style="color:var(--texto-secundario);font-size:.82rem;"><?= htmlspecialchars($a['email_usuario']) ?></td>
+                            <td><?= htmlspecialchars($a['nome_turma'] ?? '—') ?></td>
+                            <td><?= $generoLabel[$a['genero_usuario']] ?? '—' ?></td>
+                            <td>
+                                <?php if ($isAdm): ?>
+                                    <span class="badge-cargo adm-sala"><i class="fas fa-star"></i> Adm. Sala</span>
+                                <?php else: ?>
+                                    <span class="badge-cargo aluno"><i class="fas fa-user-graduate"></i> Aluno</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= $a['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
+                            <td class="td-acoes">
+                                <?php if ($isAdm): ?>
+                                    <button class="btn-acao remover" title="Remover cargo"
+                                            onclick="elegerAdmSala(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                <?php else: ?>
+                                    <button class="btn-acao eleger" title="Eleger como Adm. de Sala"
+                                            onclick="elegerAdmSala(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                <?php endif; ?>
+                                <button class="btn-acao remover" title="Remover Aluno do Sistema"
+                                        style="background-color:#dc3545;color:white;"
+                                        onclick="removerAluno(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
-                            <?php else: ?>
-                                <button class="btn-acao eleger" title="Eleger como Adm. de Sala"
-                                        onclick="elegerAdmSala(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
-                                    <i class="fas fa-star"></i>
-                                </button>
-                            <?php endif; ?>
-
-                            <button class="btn-acao remover" title="Remover Aluno do Sistema" style="background-color: #dc3545; color: white;"
-                                    onclick="removerAluno(<?= $a['id_usuario'] ?>, '<?= addslashes(htmlspecialchars($a['nome_usuario'])) ?>')">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <?php endforeach; endif; ?>
-                </tbody>
-            </table>
+                            </td>
+                        </tr>
+                        <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-        <!-- ════ PAINEL: PROFESSORES (NOVO) ════ -->
+        <!-- ════ PAINEL: PROFESSORES ════ -->
         <div class="painel" id="painel-professores">
             <div class="secao-card">
                 <div class="secao-card-header">
                     <h3>Gestão de Professores</h3>
                     <span class="secao-tag-mini"><?= count($professores) ?> registros</span>
-                    <!-- Botão para promover um aluno existente a professor -->
                     <button class="btn btn-primario btn-sm" onclick="abrirModal('modal-promover-professor')">
                         <i class="fas fa-user-plus"></i> Promover Aluno
                     </button>
-
                     <button class="btn btn-sucesso btn-sm" onclick="abrirModal('modal-cadastrar-professor')">
                         <i class="fas fa-plus"></i> Novo Professor
                     </button>
@@ -689,18 +747,9 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                                 <td><?= $prof['ativo_usuario'] ? badgeStatus('ativo') : badgeStatus('inativo') ?></td>
                                 <td class="td-acoes">
                                     <?php if ($prof['tipo_usuario'] === 'professor'): ?>
-                                        <!-- Só professores podem ser rebaixados; adm_geral é protegido -->
-                                       <button 
-                                            class="btn-acao remover"
-                                            title="Excluir professor"
-                                            onclick="excluirProfessor(
-                                                <?= $prof['id_usuario'] ?>,
-                                                '<?= htmlspecialchars(addslashes($prof['nome_usuario'])) ?>'
-                                            )">
-
-                                            <i class="fas fa-trash"></i>
-                                            Excluir
-
+                                        <button class="btn-acao remover" title="Excluir professor"
+                                                onclick="excluirProfessor(<?= $prof['id_usuario'] ?>, '<?= htmlspecialchars(addslashes($prof['nome_usuario'])) ?>')">
+                                            <i class="fas fa-trash"></i> Excluir
                                         </button>
                                     <?php else: ?>
                                         <span style="opacity:.4;font-size:.8rem;">Protegido</span>
@@ -870,143 +919,6 @@ include __DIR__ . '/../includes/doctype.php'; ?>
     </div>
 </div>
 
-
-<div class="modal-overlay" id="modal-nova-modalidade">
-    <div class="modal modal-edicao">
-        <div class="modal-header">
-            <h4><i class="fas fa-plus-circle" style="color:var(--laranja); margin-right:6px;"></i> Nova Modalidade</h4>
-            <button class="modal-close" onclick="fecharModal('modal-nova-modalidade')"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="modal-body">
-            <form action="/soee/src/backend/actions/salvar-modalidade.php" method="POST" enctype="multipart/form-data" id="form-nova-modalidade">
-                <input type="hidden" name="id_modalidade" value="0" />
-                <input type="hidden" name="acao" value="cadastrar" />
-
-                <div class="form-grid">
-                    <div class="form-grupo span2">
-                        <label class="form-label">Nome da Modalidade *</label>
-                        <input class="form-input" type="text" name="nome_modalidade" placeholder="Ex: Futsal Masculino" required />
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Tipo *</label>
-                        <select class="form-select" name="tipo_modalidade" required>
-                            <option value="coletivo">Coletivo</option>
-                            <option value="individual">Individual</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Formato *</label>
-                        <select class="form-select" name="formato_modalidade" required>
-                            <option value="tradicional">Tradicional</option>
-                            <option value="eletronico">Eletrônico</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Tipo Participação *</label>
-                        <select class="form-select" name="tipo_participacao" required>
-                            <option value="time">Time</option>
-                            <option value="solo">Solo</option>
-                            <option value="dupla">Dupla</option>
-                            <option value="trio">Trio</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Gênero Alvo *</label>
-                        <select class="form-select" name="genero_modalidade" required>
-                            <option value="misto">Misto</option>
-                            <option value="masculino">Masculino</option>
-                            <option value="feminino">Feminino</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Mín. Jogadores *</label>
-                        <input class="form-input" type="number" name="qtd_min_jogadores" min="1" value="1" required />
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Máx. Jogadores *</label>
-                        <input class="form-input" type="number" name="qtd_max_jogadores" min="1" value="1" required />
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Tipo Duração *</label>
-                        <select class="form-select" name="tipo_duracao" id="new-mod-tipodur" onchange="alternarCamposDuracaoNova()" required>
-                            <option value="minutos">Minutos</option>
-                            <option value="pontos">Pontos</option>
-                            <option value="sets">Sets</option>
-                            <option value="sem_limite">Sem Limite</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo" id="grupo-new-minutos">
-                        <label class="form-label">Duração (Minutos)</label>
-                        <select class="form-select" name="duracao_minutos" id="new-dur-minutos" onchange="verificarOutroMinutosNova()">
-                            <option value="15">15 min</option>
-                            <option value="20">20 min</option>
-                            <option value="30">30 min</option>
-                            <option value="40">40 min</option>
-                            <option value="outro">Outro valor...</option>
-                        </select>
-                        <input class="form-input" type="text" name="outro_minutos" id="new-outro-minutos" placeholder="Ex: 2 tempos de 15" style="display:none; margin-top:5px;" />
-                    </div>
-
-                    <div class="form-grupo" id="grupo-new-pontos" style="display:none;">
-                        <label class="form-label">Limite de Pontos</label>
-                        <select class="form-select" name="duracao_pontos" id="new-dur-pontos" onchange="verificarOutroPontosNova()">
-                            <option value="11">11 pontos</option>
-                            <option value="15">15 pontos</option>
-                            <option value="21">21 pontos</option>
-                            <option value="25">25 pontos</option>
-                            <option value="outro">Outro valor...</option>
-                        </select>
-                        <input class="form-input" type="number" name="outro_pontos" id="new-outro-pontos" placeholder="Ex: 30" style="display:none; margin-top:5px;" />
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Origem da Foto</label>
-                        <select class="form-select" name="origem_foto" id="new-origem-foto" onchange="alternarOrigemFotoNova()">
-                            <option value="nenhuma">Sem Foto</option>
-                            <option value="upload">Upload de Arquivo</option>
-                            <option value="url">Link / URL da Internet</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo" id="grupo-new-foto-upload" style="display:none;">
-                        <label class="form-label">Arquivo de Imagem (Max 5MB)</label>
-                        <input class="form-input" type="file" name="foto_arquivo" accept="image/*" />
-                    </div>
-
-                    <div class="form-grupo span2" id="grupo-new-foto-url" style="display:none;">
-                        <label class="form-label">URL da Imagem</label>
-                        <input class="form-input" type="url" name="foto_url" placeholder="https://exemplo.com/imagem.png" />
-                    </div>
-
-                    <div class="form-grupo span2">
-                        <label class="form-label">Regulamento / Critérios de Vitória *</label>
-                        <textarea class="form-textarea" name="regulamento_modalidade" placeholder="Descreva as regras principais do torneio..." rows="3" required></textarea>
-                    </div>
-
-                    <div class="form-grupo span2">
-                        <label class="form-label">Descrição / Observações Gerais</label>
-                        <textarea class="form-textarea" name="descricao_modalidade" placeholder="Informações adicionais para exibição na página..." rows="2"></textarea>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px; width: 100%;">
-            <button class="btn btn-secundario" onclick="fecharModal('modal-nova-modalidade')">Cancelar</button>
-            <button class="btn btn-primario" onclick="submeterNovaModalidade()">
-                <i class="fas fa-check"></i> Cadastrar Modalidade
-            </button>
-        </div>
-    </div>
-</div>
-
 <!-- ════ MODAL: Enviar Súmula ════ -->
 <div class="modal-overlay" id="modal-sumula">
     <div class="modal">
@@ -1040,7 +952,54 @@ include __DIR__ . '/../includes/doctype.php'; ?>
     </div>
 </div>
 
-<!-- ════ MODAL: Promover Aluno a Professor (NOVO) ════ -->
+<!-- ════ MODAL: Editar Súmula ════ -->
+<div class="modal-overlay" id="modal-editar-sumula">
+    <div class="modal">
+        <div class="modal-header">
+            <h4><i class="fas fa-edit" style="color:var(--laranja);margin-right:6px;"></i> Editar Súmula</h4>
+            <button class="modal-close" onclick="fecharModal('modal-editar-sumula')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="form-editar-sumula" enctype="multipart/form-data">
+                <input type="hidden" id="edit-sumula-id" name="id_sumula" />
+                <div class="form-grid">
+                    <div class="form-grupo span2">
+                        <label class="form-label">Partida Vinculada <span style="color:var(--laranja)">*</span></label>
+                        <select class="form-select" id="edit-sumula-partida" name="partida_id_partida" required>
+                            <option value="">Selecione a Partida...</option>
+                            <?php foreach ($partidas_select as $ps): ?>
+                                <option value="<?= $ps['id_partida'] ?>"><?= htmlspecialchars($ps['label']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-grupo span2">
+                        <label class="form-label">Status do Documento <span style="color:var(--laranja)">*</span></label>
+                        <select class="form-select" id="edit-sumula-status" name="status_sumula" required>
+                            <option value="pendente">Pendente</option>
+                            <option value="validada">Validada</option>
+                            <option value="rejeitada">Rejeitada</option>
+                        </select>
+                    </div>
+                    <div class="form-grupo span2">
+                        <label class="form-label">Substituir Arquivo (Opcional)</label>
+                        <input class="form-input" type="file" id="edit-sumula-arquivo" name="arquivo_sumula" accept=".pdf,.jpg,.jpeg,.png" />
+                        <small style="color:var(--texto-secundario);margin-top:4px;display:block;">
+                            Deixe em branco para manter o arquivo atual.
+                        </small>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="fecharModal('modal-editar-sumula')">Cancelar</button>
+            <button class="btn btn-primario" onclick="salvarAlteracoesSumula()">
+                <i class="fas fa-save"></i> Salvar Mudanças
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ════ MODAL: Promover Aluno a Professor ════ -->
 <div class="modal-overlay" id="modal-promover-professor">
     <div class="modal">
         <div class="modal-header">
@@ -1077,6 +1036,59 @@ include __DIR__ . '/../includes/doctype.php'; ?>
     </div>
 </div>
 
+<!-- ════ MODAL: Cadastrar Professor ════ -->
+<div class="modal-overlay" id="modal-cadastrar-professor">
+    <div class="modal modal-edicao">
+        <div class="modal-header">
+            <h4><i class="fas fa-chalkboard-teacher" style="color:var(--laranja);margin-right:6px;"></i> Cadastrar Novo Professor</h4>
+            <button class="modal-close" onclick="fecharModal('modal-cadastrar-professor')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form action="/soee/src/backend/actions/salvar-professor.php" method="POST" enctype="multipart/form-data" id="form-cadastrar-professor">
+                <div class="form-grid">
+                    <div class="form-grupo span2">
+                        <label class="form-label">Nome Completo <span style="color:var(--laranja)">*</span></label>
+                        <input class="form-input" type="text" name="nome_usuario" placeholder="Ex: João Silva" maxlength="100" required />
+                    </div>
+                    <div class="form-grupo">
+                        <label class="form-label">E-mail <span style="color:var(--laranja)">*</span></label>
+                        <input class="form-input" type="email" name="email_usuario" placeholder="joaosilva@email.com" maxlength="100" required />
+                    </div>
+                    <div class="form-grupo">
+                        <label class="form-label">Senha <span style="color:var(--laranja)">*</span></label>
+                        <input class="form-input" type="password" name="senha_usuario" placeholder="Mínimo 6 caracteres" minlength="6" required />
+                    </div>
+                    <div class="form-grupo">
+                        <label class="form-label">Gênero <span style="color:var(--laranja)">*</span></label>
+                        <select class="form-select" name="genero_usuario" required>
+                            <option value="">Selecionar...</option>
+                            <option value="m">Masculino</option>
+                            <option value="f">Feminino</option>
+                            <option value="n">Prefiro não responder</option>
+                        </select>
+                    </div>
+                    <div class="form-grupo">
+                        <label class="form-label">Foto de Perfil (Opcional)</label>
+                        <input class="form-input" type="file" name="foto_usuario" accept="image/png, image/jpeg, image/jpg" />
+                    </div>
+                    <div class="form-grupo">
+                        <label class="form-label">Status Inicial <span style="color:var(--laranja)">*</span></label>
+                        <select class="form-select" name="ativo_usuario" required>
+                            <option value="1">Ativo</option>
+                            <option value="0">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secundario" onclick="fecharModal('modal-cadastrar-professor')">Cancelar</button>
+            <button class="btn btn-sucesso" onclick="document.getElementById('form-cadastrar-professor').submit()">
+                <i class="fas fa-save"></i> Cadastrar Professor
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- ════ MODAL: Sorteio ════ -->
 <div class="modal-sorteio-overlay" id="modal-sorteio">
@@ -1096,67 +1108,6 @@ include __DIR__ . '/../includes/doctype.php'; ?>
     </div>
 </div>
 
-<!-- ════ MODAL: Cadastrar Professor ════ -->
-<div class="modal-overlay" id="modal-cadastrar-professor">
-    <div class="modal modal-edicao">
-        <div class="modal-header">
-            <h4><i class="fas fa-chalkboard-teacher" style="color:var(--laranja);margin-right:6px;"></i> Cadastrar Novo Professor</h4>
-            <button class="modal-close" onclick="fecharModal('modal-cadastrar-professor')"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="modal-body">
-            <form action="/soee/src/backend/actions/salvar-professor.php" method="POST" enctype="multipart/form-data" id="form-cadastrar-professor">
-                <div class="form-grid">
-                    
-                    <div class="form-grupo span2">
-                        <label class="form-label">Nome Completo <span style="color:var(--laranja)">*</span></label>
-                        <input class="form-input" type="text" name="nome_usuario" placeholder="Ex: João Silva" maxlength="100" required />
-                    </div>
-                    
-                    <div class="form-grupo">
-                        <label class="form-label">E-mail <span style="color:var(--laranja)">*</span></label>
-                        <input class="form-input" type="email" name="email_usuario" placeholder="joaosilva@email.com" maxlength="100" required />
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Senha <span style="color:var(--laranja)">*</span></label>
-                        <input class="form-input" type="password" name="senha_usuario" placeholder="Mínimo 6 caracteres" minlength="6" required />
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Gênero <span style="color:var(--laranja)">*</span></label>
-                        <select class="form-select" name="genero_usuario" required>
-                            <option value="">Selecionar...</option>
-                            <option value="m">Masculino</option>
-                            <option value="f">Feminino</option>
-                            <option value="n">Prefiro não responder</option>
-                        </select>
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Foto de Perfil (Opcional)</label>
-                        <input class="form-input" type="file" name="foto_usuario" accept="image/png, image/jpeg, image/jpg" />
-                    </div>
-
-                    <div class="form-grupo">
-                        <label class="form-label">Status Inicial <span style="color:var(--laranja)">*</span></label>
-                        <select class="form-select" name="ativo_usuario" required>
-                            <option value="1">Ativo</option>
-                            <option value="0">Inativo</option>
-                        </select>
-                    </div>
-
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-secundario" onclick="fecharModal('modal-cadastrar-professor')">Cancelar</button>
-            <button class="btn btn-sucesso" onclick="document.getElementById('form-cadastrar-professor').submit()">
-                <i class="fas fa-save"></i> Cadastrar Professor
-            </button>
-        </div>
-    </div>
-</div>
-
 <!-- ══════════════════════════════════════════════════
      MODAL — Editar Modalidade
 ══════════════════════════════════════════════════ -->
@@ -1165,53 +1116,31 @@ include __DIR__ . '/../includes/doctype.php'; ?>
         <div class="modal-header">
             <h4>
                 <i class="fas fa-trophy" style="color:var(--laranja);margin-right:6px;"></i>
-                <span id="modal-modalidade-titulo">
-                    Editar Modalidade
-                </span>
+                <span id="modal-modalidade-titulo">Editar Modalidade</span>
             </h4>
-            <button type="button"
-                    class="modal-close"
-                    onclick="fecharModal('modal-modalidade')">
+            <button type="button" class="modal-close" onclick="fecharModal('modal-modalidade')">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-
         <div class="modal-body">
             <div class="form-grid">
                 <input type="hidden" id="inp-id-modalidade">
                 <div class="form-grupo span2">
-                    <label class="form-label">
-                        Nome da Modalidade *
-                    </label>
-
-                    <input
-                        class="form-input"
-                        type="text"
-                        id="inp-nome-modalidade"
-                        maxlength="60">
+                    <label class="form-label">Nome da Modalidade *</label>
+                    <input class="form-input" type="text" id="inp-nome-modalidade" maxlength="60">
                 </div>
-
                 <div class="form-grupo">
-                    <label class="form-label">
-                        Ambiente/Tipo *
-                    </label>
-
-                    <select class="form-select"
-                            id="inp-tipo-modalidade">
+                    <label class="form-label">Ambiente/Tipo *</label>
+                    <select class="form-select" id="inp-tipo-modalidade">
                         <option value="">Selecionar...</option>
                         <option value="quadra">Quadra</option>
                         <option value="mesa">Mesa</option>
                         <option value="outro">Outro</option>
                     </select>
                 </div>
-
                 <div class="form-grupo">
-                    <label class="form-label">
-                        Tipo Participação *
-                    </label>
-
-                    <select class="form-select"
-                            id="inp-tipo-participacao">
+                    <label class="form-label">Tipo Participação *</label>
+                    <select class="form-select" id="inp-tipo-participacao">
                         <option value="">Selecionar...</option>
                         <option value="solo">Solo</option>
                         <option value="dupla">Dupla</option>
@@ -1219,164 +1148,67 @@ include __DIR__ . '/../includes/doctype.php'; ?>
                         <option value="time">Time</option>
                     </select>
                 </div>
-
                 <div class="form-grupo">
-                    <label class="form-label">
-                        Formato *
-                    </label>
-
-                    <select class="form-select"
-                            id="inp-formato-modalidade">
+                    <label class="form-label">Formato *</label>
+                    <select class="form-select" id="inp-formato-modalidade">
                         <option value="">Selecionar...</option>
                         <option value="mata_mata">Mata-mata</option>
                         <option value="grupos">Grupos</option>
-                        <option value="grupos_mata_mata">
-                            Grupos + Mata-mata
-                        </option>
-                        <option value="todos_contra_todos">
-                            Todos contra todos
-                        </option>
+                        <option value="grupos_mata_mata">Grupos + Mata-mata</option>
+                        <option value="todos_contra_todos">Todos contra todos</option>
                     </select>
                 </div>
-
                 <div class="form-grupo">
-                    <label class="form-label">
-                        Gênero *
-                    </label>
-
-                    <select class="form-select"
-                            id="inp-genero-modalidade">
-
+                    <label class="form-label">Gênero *</label>
+                    <select class="form-select" id="inp-genero-modalidade">
                         <option value="misto">Misto</option>
                         <option value="masculino">Masculino</option>
                         <option value="feminino">Feminino</option>
                     </select>
                 </div>
-
                 <div class="form-grupo">
-                    <label class="form-label">
-                        Tipo duração
-                    </label>
-
-                    <select class="form-select"
-                            id="inp-tipo-duracao"
-                            onchange="toggleDuracao(this.value)">
-
-                        <option value="">
-                            Selecione...
-                        </option>
-
-                        <option value="minutos">
-                            Minutos
-                        </option>
-
-                        <option value="pontos">
-                            Pontos
-                        </option>
+                    <label class="form-label">Tipo duração</label>
+                    <select class="form-select" id="inp-tipo-duracao" onchange="toggleDuracao(this.value)">
+                        <option value="">Selecione...</option>
+                        <option value="minutos">Minutos</option>
+                        <option value="pontos">Pontos</option>
                     </select>
                 </div>
-
                 <div class="form-grupo">
-
-                    <label class="form-label">
-                        Mínimo jogadores *
-                    </label>
-
-                    <input
-                        class="form-input"
-                        type="number"
-                        id="inp-qtd-min">
+                    <label class="form-label">Mínimo jogadores *</label>
+                    <input class="form-input" type="number" id="inp-qtd-min">
                 </div>
-
                 <div class="form-grupo">
-
-                    <label class="form-label">
-                        Máximo jogadores *
-                    </label>
-
-                    <input
-                        class="form-input"
-                        type="number"
-                        id="inp-qtd-max">
+                    <label class="form-label">Máximo jogadores *</label>
+                    <input class="form-input" type="number" id="inp-qtd-max">
                 </div>
-
-                <div class="form-grupo span2"
-                     id="grupo-dur-minutos"
-                     style="display:none">
-
-                    <label class="form-label">
-                        Duração minutos
-                    </label>
-
-                    <input
-                        class="form-input"
-                        id="inp-dur-minutos">
+                <div class="form-grupo span2" id="grupo-dur-minutos" style="display:none">
+                    <label class="form-label">Duração minutos</label>
+                    <input class="form-input" id="inp-dur-minutos">
                 </div>
-
-                <div class="form-grupo span2"
-                     id="grupo-dur-pontos"
-                     style="display:none">
-
-                    <label class="form-label">
-                        Pontuação máxima
-                    </label>
-
-                    <input
-                        class="form-input"
-                        type="number"
-                        id="inp-dur-pontos">
+                <div class="form-grupo span2" id="grupo-dur-pontos" style="display:none">
+                    <label class="form-label">Pontuação máxima</label>
+                    <input class="form-input" type="number" id="inp-dur-pontos">
                 </div>
-
                 <div class="form-grupo span2">
-
-                    <label class="form-label">
-                        Descrição
-                    </label>
-
-                    <textarea
-                        class="form-input"
-                        id="inp-descricao-modalidade"></textarea>
+                    <label class="form-label">Descrição</label>
+                    <textarea class="form-input" id="inp-descricao-modalidade"></textarea>
                 </div>
-
                 <div class="form-grupo span2">
-                    <label class="form-label">
-                        Status *
-                    </label>
-
-                    <select class="form-select"
-                            id="inp-ativo">
-
-                        <option value="1">
-                            Ativo
-                        </option>
-
-                        <option value="0">
-                            Inativo
-                        </option>
+                    <label class="form-label">Status *</label>
+                    <select class="form-select" id="inp-ativo">
+                        <option value="1">Ativo</option>
+                        <option value="0">Inativo</option>
                     </select>
                 </div>
             </div>
         </div>
-
         <div class="modal-footer">
-
-            <button
-                type="button"
-                class="btn btn-secundario"
-                onclick="fecharModal('modal-modalidade')">
-                Cancelar
-            </button>
-
-            <button
-                type="button"
-                class="btn btn-sucesso"
-                onclick="salvarAlteracoesModalidade()">
-
-                <i class="fas fa-save"></i>
-                Salvar Alterações
+            <button type="button" class="btn btn-secundario" onclick="fecharModal('modal-modalidade')">Cancelar</button>
+            <button type="button" class="btn btn-sucesso" onclick="salvarAlteracoesModalidade()">
+                <i class="fas fa-save"></i> Salvar Alterações
             </button>
         </div>
-
     </div>
 </div>
 
@@ -1385,9 +1217,10 @@ include __DIR__ . '/../includes/doctype.php'; ?>
 <script src="/soee/src/frontend/scripts/adm.js"></script>
 <script src="/soee/src/frontend/scripts/dash-prof.js"></script>
 <script>
-/**
- * Gerencia cargo de professor: rebaixa para aluno.
- */
+// ══════════════════════════════════════════════════════════
+//  PROFESSORES
+// ══════════════════════════════════════════════════════════
+
 function gerenciarProfessor(userId, acao, nome) {
     const msg = acao === 'rebaixar'
         ? `Remover "${nome}" do cargo de professor?`
@@ -1411,11 +1244,8 @@ function gerenciarProfessor(userId, acao, nome) {
     .catch(() => mostrarToast('Erro de conexão.', 'erro'));
 }
 
-/**
- * Promove aluno selecionado no modal a professor.
- */
 function promoverAlunoProfessor() {
-    const sel = document.getElementById('select-promover-usuario');
+    const sel    = document.getElementById('select-promover-usuario');
     const userId = sel?.value;
     if (!userId) { mostrarToast('Selecione um aluno.', 'erro'); return; }
     const nome = sel.options[sel.selectedIndex].text;
@@ -1423,13 +1253,36 @@ function promoverAlunoProfessor() {
     gerenciarProfessor(parseInt(userId), 'promover', nome);
 }
 
-/**
- * Gerencia a exclusão física completa de um aluno de forma assíncrona.
- */
-function removerAluno(userId, nome) {
-    if (!confirm(`ATENÇÃO: Deseja REALMENTE deletar o aluno "${nome}" permanentemente? O e-mail e todos os registros associados serão apagados definitivamente.`)) {
-        return;
+async function excluirProfessor(id, nome) {
+    if (!confirm(`Tem certeza que deseja excluir o professor "${nome}"?\n\nTodos os dados serão removidos permanentemente.`)) return;
+
+    const dados = new FormData();
+    dados.append('id_usuario', id);
+
+    try {
+        const resposta = await fetch('/soee/src/backend/actions/excluir-professor.php', {
+            method: 'POST',
+            body: dados,
+            credentials: 'same-origin'
+        });
+        const retorno = await resposta.json();
+        alert(retorno.message);
+        if (retorno.success) {
+            const linha = document.getElementById('tr-prof-' + id);
+            if (linha) linha.remove();
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Erro de comunicação com o servidor.');
     }
+}
+
+// ══════════════════════════════════════════════════════════
+//  ALUNOS
+// ══════════════════════════════════════════════════════════
+
+function removerAluno(userId, nome) {
+    if (!confirm(`ATENÇÃO: Deseja REALMENTE deletar o aluno "${nome}" permanentemente?\nO e-mail e todos os registros associados serão apagados definitivamente.`)) return;
 
     fetch('/soee/src/backend/actions/remover-aluno.php', {
         method: 'POST',
@@ -1439,325 +1292,178 @@ function removerAluno(userId, nome) {
     .then(r => r.json())
     .then(data => {
         if (data.ok) {
-            if (typeof mostrarToast === 'function') {
-                mostrarToast(data.msg, 'sucesso');
-            } else {
-                alert(data.msg);
-            }
-
-            const botoes = document.querySelectorAll(`button[onclick*="removerAluno(${userId}"]`);
-            botoes.forEach(btn => {
-                const linhaTabela = btn.closest('tr');
-                if (linhaTabela) {
-                    linhaTabela.style.transition = 'opacity 0.4s ease';
-                    linhaTabela.style.opacity = '0';
-                    setTimeout(() => linhaTabela.remove(), 400);
+            mostrarToast(data.msg, 'sucesso');
+            const linhas = document.querySelectorAll(`button[onclick*="removerAluno(${userId}"]`);
+            linhas.forEach(btn => {
+                const tr = btn.closest('tr');
+                if (tr) {
+                    tr.style.transition = 'opacity .4s';
+                    tr.style.opacity    = '0';
+                    setTimeout(() => tr.remove(), 400);
                 }
             });
-
-            const tagContador = document.querySelector('#painel-alunos .secao-tag-mini');
-            if (tagContador) {
-                const totalAtual = parseInt(tagContador.textContent) || 0;
-                if (totalAtual > 0) {
-                    tagContador.textContent = `${totalAtual - 1} registros`;
-                }
+            const contador = document.querySelector('#painel-alunos .secao-tag-mini');
+            if (contador) {
+                const total = parseInt(contador.textContent) || 0;
+                if (total > 0) contador.textContent = `${total - 1} registros`;
             }
-
         } else {
-            if (typeof mostrarToast === 'function') {
-                mostrarToast(data.erro || 'Erro ao processar remoção.', 'erro');
-            } else {
-                alert(data.erro || 'Erro ao processar remoção.');
-            }
+            mostrarToast(data.erro || 'Erro ao processar remoção.', 'erro');
         }
     })
-    .catch(() => {
-        if (typeof mostrarToast === 'function') {
-            mostrarToast('Erro de conexão com o servidor.', 'erro');
-        } else {
-            alert('Erro de conexão com o servidor.');
-        }
-    });
+    .catch(() => mostrarToast('Erro de conexão com o servidor.', 'erro'));
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODALIDADES
+// ══════════════════════════════════════════════════════════
+
+function toggleDuracao(valor) {
+    document.getElementById('grupo-dur-minutos').style.display = valor === 'minutos' ? 'block' : 'none';
+    document.getElementById('grupo-dur-pontos').style.display  = valor === 'pontos'  ? 'block' : 'none';
 }
 
 function abrirModalEditarModalidade(md) {
-    // 1. Vincula de forma segura os dados da tabela nos IDs corretos do formulário
-    const titulo = document.getElementById('modal-modalidade-titulo');
-    if (titulo) titulo.innerHTML = '<i class="fa-solid fa-pen"></i> Editar Modalidade';
-
-    if (document.getElementById('inp-id-modalidade')) document.getElementById('inp-id-modalidade').value = md.id_modalidade || '';
-    if (document.getElementById('inp-nome')) document.getElementById('inp-nome').value = md.nome_modalidade || '';
-    if (document.getElementById('inp-tipo')) document.getElementById('inp-tipo').value = md.tipo_modalidade || '';
-    if (document.getElementById('inp-formato')) document.getElementById('inp-formato').value = md.formato_modalidade || '';
-    if (document.getElementById('inp-participacao')) document.getElementById('inp-participacao').value = md.tipo_participacao || '';
-    if (document.getElementById('inp-genero')) document.getElementById('inp-genero').value = md.genero_modalidade || '';
-    if (document.getElementById('inp-min')) document.getElementById('inp-min').value = md.qtd_min_jogadores || '';
-    if (document.getElementById('inp-max')) document.getElementById('inp-max').value = md.qtd_max_jogadores || '';
-    if (document.getElementById('inp-desc')) document.getElementById('inp-desc').value = md.descricao_modalidade || '';
-    if (document.getElementById('inp-regul')) document.getElementById('inp-regul').value = md.regulamento_modalidade || '';
-    
-    if (document.getElementById('inp-ativo')) {
-        document.getElementById('inp-ativo').checked = (md.ativo_modalidade == 1);
-    }
-
-    // Gerenciamento dos blocos dinâmicos de tempo/pontos
-    const td = md.tipo_duracao || '';
-    if (document.getElementById('inp-tipo-duracao')) {
-        document.getElementById('inp-tipo-duracao').value = td;
-    }
-    
-    if (typeof toggleDuracao === 'function') {
-        toggleDuracao(td);
-    } else {
-        if (document.getElementById('grupo-dur-minutos')) document.getElementById('grupo-dur-minutos').style.display = (td === 'minutos') ? 'block' : 'none';
-        if (document.getElementById('grupo-dur-pontos')) document.getElementById('grupo-dur-pontos').style.display = (td === 'pontos') ? 'block' : 'none';
-    }
-    
-    if (td === 'minutos' && document.getElementById('inp-dur-minutos')) document.getElementById('inp-dur-minutos').value = md.duracao_minutos || '';
-    if (td === 'pontos' && document.getElementById('inp-dur-pontos')) document.getElementById('inp-dur-pontos').value = md.duracao_pontos || '';
-
-    const modalElement = document.getElementById('modal-modalidade');
-    if (modalElement) {
-        modalElement.style.display = 'flex';
-        modalElement.classList.add('active');
-        modalElement.classList.add('open');
-    }
-
-    if (typeof abrirModal === 'function') {
-        abrirModal('modal-modalidade');
-    }
-}
-
-function abrirModalEditarModalidade(md){
-
     document.getElementById('modal-modalidade-titulo').innerHTML =
         '<i class="fa-solid fa-pen"></i> Editar Modalidade';
 
-    document.getElementById('inp-id-modalidade').value =
-        md.id_modalidade;
+    document.getElementById('inp-id-modalidade').value        = md.id_modalidade;
+    document.getElementById('inp-nome-modalidade').value      = md.nome_modalidade   || '';
+    document.getElementById('inp-tipo-modalidade').value      = md.tipo_modalidade   || '';
+    document.getElementById('inp-tipo-participacao').value    = md.tipo_participacao  || '';
+    document.getElementById('inp-formato-modalidade').value   = md.formato_modalidade || '';
+    document.getElementById('inp-genero-modalidade').value    = md.genero_modalidade  || '';
+    document.getElementById('inp-qtd-min').value              = md.qtd_min_jogadores  || '';
+    document.getElementById('inp-qtd-max').value              = md.qtd_max_jogadores  || '';
+    document.getElementById('inp-descricao-modalidade').value = md.descricao_modalidade || '';
+    document.getElementById('inp-ativo').value                = md.ativo_modalidade ? '1' : '0';
+    document.getElementById('inp-tipo-duracao').value         = md.tipo_duracao       || '';
+    document.getElementById('inp-dur-minutos').value          = md.duracao_minutos    || '';
+    document.getElementById('inp-dur-pontos').value           = md.duracao_pontos     || '';
 
-    document.getElementById('inp-nome-modalidade').value =
-        md.nome_modalidade || '';
+    toggleDuracao(md.tipo_duracao || '');
 
-    document.getElementById('inp-tipo-modalidade').value =
-        md.tipo_modalidade || '';
-
-    document.getElementById('inp-tipo-participacao').value =
-        md.tipo_participacao || '';
-
-    document.getElementById('inp-formato-modalidade').value =
-        md.formato_modalidade || '';
-
-    document.getElementById('inp-genero-modalidade').value =
-        md.genero_modalidade || '';
-
-    document.getElementById('inp-qtd-min').value =
-        md.qtd_min_jogadores || '';
-
-    document.getElementById('inp-qtd-max').value =
-        md.qtd_max_jogadores || '';
-
-    document.getElementById('inp-descricao-modalidade').value =
-        md.descricao_modalidade || '';
-
-    document.getElementById('inp-ativo').value =
-        md.ativo_modalidade ? "1" : "0";
-
-    document.getElementById('inp-tipo-duracao').value =
-        md.tipo_duracao || '';
-
-    document.getElementById('inp-dur-minutos').value =
-        md.duracao_minutos || '';
-
-    document.getElementById('inp-dur-pontos').value =
-        md.duracao_pontos || '';
-
-    toggleDuracao(md.tipo_duracao);
-    const modal =
-        document.getElementById('modal-modalidade');
-    modal.style.display="flex";
-    modal.classList.add("active");
-    document.body.style.overflow="hidden";
+    const modal = document.getElementById('modal-modalidade');
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
 
-function fecharModal(id){
-    const modal=document.getElementById(id);
-
-    if(!modal)
-        return;
-    modal.style.display="none";
-    modal.classList.remove("active");
-    modal.classList.remove("open");
-    document.body.style.overflow="";
-
+function fecharModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.style.display = 'none';
+    modal.classList.remove('active', 'open');
+    document.body.style.overflow = '';
 }
 
-function fecharModalPeloFundo(event){
-    if(event.target.id==="modal-modalidade"){
-        fecharModal("modal-modalidade");
-    }
+function fecharModalPeloFundo(event) {
+    if (event.target.id === 'modal-modalidade') fecharModal('modal-modalidade');
 }
 
-
-
-
-
-function toggleDuracao(valor){
-
-
-    const minutos =
-        document.getElementById("grupo-dur-minutos");
-
-
-    const pontos =
-        document.getElementById("grupo-dur-pontos");
-
-
-
-    minutos.style.display =
-        valor==="minutos" ? "block" : "none";
-
-
-
-    pontos.style.display =
-        valor==="pontos" ? "block" : "none";
-
-
-}
-
-function salvarAlteracoesModalidade(){
-    const dados=new FormData();
-    dados.append(
-        "id_modalidade",
-        document.getElementById("inp-id-modalidade").value
-    );
-    dados.append(
-        "nome_modalidade",
-        document.getElementById("inp-nome-modalidade").value
-    );
-    dados.append(
-        "tipo_modalidade",
-        document.getElementById("inp-tipo-modalidade").value
-    );
-    dados.append(
-        "tipo_participacao",
-        document.getElementById("inp-tipo-participacao").value
-    );
-    dados.append(
-        "formato_modalidade",
-        document.getElementById("inp-formato-modalidade").value
-    );
-    dados.append(
-        "genero_modalidade",
-        document.getElementById("inp-genero-modalidade").value
-    );
-    dados.append(
-        "tipo_duracao",
-        document.getElementById("inp-tipo-duracao").value
-    );
-    dados.append(
-        "qtd_min_jogadores",
-        document.getElementById("inp-qtd-min").value
-    );
-    dados.append(
-        "qtd_max_jogadores",
-        document.getElementById("inp-qtd-max").value
-    );
-    dados.append(
-        "duracao_minutos",
-        document.getElementById("inp-dur-minutos").value
-    );
-    dados.append(
-        "duracao_pontos",
-        document.getElementById("inp-dur-pontos").value
-    );
-    dados.append(
-        "descricao_modalidade",
-        document.getElementById("inp-descricao-modalidade").value
-    );
-    dados.append(
-        "ativo_modalidade",
-        document.getElementById("inp-ativo").value
-    );
-    fetch(
-        "/soee/src/backend/actions/editar-modalidade.php",
-        {
-            method:"POST",
-            body:dados
-        }
-    )
-    .then(r=>r.json())
-    .then(res=>{
-        if(res.success){
-            alert("Modalidade atualizada!");
-            fecharModal("modal-modalidade");
-            location.reload();
-        }
-        else{
-            alert(res.message);
-        }
-    })
-    .catch(err=>{
-        console.error(err);
-        alert("Erro de comunicação com servidor");
-    });
-}
-
-async function excluirProfessor(id, nome) {
-
-
-    const confirmar = confirm(
-        `Tem certeza que deseja excluir o professor ${nome}?\n\n` +
-        `Todos os dados dele serão removidos permanentemente.`
-    );
-
-
-    if (!confirmar) {
-
-        return;
-
-    }
+function salvarAlteracoesModalidade() {
     const dados = new FormData();
+    dados.append('id_modalidade',       document.getElementById('inp-id-modalidade').value);
+    dados.append('nome_modalidade',     document.getElementById('inp-nome-modalidade').value);
+    dados.append('tipo_modalidade',     document.getElementById('inp-tipo-modalidade').value);
+    dados.append('tipo_participacao',   document.getElementById('inp-tipo-participacao').value);
+    dados.append('formato_modalidade',  document.getElementById('inp-formato-modalidade').value);
+    dados.append('genero_modalidade',   document.getElementById('inp-genero-modalidade').value);
+    dados.append('tipo_duracao',        document.getElementById('inp-tipo-duracao').value);
+    dados.append('qtd_min_jogadores',   document.getElementById('inp-qtd-min').value);
+    dados.append('qtd_max_jogadores',   document.getElementById('inp-qtd-max').value);
+    dados.append('duracao_minutos',     document.getElementById('inp-dur-minutos').value);
+    dados.append('duracao_pontos',      document.getElementById('inp-dur-pontos').value);
+    dados.append('descricao_modalidade',document.getElementById('inp-descricao-modalidade').value);
+    dados.append('ativo_modalidade',    document.getElementById('inp-ativo').value);
 
-    dados.append(
-        "id_usuario",
-        id
-    );
+    fetch('/soee/src/backend/actions/editar-modalidade.php', { method: 'POST', body: dados })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                alert('Modalidade atualizada!');
+                fecharModal('modal-modalidade');
+                location.reload();
+            } else {
+                alert(res.message);
+            }
+        })
+        .catch(err => { console.error(err); alert('Erro de comunicação com servidor'); });
+}
 
+// ══════════════════════════════════════════════════════════
+//  SÚMULAS
+// ══════════════════════════════════════════════════════════
 
+/**
+ * Abre o modal de edição e pré-preenche os campos com os dados da linha.
+ * FIX: id_partida agora vem de partida_id_partida (campo correto do schema).
+ */
+function abrirModalEditarSumula(dados) {
+    document.getElementById('edit-sumula-id').value      = dados.id_sumula;
+    document.getElementById('edit-sumula-partida').value = dados.id_partida;
+    document.getElementById('edit-sumula-status').value  = dados.status;
+    document.getElementById('edit-sumula-arquivo').value = ''; // limpa seleção anterior
+    abrirModal('modal-editar-sumula');
+}
+
+/**
+ * Envia as alterações da súmula via fetch com FormData (suporta upload de arquivo).
+ */
+async function salvarAlteracoesSumula() {
+    const form     = document.getElementById('form-editar-sumula');
+    const formData = new FormData(form);
 
     try {
-
-
-        const resposta = await fetch(
-            "/soee/src/backend/actions/excluir-professor.php",
-            {
-
-                method: "POST",
-
-                body: dados,
-
-                credentials: "same-origin"
-            }
-        );
+        const resposta = await fetch('/soee/src/backend/actions/editar-sumula.php', {
+            method: 'POST',
+            body: formData
+        });
         const retorno = await resposta.json();
-        alert(
-            retorno.message
-        );
+
         if (retorno.success) {
-            const linha =
-                document.getElementById(
-                    "tr-prof-" + id
-                );
-            if (linha) {
-                linha.remove();
-            }
+            mostrarToast('Súmula atualizada com sucesso!', 'sucesso');
+            fecharModal('modal-editar-sumula');
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            mostrarToast(retorno.message || 'Erro ao processar alteração.', 'erro');
         }
-    } catch(error) {
-        console.error(error);
-        alert(
-            "Erro de comunicação com o servidor."
-        );
+    } catch (err) {
+        console.error(err);
+        mostrarToast('Erro de comunicação com o servidor.', 'erro');
+    }
+}
+
+/**
+ * Remove permanentemente a súmula e o arquivo físico associado.
+ */
+async function excluirSumula(id) {
+    if (!confirm(`Tem certeza que deseja excluir a Súmula #${id}?\nO arquivo físico associado também será apagado permanentemente.`)) return;
+
+    const dados = new FormData();
+    dados.append('id_sumula', id);
+
+    try {
+        const resposta = await fetch('/soee/src/backend/actions/excluir-sumula.php', {
+            method: 'POST',
+            body: dados
+        });
+        const retorno = await resposta.json();
+
+        if (retorno.success) {
+            mostrarToast(retorno.message, 'sucesso');
+            const linha = document.getElementById('tr-sumula-' + id);
+            if (linha) {
+                linha.style.transition = 'opacity .4s';
+                linha.style.opacity    = '0';
+                setTimeout(() => linha.remove(), 400);
+            }
+        } else {
+            mostrarToast(retorno.message || 'Erro ao remover súmula.', 'erro');
+        }
+    } catch (err) {
+        console.error(err);
+        mostrarToast('Erro ao tentar remover a súmula.', 'erro');
     }
 }
 </script>
