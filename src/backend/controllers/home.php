@@ -125,14 +125,8 @@ class AuthHome
             return ['sucesso' => false, 'erro' => 'Credenciais inválidas.'];
         }
 
-        // senha bcrypt ou texto legado
-        $senhaOk = false;
-
-        if (str_starts_with($user['senha_usuario'], '$2y$')) {
-            $senhaOk = password_verify($senha, $user['senha_usuario']);
-        } else {
-            $senhaOk = hash_equals($user['senha_usuario'], $senha);
-        }
+        // Apenas validação bcrypt, texto plano foi migrado
+        $senhaOk = password_verify($senha, $user['senha_usuario']);
 
         if (!$senhaOk) {
             return ['sucesso' => false, 'erro' => 'Credenciais inválidas.'];

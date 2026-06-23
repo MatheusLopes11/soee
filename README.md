@@ -1,17 +1,19 @@
-# *SOEE - Sistema de Organização Esportiva Escolar*
+# SOEE - Sistema de Organização Esportiva Escolar
 
-## INSTITUIÇÃO
+O **SOEE** é um sistema projetado para organizar e gerenciar eventos esportivos escolares de forma eficiente. Ele suporta a criação de modalidades individuais e por times, gerenciamento de inscrições, chaveamentos, súmulas e muito mais.
+
+##  Instituição
 <p>
 Etec Juscelino Kubitschek de Oliveira<br>
 https://etecjk.cps.sp.gov.br/
 </p>
 
-## CURSO
-<p>
-Técnico em Desenvolvimento de Sistemas
-</p>
+##  Curso
+<p>Técnico em Desenvolvimento de Sistemas</p>
 
-## TECNOLOGIAS APLICADAS
+##  Tecnologias Aplicadas
+
+O projeto utiliza um conjunto robusto de tecnologias para oferecer segurança, velocidade e compatibilidade:
 
 <p align="center">
   <table>
@@ -33,8 +35,8 @@ Técnico em Desenvolvimento de Sistemas
         <sub>PHP</sub>
       </td>
       <td align="center">
-        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg" height="40"/><br>
-        <sub>MySQL</sub>
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" height="40"/><br>
+        <sub>PostgreSQL / Supabase</sub>
       </td>
       <td align="center">
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apache/apache-original.svg" height="40"/><br>
@@ -63,15 +65,36 @@ Técnico em Desenvolvimento de Sistemas
   </table>
 </p>
 
-## DESENVOLVEDORES
+##  Orientador
+- Prof Helton de Andrade Silva
 
-<p>
-
+##  Desenvolvedores
 - CARLOS HENRIQUE VALENTIM SILVA
 - MATHEUS FERREIRA LOPES
 - MIGUEL LOPES AQUINEZ DA SILVA
 - HENRIQUE BATISTA ORLOVAS
 - ISABELLY BARBOSA SANTOS
 
-</p>
+##  Wiki do Projeto
 
+Para entender o funcionamento interno do projeto e saber como contribuir, preparamos uma documentação completa na nossa Wiki (encontrada na pasta `wiki/` deste repositório):
+
+1. [Página Inicial](wiki/Home.md)
+2. [Autenticação e Segurança](wiki/Autenticacao.md)
+3. [Banco de Dados (Supabase)](wiki/BancoDeDados.md)
+4. [Módulos do Sistema](wiki/Modulos.md)
+
+##  Como executar localmente
+
+1. Clone o repositório em sua pasta `htdocs` (se usando XAMPP).
+2. Configure o banco de dados Supabase e insira os dados usando o arquivo `sql/soee.sql`.
+3. Renomeie o arquivo `.env.example` (ou crie um arquivo `.env`) na raiz do projeto contendo as variáveis:
+   ```env
+   DB_HOST=seu_host_supabase
+   DB_PORT=6543
+   DB_NAME=postgres
+   DB_USER=seu_usuario
+   DB_PASS=sua_senha
+   ```
+4. Inicie o XAMPP (Apache).
+5. Acesse `http://localhost/soee` no navegador.
