@@ -1,4 +1,6 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
+AuthHome::exigirTipo(['professor', 'adm_geral', 'adm_sala']);
 function encerrarFaseDeGruposEGerarMataMata($id_modalidade, $pdo) {
     // 1. Evita duplicidade: verifica se o mata-mata já foi gerado
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM partidas WHERE id_modalidade = ? AND fase != 'grupos'");

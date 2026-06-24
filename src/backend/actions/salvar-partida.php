@@ -1,5 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/includes/conexao.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
+AuthHome::exigirTipo(['professor', 'adm_geral', 'adm_sala']);
 
 $edicao_modalidade_id = filter_input(INPUT_POST, 'edicao_modalidade_id', FILTER_VALIDATE_INT);
 $turma_a = filter_input(INPUT_POST, 'turma_id_time_a', FILTER_VALIDATE_INT);

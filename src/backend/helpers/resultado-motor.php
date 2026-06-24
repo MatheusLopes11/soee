@@ -3,9 +3,7 @@
 //  helpers/resultado-motor.php — SOEE
 //  Motor de resultado + classificação + progressão automática.
 //  Compatível com o banco PostgreSQL/Supabase real:
-//    - partida: sem usuario_id_time_a/b
-//    - classificacao: só turma_id_turma (sem usuario_id_participante)
-//    - resultado: sem usuario_id_vencedor
+//    - Suporta totalmente modalidades individuais/duplas/trios via usuario_id_time_a/b
 // ═══════════════════════════════════════════════════════════
 
 if (!function_exists('processarResultado')) {
@@ -38,28 +36,40 @@ function processarResultado(PDO $conn, array $dados): array
 
     $emId   = (int) $partida['edicao_modalidade_id'];
     $fase   = $partida['fase_partida'];
+    
     $turmaA = (int) $partida['turma_id_time_a'];
     $turmaB = (int) $partida['turma_id_time_b'];
+    
+    $usuarioA = !empty($partida['usuario_id_time_a']) ? (int) $partida['usuario_id_time_a'] : null;
+    $usuarioB = !empty($partida['usuario_id_time_b']) ? (int) $partida['usuario_id_time_b'] : null;
 
     // ── Determinar vencedor ────────────────────────────────
     if ($wo) {
         $vencedorTurma = $turmaA;
         $perdedorTurma = $turmaB;
+        $vencedorUsuario = $usuarioA;
+        $perdedorUsuario = $usuarioB;
         $empate        = false;
         $statusPartida = 'wo';
     } elseif ($placarA > $placarB) {
         $vencedorTurma = $turmaA;
         $perdedorTurma = $turmaB;
+        $vencedorUsuario = $usuarioA;
+        $perdedorUsuario = $usuarioB;
         $empate        = false;
         $statusPartida = 'realizada';
     } elseif ($placarB > $placarA) {
         $vencedorTurma = $turmaB;
         $perdedorTurma = $turmaA;
+        $vencedorUsuario = $usuarioB;
+        $perdedorUsuario = $usuarioA;
         $empate        = false;
         $statusPartida = 'realizada';
     } else {
         $vencedorTurma = null;
         $perdedorTurma = null;
+        $vencedorUsuario = null;
+        $perdedorUsuario = null;
         $empate        = true;
         $statusPartida = 'realizada';
     }
@@ -79,16 +89,29 @@ function processarResultado(PDO $conn, array $dados): array
         if ($stmtEx->fetchColumn()) {
             $conn->prepare("
                 UPDATE resultado SET
-                    placar_time_a     = :pa,
-                    placar_time_b     = :pb,
-                    turma_id_vencedor = :tv
+                    placar_time_a       = :pa,
+                    placar_time_b       = :pb,
+                    turma_id_vencedor   = :tv,
+                    usuario_id_vencedor = :uv
                 WHERE partida_id_partida = :pid
-            ")->execute([':pa' => $placarA, ':pb' => $placarB, ':tv' => $vencedorTurma, ':pid' => $partidaId]);
+            ")->execute([
+                ':pa'  => $placarA,
+                ':pb'  => $placarB,
+                ':tv'  => $vencedorTurma,
+                ':uv'  => $vencedorUsuario,
+                ':pid' => $partidaId
+            ]);
         } else {
             $conn->prepare("
-                INSERT INTO resultado (partida_id_partida, placar_time_a, placar_time_b, turma_id_vencedor)
-                VALUES (:pid, :pa, :pb, :tv)
-            ")->execute([':pid' => $partidaId, ':pa' => $placarA, ':pb' => $placarB, ':tv' => $vencedorTurma]);
+                INSERT INTO resultado (partida_id_partida, placar_time_a, placar_time_b, turma_id_vencedor, usuario_id_vencedor)
+                VALUES (:pid, :pa, :pb, :tv, :uv)
+            ")->execute([
+                ':pid' => $partidaId,
+                ':pa'  => $placarA,
+                ':pb'  => $placarB,
+                ':tv'  => $vencedorTurma,
+                ':uv'  => $vencedorUsuario
+            ]);
         }
 
         // 2. Status da partida
@@ -100,8 +123,11 @@ function processarResultado(PDO $conn, array $dados): array
             rm_atualizarClassificacao(
                 $conn, $emId,
                 $turmaA, $turmaB,
+                $usuarioA, $usuarioB,
                 $placarA, $placarB,
-                $empate, $vencedorTurma, $perdedorTurma
+                $empate,
+                $vencedorTurma, $perdedorTurma,
+                $vencedorUsuario, $perdedorUsuario
             );
         }
 
@@ -112,7 +138,7 @@ function processarResultado(PDO $conn, array $dados): array
 
         // 5. Progressão no mata-mata
         if (!$empate && in_array($fase, $fasesElim) && $vencedorTurma) {
-            rm_avancarMataMata($conn, $emId, $partida, $vencedorTurma, $perdedorTurma);
+            rm_avancarMataMata($conn, $emId, $partida, $vencedorTurma, $perdedorTurma, $vencedorUsuario, $perdedorUsuario);
         }
 
         $conn->commit();
@@ -129,32 +155,34 @@ function processarResultado(PDO $conn, array $dados): array
 function rm_atualizarClassificacao(
     PDO $conn, int $emId,
     int $turmaA, int $turmaB,
+    ?int $usuarioA, ?int $usuarioB,
     int $placarA, int $placarB,
     bool $empate,
-    ?int $vencedorTurma, ?int $perdedorTurma
+    ?int $vencedorTurma, ?int $perdedorTurma,
+    ?int $vencedorUsuario, ?int $perdedorUsuario
 ): void {
     if ($empate) {
         // Empate: 1 ponto para cada
-        rm_updateLinha($conn, $emId, $turmaA, 1, 0, 0, 1, $placarA, $placarB);
-        rm_updateLinha($conn, $emId, $turmaB, 1, 0, 0, 1, $placarB, $placarA);
+        rm_updateLinha($conn, $emId, $turmaA, $usuarioA, 1, 0, 0, 1, $placarA, $placarB);
+        rm_updateLinha($conn, $emId, $turmaB, $usuarioB, 1, 0, 0, 1, $placarB, $placarA);
     } else {
         // Vitória: 3 pts pro vencedor, 0 pro perdedor
         $pVenc = ($vencedorTurma === $turmaA) ? $placarA : $placarB;
         $pPerd = ($vencedorTurma === $turmaA) ? $placarB : $placarA;
-        rm_updateLinha($conn, $emId, $vencedorTurma, 3, 1, 0, 0, $pVenc, $pPerd);
-        rm_updateLinha($conn, $emId, $perdedorTurma, 0, 0, 1, 0, $pPerd, $pVenc);
+        rm_updateLinha($conn, $emId, $vencedorTurma, $vencedorUsuario, 3, 1, 0, 0, $pVenc, $pPerd);
+        rm_updateLinha($conn, $emId, $perdedorTurma, $perdedorUsuario, 0, 0, 1, 0, $pPerd, $pVenc);
     }
 }
 
 function rm_updateLinha(
-    PDO $conn, int $emId, ?int $turmaId,
+    PDO $conn, int $emId, ?int $turmaId, ?int $usuarioId,
     int $pontos, int $vitorias, int $derrotas, int $empates,
     int $pro, int $contra
 ): void {
-    if (!$turmaId) return;
+    if (!$turmaId && !$usuarioId) return;
     $saldo = $pro - $contra;
 
-    $conn->prepare("
+    $sql = "
         UPDATE classificacao SET
             pontos        = pontos        + :pts,
             vitorias      = vitorias      + :v,
@@ -165,8 +193,9 @@ function rm_updateLinha(
             pontos_contra = pontos_contra + :contra,
             saldo         = saldo         + :saldo
         WHERE edicao_modalidade_id = :emid
-          AND turma_id_turma       = :tid
-    ")->execute([
+    ";
+
+    $params = [
         ':pts'    => $pontos,
         ':v'      => $vitorias,
         ':d'      => $derrotas,
@@ -175,19 +204,26 @@ function rm_updateLinha(
         ':contra' => $contra,
         ':saldo'  => $saldo,
         ':emid'   => $emId,
-        ':tid'    => $turmaId,
-    ]);
+    ];
+
+    if ($usuarioId) {
+        $sql .= " AND usuario_id_participante = :uid ";
+        $params[':uid'] = $usuarioId;
+    } else {
+        $sql .= " AND turma_id_turma = :tid AND usuario_id_participante IS NULL ";
+        $params[':tid'] = $turmaId;
+    }
+
+    $conn->prepare($sql)->execute($params);
 }
 
 // ──────────────────────────────────────────────────────────
-//  BUG 2 FIX: calcula a fase inicial corretamente pelo número
-//  de confrontos reais, não pela potência de 2 do total de times
-// ──────────────────────────────────────────────────────────
+
 function rm_faseInicialPorConfrontos(int $n): string
 {
     if ($n > 4) return 'oitavas';
     if ($n > 2) return 'quartas';
-    return 'semi'; // 2 confrontos (4 participantes) = semifinal direto
+    return 'semi'; 
 }
 
 function rm_tentarGerarMataMata(PDO $conn, int $emId): void
@@ -210,7 +246,7 @@ function rm_tentarGerarMataMata(PDO $conn, int $emId): void
     $stmtMM->execute([':emid' => $emId]);
     if ((int) $stmtMM->fetchColumn() > 0) return;
 
-    // Top-2 de cada grupo via classificacao (cruzamento olímpico)
+    // Top-2 de cada grupo via classificacao
     $stmtCl = $conn->prepare("
         SELECT ranked.*
         FROM (
@@ -218,6 +254,7 @@ function rm_tentarGerarMataMata(PDO $conn, int $emId): void
                 cl.grupo_classificacao,
                 t.id_turma   AS turma_id,
                 t.nome_turma AS nome,
+                cl.usuario_id_participante AS usuario_id,
                 ROW_NUMBER() OVER (
                     PARTITION BY cl.grupo_classificacao
                     ORDER BY cl.pontos DESC, cl.saldo DESC,
@@ -244,7 +281,6 @@ function rm_tentarGerarMataMata(PDO $conn, int $emId): void
     sort($grupos);
     if (count($grupos) < 2) return;
 
-    // Cruzamento olímpico: 1ºA × 2ºB, 1ºB × 2ºA, 1ºC × 2ºD, …
     $confrontos = [];
     for ($i = 0; $i + 1 < count($grupos); $i += 2) {
         $gX  = $grupos[$i];
@@ -253,27 +289,34 @@ function rm_tentarGerarMataMata(PDO $conn, int $emId): void
         $px2 = $porGrupo[$gX][1] ?? null;
         $py1 = $porGrupo[$gY][0] ?? null;
         $py2 = $porGrupo[$gY][1] ?? null;
-        if ($px1 && $py2) $confrontos[] = ['a' => (int)$px1['turma_id'], 'b' => (int)$py2['turma_id']];
-        if ($py1 && $px2) $confrontos[] = ['a' => (int)$py1['turma_id'], 'b' => (int)$px2['turma_id']];
+        if ($px1 && $py2) $confrontos[] = [
+            'ta' => (int)$px1['turma_id'], 'ua' => $px1['usuario_id'] ? (int)$px1['usuario_id'] : null,
+            'tb' => (int)$py2['turma_id'], 'ub' => $py2['usuario_id'] ? (int)$py2['usuario_id'] : null
+        ];
+        if ($py1 && $px2) $confrontos[] = [
+            'ta' => (int)$py1['turma_id'], 'ua' => $py1['usuario_id'] ? (int)$py1['usuario_id'] : null,
+            'tb' => (int)$px2['turma_id'], 'ub' => $px2['usuario_id'] ? (int)$px2['usuario_id'] : null
+        ];
     }
 
     if (empty($confrontos)) return;
 
-    // BUG 2 FIX: usa rm_faseInicialPorConfrontos em vez de potência de 2
     $faseInicial = rm_faseInicialPorConfrontos(count($confrontos));
     $dataStr     = (new DateTime('+7 days'))->format('Y-m-d');
 
     $stmtIns = $conn->prepare("
         INSERT INTO partida
-            (edicao_modalidade_id, turma_id_time_a, turma_id_time_b,
+            (edicao_modalidade_id, turma_id_time_a, turma_id_time_b, usuario_id_time_a, usuario_id_time_b,
              data_partida, hora_partida, fase_partida, status_partida)
-        VALUES (:emid, :ta, :tb, :data, '08:00:00', :fase, 'agendada')
+        VALUES (:emid, :ta, :tb, :ua, :ub, :data, '08:00:00', :fase, 'agendada')
     ");
     foreach ($confrontos as $c) {
         $stmtIns->execute([
             ':emid' => $emId,
-            ':ta'   => $c['a'],
-            ':tb'   => $c['b'],
+            ':ta'   => $c['ta'],
+            ':tb'   => $c['tb'],
+            ':ua'   => $c['ua'],
+            ':ub'   => $c['ub'],
             ':data' => $dataStr,
             ':fase' => $faseInicial,
         ]);
@@ -282,17 +325,13 @@ function rm_tentarGerarMataMata(PDO $conn, int $emId): void
 
 function rm_avancarMataMata(
     PDO $conn, int $emId, array $partida,
-    int $vencedorTurma, ?int $perdedorTurma
+    int $vencedorTurma, ?int $perdedorTurma,
+    ?int $vencedorUsuario, ?int $perdedorUsuario
 ): void {
     $fasesMap  = ['oitavas' => 'quartas', 'quartas' => 'semi', 'semi' => 'final'];
     $faseAtual = $partida['fase_partida'];
 
-    // ──────────────────────────────────────────────────────
-    //  GUARDA ANTI-DUPLICAÇÃO (necessária para o replay):
-    //  se o vencedor já aparece em alguma partida da próxima
-    //  fase, esta progressão já foi feita antes — não repete
-    //  a inserção/atualização, só garante o 3º lugar (se semi).
-    // ──────────────────────────────────────────────────────
+    // GUARDA ANTI-DUPLICAÇÃO
     if (isset($fasesMap[$faseAtual])) {
         $proximaFase = $fasesMap[$faseAtual];
 
@@ -301,25 +340,25 @@ function rm_avancarMataMata(
             WHERE edicao_modalidade_id = :emid
               AND fase_partida         = :fase
               AND (turma_id_time_a = :t OR turma_id_time_b = :t)
+              AND (usuario_id_time_a IS NOT DISTINCT FROM :u OR usuario_id_time_b IS NOT DISTINCT FROM :u)
         ");
         $stmtJa->execute([
             ':emid' => $emId,
             ':fase' => $proximaFase,
             ':t'    => $vencedorTurma,
+            ':u'    => $vencedorUsuario,
         ]);
 
         if ((int) $stmtJa->fetchColumn() > 0) {
-            // Já avançado anteriormente — só garante o 3º lugar
             if ($faseAtual === 'semi' && $perdedorTurma) {
-                rm_gerarOuAtualizarTerceiro($conn, $emId, $perdedorTurma);
+                rm_gerarOuAtualizarTerceiro($conn, $emId, $perdedorTurma, $perdedorUsuario);
             }
             return;
         }
     }
 
-    // Perdedor de semi → disputa 3º lugar
     if ($faseAtual === 'semi' && $perdedorTurma) {
-        rm_gerarOuAtualizarTerceiro($conn, $emId, $perdedorTurma);
+        rm_gerarOuAtualizarTerceiro($conn, $emId, $perdedorTurma, $perdedorUsuario);
     }
 
     if (!isset($fasesMap[$faseAtual])) return;
@@ -327,7 +366,6 @@ function rm_avancarMataMata(
     $proximaFase = $fasesMap[$faseAtual];
     $dataStr     = (new DateTime('+14 days'))->format('Y-m-d');
 
-    // Posição desta partida na fase (0-based), ordenada por id
     $stmtFase = $conn->prepare("
         SELECT id_partida FROM partida
         WHERE edicao_modalidade_id = :emid AND fase_partida = :fase
@@ -340,9 +378,8 @@ function rm_avancarMataMata(
     if ($posicao === false) return;
 
     $vagaIdx  = (int) floor($posicao / 2);
-    $ladoVaga = $posicao % 2; // 0 = time_a, 1 = time_b
+    $ladoVaga = $posicao % 2; 
 
-    // Partidas já existentes na próxima fase
     $stmtProx = $conn->prepare("
         SELECT id_partida, turma_id_time_a, turma_id_time_b FROM partida
         WHERE edicao_modalidade_id = :emid AND fase_partida = :fase
@@ -352,26 +389,24 @@ function rm_avancarMataMata(
     $partidasProx = array_values($stmtProx->fetchAll(PDO::FETCH_ASSOC));
 
     if (isset($partidasProx[$vagaIdx])) {
-        // Partida já existe → preenche o lado correto
         $pid = (int) $partidasProx[$vagaIdx]['id_partida'];
-        $col = ($ladoVaga === 0) ? 'turma_id_time_a' : 'turma_id_time_b';
-        $conn->prepare("UPDATE partida SET {$col} = :turma WHERE id_partida = :pid")
-             ->execute([':turma' => $vencedorTurma, ':pid' => $pid]);
+        $colT = ($ladoVaga === 0) ? 'turma_id_time_a' : 'turma_id_time_b';
+        $colU = ($ladoVaga === 0) ? 'usuario_id_time_a' : 'usuario_id_time_b';
+        $conn->prepare("UPDATE partida SET {$colT} = :turma, {$colU} = :usu WHERE id_partida = :pid")
+             ->execute([':turma' => $vencedorTurma, ':usu' => $vencedorUsuario, ':pid' => $pid]);
 
     } elseif ($ladoVaga === 0) {
-        // Primeiro vencedor: cria sentinela (time_a = time_b = vencedor)
         $conn->prepare("
             INSERT INTO partida
-                (edicao_modalidade_id, turma_id_time_a, turma_id_time_b,
+                (edicao_modalidade_id, turma_id_time_a, turma_id_time_b, usuario_id_time_a, usuario_id_time_b,
                  data_partida, hora_partida, fase_partida, status_partida)
-            VALUES (:emid, :ta, :ta, :data, '08:00:00', :fase, 'agendada')
+            VALUES (:emid, :ta, :ta, :ua, :ua, :data, '08:00:00', :fase, 'agendada')
         ")->execute([
-            ':emid' => $emId, ':ta' => $vencedorTurma,
+            ':emid' => $emId, ':ta' => $vencedorTurma, ':ua' => $vencedorUsuario,
             ':data' => $dataStr, ':fase' => $proximaFase,
         ]);
 
     } else {
-        // Segundo vencedor: busca sentinela (time_a = time_b, agendada) e corrige time_b
         $stmtSen = $conn->prepare("
             SELECT id_partida FROM partida
             WHERE edicao_modalidade_id = :emid
@@ -384,29 +419,28 @@ function rm_avancarMataMata(
         $senId = $stmtSen->fetchColumn();
 
         if ($senId) {
-            $conn->prepare("UPDATE partida SET turma_id_time_b = :turma WHERE id_partida = :pid")
-                 ->execute([':turma' => $vencedorTurma, ':pid' => (int)$senId]);
+            $conn->prepare("UPDATE partida SET turma_id_time_b = :turma, usuario_id_time_b = :usu WHERE id_partida = :pid")
+                 ->execute([':turma' => $vencedorTurma, ':usu' => $vencedorUsuario, ':pid' => (int)$senId]);
         } else {
-            // Fallback: cria nova sentinela
             $conn->prepare("
                 INSERT INTO partida
-                    (edicao_modalidade_id, turma_id_time_a, turma_id_time_b,
+                    (edicao_modalidade_id, turma_id_time_a, turma_id_time_b, usuario_id_time_a, usuario_id_time_b,
                      data_partida, hora_partida, fase_partida, status_partida)
-                VALUES (:emid, :ta, :ta, :data, '08:00:00', :fase, 'agendada')
+            VALUES (:emid, :ta, :ta, :ua, :ua, :data, '08:00:00', :fase, 'agendada')
             ")->execute([
-                ':emid' => $emId, ':ta' => $vencedorTurma,
+                ':emid' => $emId, ':ta' => $vencedorTurma, ':ua' => $vencedorUsuario,
                 ':data' => $dataStr, ':fase' => $proximaFase,
             ]);
         }
     }
 }
 
-function rm_gerarOuAtualizarTerceiro(PDO $conn, int $emId, int $perdedorTurma): void
+function rm_gerarOuAtualizarTerceiro(PDO $conn, int $emId, int $perdedorTurma, ?int $perdedorUsuario): void
 {
     $dataStr = (new DateTime('+14 days'))->format('Y-m-d');
 
     $stmtEx = $conn->prepare("
-        SELECT id_partida, turma_id_time_a, turma_id_time_b FROM partida
+        SELECT id_partida, turma_id_time_a, turma_id_time_b, usuario_id_time_a, usuario_id_time_b FROM partida
         WHERE edicao_modalidade_id = :emid AND fase_partida = 'terceiro_lugar'
         ORDER BY id_partida ASC LIMIT 1
     ");
@@ -414,42 +448,31 @@ function rm_gerarOuAtualizarTerceiro(PDO $conn, int $emId, int $perdedorTurma): 
     $row = $stmtEx->fetch(PDO::FETCH_ASSOC);
 
     if ($row) {
-        // Já tem os dois times definidos (não é sentinela e não é o mesmo perdedor)?
         $taA = (int) $row['turma_id_time_a'];
         $taB = (int) $row['turma_id_time_b'];
+        $uaA = $row['usuario_id_time_a'] ? (int) $row['usuario_id_time_a'] : null;
+        $uaB = $row['usuario_id_time_b'] ? (int) $row['usuario_id_time_b'] : null;
 
-        if ($taA === $perdedorTurma || $taB === $perdedorTurma) {
-            // Este perdedor já está registrado — nada a fazer (idempotência do replay)
+        if (($taA === $perdedorTurma && $uaA === $perdedorUsuario) || ($taB === $perdedorTurma && $uaB === $perdedorUsuario)) {
             return;
         }
 
-        // Sentinela (time_a = time_b) → preenche time_b com 2º perdedor
-        if ($taA === $taB) {
-            $conn->prepare("UPDATE partida SET turma_id_time_b = :t WHERE id_partida = :pid")
-                 ->execute([':t' => $perdedorTurma, ':pid' => (int)$row['id_partida']]);
+        if ($taA === $taB && $uaA === $uaB) {
+            $conn->prepare("UPDATE partida SET turma_id_time_b = :t, usuario_id_time_b = :u WHERE id_partida = :pid")
+                 ->execute([':t' => $perdedorTurma, ':u' => $perdedorUsuario, ':pid' => (int)$row['id_partida']]);
         }
     } else {
-        // 1º perdedor: cria sentinela
         $conn->prepare("
             INSERT INTO partida
-                (edicao_modalidade_id, turma_id_time_a, turma_id_time_b,
+                (edicao_modalidade_id, turma_id_time_a, turma_id_time_b, usuario_id_time_a, usuario_id_time_b,
                  data_partida, hora_partida, fase_partida, status_partida)
-            VALUES (:emid, :ta, :ta, :data, '08:00:00', 'terceiro_lugar', 'agendada')
-        ")->execute([':emid' => $emId, ':ta' => $perdedorTurma, ':data' => $dataStr]);
+            VALUES (:emid, :ta, :ta, :ua, :ua, :data, '08:00:00', 'terceiro_lugar', 'agendada')
+        ")->execute([':emid' => $emId, ':ta' => $perdedorTurma, ':ua' => $perdedorUsuario, ':data' => $dataStr]);
     }
 }
 
-// ──────────────────────────────────────────────────────────
-//  RECONSTRUÇÃO DE PROGRESSÃO (REPLAY)
-//  Para dados históricos: percorre resultados já salvos em
-//  ordem de fase e simula avançarMataMata / gerarTerceiro,
-//  preenchendo sentinelas e criando fases seguintes.
-//  Idempotente — pode ser chamado a cada load da página.
-// ──────────────────────────────────────────────────────────
 function rm_reconstruirProgressaoMataMata(PDO $conn, int $emId): void
 {
-    // 1. Corrige o label da fase inicial do mata-mata (BUG 2),
-    //    baseado na quantidade real de confrontos resolvidos.
     foreach (['oitavas', 'quartas', 'semi'] as $faseLabel) {
         $stmtCount = $conn->prepare("
             SELECT COUNT(*) FROM partida
@@ -464,8 +487,6 @@ function rm_reconstruirProgressaoMataMata(PDO $conn, int $emId): void
         $correta = rm_faseInicialPorConfrontos($qtd);
 
         if ($correta !== $faseLabel) {
-            // Só renomeia se a fase "correta" ainda não existir
-            // (evita colidir IDs de duas fases diferentes)
             $stmtExisteCorreta = $conn->prepare("
                 SELECT COUNT(*) FROM partida
                 WHERE edicao_modalidade_id = :emid AND fase_partida = :correta
@@ -482,15 +503,12 @@ function rm_reconstruirProgressaoMataMata(PDO $conn, int $emId): void
                 ]);
             }
         }
-
-        break; // só a primeira fase com jogos é a "inicial"
+        break; 
     }
 
-    // 2. Percorre cada fase eliminatória em ordem e replica a
-    //    progressão para partidas já resolvidas (realizada/wo).
     foreach (['oitavas', 'quartas', 'semi'] as $fase) {
         $stmt = $conn->prepare("
-            SELECT p.*, r.turma_id_vencedor
+            SELECT p.*, r.turma_id_vencedor, r.usuario_id_vencedor
             FROM partida p
             INNER JOIN resultado r ON r.partida_id_partida = p.id_partida
             WHERE p.edicao_modalidade_id = :emid
@@ -505,11 +523,16 @@ function rm_reconstruirProgressaoMataMata(PDO $conn, int $emId): void
 
         foreach ($partidas as $partida) {
             $vencedor = (int) $partida['turma_id_vencedor'];
+            $vencedorU = !empty($partida['usuario_id_vencedor']) ? (int) $partida['usuario_id_vencedor'] : null;
             $taA      = (int) $partida['turma_id_time_a'];
             $taB      = (int) $partida['turma_id_time_b'];
+            $uaA      = !empty($partida['usuario_id_time_a']) ? (int) $partida['usuario_id_time_a'] : null;
+            $uaB      = !empty($partida['usuario_id_time_b']) ? (int) $partida['usuario_id_time_b'] : null;
+            
             $perdedor = ($vencedor === $taA) ? $taB : $taA;
+            $perdedorU = ($vencedorU === $uaA) ? $uaB : $uaA;
 
-            rm_avancarMataMata($conn, $emId, $partida, $vencedor, $perdedor);
+            rm_avancarMataMata($conn, $emId, $partida, $vencedor, $perdedor, $vencedorU, $perdedorU);
         }
     }
 }

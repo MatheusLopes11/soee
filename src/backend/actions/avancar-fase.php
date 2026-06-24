@@ -1,4 +1,6 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
+AuthHome::exigirTipo(['professor', 'adm_geral', 'adm_sala']);
 /**
  * Verifica se a fase de grupos acabou e gera o chaveamento mata-mata automaticamente.
  * * @param PDO $conn Conexão com o banco de dados
