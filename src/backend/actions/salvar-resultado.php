@@ -6,6 +6,8 @@
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/includes/conexao.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/helpers/resultado-motor.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
+AuthHome::exigirTipo(['professor', 'adm_geral', 'adm_sala']);
 
 // Suporte a W.O. manual via turma_id_vencedor
 $wo = !empty($_POST['turma_id_vencedor']);

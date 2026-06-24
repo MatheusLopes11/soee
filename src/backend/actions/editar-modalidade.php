@@ -1,4 +1,6 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
+AuthHome::exigirTipo(['professor', 'adm_geral', 'adm_sala']);
 header('Content-Type: application/json');
 
 // Credenciais do pooler do seu Supabase obtidas do arquivo de configuração do projeto

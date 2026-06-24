@@ -1,5 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/soee/src/backend/includes/conexao.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
+AuthHome::exigirTipo(['professor', 'adm_geral', 'adm_sala']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 

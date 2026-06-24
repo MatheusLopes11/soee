@@ -2,6 +2,8 @@
 session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/../includes/conexao.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/soee/src/backend/controllers/home.php';
+AuthHome::exigirTipo(['professor', 'adm_geral', 'adm_sala']);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Método inválido.']);
